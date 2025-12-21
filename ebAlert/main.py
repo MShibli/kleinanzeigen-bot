@@ -13,6 +13,21 @@ from ebAlert.telegram.telegramclass import telegram
 #from ebAlert.ebay_market import get_cached_market_price
 from ebAlert.gpt_evaluator import evaluate_listing
 
+EXCLUDED_KEYWORDS = [
+    "ddr3",
+    "core 2 duo",
+    "so-dimm",
+    "sodimm",
+    "laptop",
+    "notebook",
+    "pentium",
+    "defekt",
+    "athlon",
+    "defekt",
+    "für bastler",
+    "schrott"
+]
+
 log = create_logger(__name__)
 
 try:
@@ -102,7 +117,10 @@ def get_all_post(db: Session, telegram_message=False):
                     
                     if not price:
                         continue
-                        
+
+                    if contains_excluded_keywords(title, description):
+                        continue  # ❌ komplett ignorieren
+                    
                     url = item.link
 
                     # 🔍 Produkt-Suchbegriff (erstmal simpel)
@@ -132,6 +150,15 @@ def get_all_post(db: Session, telegram_message=False):
 
                     if not result:
                         continue
+
+                    expected_margin = float(result.get("expected_margin", 0))
+                    negotiability = result.get("negotiability", "niedrig")
+                    negotiated_price = estimate_negotiated_price(price, negotiability)
+                    current_margin_pct = margin_percent(price, market_price)
+                    negotiated_margin_pct = margin_percent(negotiated_price, market_price)
+                    
+                    if max(current_margin_pct, negotiated_margin_pct) < 0.30:
+                        continue  # ❌ keine 30 % erreichbar
 
                     score = result.get("score", 0)
 
@@ -179,3 +206,17 @@ def parse_price(raw_price) -> float | None:
         return float(number)
     except:
         return None
+
+def estimate_negotiated_price(price, negotiability):
+    if negotiability == "hoch":
+        return price * 0.85
+    if negotiability == "mittel":
+        return price * 0.92
+    return price
+
+def margin_percent(buy_price, sell_price):
+    return (sell_price - buy_price) / buy_price
+
+def contains_excluded_keywords(title, description=""):
+    text = f"{title} {description}".lower()
+    return any(word in text for word in EXCLUDED_KEYWORDS)
