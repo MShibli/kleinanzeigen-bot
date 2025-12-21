@@ -54,13 +54,13 @@ Antwort ausschließlich als JSON:
         content = response.choices[0].message.content
         print("GPT RAW RESPONSE:", content)
         parsed = extract_json(content)
-if not parsed:
-    return {
+        if not parsed:
+         return {
         "condition": "unbekannt",
         "negotiability": "niedrig",
         "expected_margin": 0,
         "score": 0
-    }
+               }
 
 return parsed
     except Exception as e:
