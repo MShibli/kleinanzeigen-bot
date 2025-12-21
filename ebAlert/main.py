@@ -120,9 +120,15 @@ def get_all_post(db: Session, telegram_message=False):
                     result = evaluate_listing(
                         title=title,
                         description=description,
-                        price=price,
-                        market_price=market_price
+                        price=price
                     )
+
+                    #result = evaluate_listing(
+                     #   title=title,
+                      #  description=description,
+                       # price=price,
+                        #market_price=market_price
+                    #)
 
                     if not result:
                         continue
@@ -134,7 +140,7 @@ def get_all_post(db: Session, telegram_message=False):
                             f"🔥 GPT DEAL {score}/100\n"
                             f"{title}\n"
                             f"💰 Preis: {price} €\n"
-                            f"📊 Markt: {market_price} €\n"
+                            #f"📊 Markt: {market_price} €\n"
                             f"📈 Marge: {result.get('expected_margin')} €\n"
                             f"🤝 Verhandelbar: {result.get('negotiability')}\n"
                             f"🔗 {url}"
