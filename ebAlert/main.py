@@ -114,6 +114,7 @@ def get_all_post(db: Session, telegram_message=False):
                     title = item.title
                     description = item.description or ""
                     price = parse_price(item.price)
+                    posted_date = format_date(item.date)
                     
                     if not price:
                         continue
@@ -166,6 +167,7 @@ def get_all_post(db: Session, telegram_message=False):
                         telegram.send_message(
                             f"🔥 GPT DEAL {score}/100\n"
                             f"{title}\n"
+                            f"📅 Inseriert: {posted_date}\n"
                             f"💰 Preis: {price} €\n"
                             #f"📊 Markt: {market_price} €\n"
                             f"📈 Marge: {result.get('expected_margin')} €\n"
@@ -220,3 +222,8 @@ def margin_percent(buy_price, sell_price):
 def contains_excluded_keywords(title, description=""):
     text = f"{title} {description}".lower()
     return any(word in text for word in EXCLUDED_KEYWORDS)
+
+def format_date(value):
+    if not value:
+        return "unbekannt"
+    return value.strftime("%d.%m.%Y %H:%M")
