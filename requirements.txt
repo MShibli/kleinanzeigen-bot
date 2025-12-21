@@ -6,3 +6,4 @@ sqlalchemy
 click
 bs4
 urllib3
+openai
