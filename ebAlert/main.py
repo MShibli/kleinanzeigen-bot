@@ -108,77 +108,72 @@ def get_all_post(db: Session, telegram_message=False):
         post_factory = ebayclass.EbayItemFactory(link_model.link)
         items = crud_post.add_items_to_db(db=db, items=post_factory.item_list)
 
-        if telegram_message:
+        if telegram_message and items:
+            batch_to_evaluate = []
+            item_map = {}  # Um später schnell auf das Item-Objekt per ID zuzugreifen
+
+            # 1. Sammeln und Vorfiltern
             for item in items:
                 try:
+                    price = parse_price(item.price)
                     title = item.title
                     description = item.description or ""
-                    price = parse_price(item.price)
-                    posted_date = format_date(item.date)
                     
-                    if not price:
+                    if not price or contains_excluded_keywords(title, description):
                         continue
 
-                    if contains_excluded_keywords(title, description):
-                        continue  # ❌ komplett ignorieren
-                    
-                    url = item.link
+                    # Anzeige für Batch vorbereiten
+                    listing_id = str(item.id)
+                    batch_to_evaluate.append({
+                        "id": listing_id,
+                        "title": title,
+                        "description": description[:500],  # Kürzen um Token zu sparen
+                        "price": price
+                    })
+                    item_map[listing_id] = {
+                        "item": item,
+                        "price": price
+                    }
+                except Exception as e:
+                    log.error(f"Error preparing item: {e}")
 
-                    # 🔍 Produkt-Suchbegriff (erstmal simpel)
-                    product_query = title.lower()
+            # 2. Batch-Anfrage an GPT (z.B. in 15er Blöcken, falls die Liste sehr lang ist)
+            chunk_size = 15 
+            for i in range(0, len(batch_to_evaluate), chunk_size):
+                chunk = batch_to_evaluate[i:i + chunk_size]
+                results = evaluate_listings_batch(chunk)
 
-                   # market_price = get_cached_market_price(product_query)
-                    #if not market_price:
-                     #   continue
-
-                    # 💸 Vorfilter → GPT nur bei Sinn
-                    #if not cheap_precheck(price, market_price):
-                        #continue
-
-                    # 🤖 GPT Bewertung
-                    result = evaluate_listing(
-                        title=title,
-                        description=description,
-                        price=price
-                    )
-
-                    #result = evaluate_listing(
-                     #   title=title,
-                      #  description=description,
-                       # price=price,
-                        #market_price=market_price
-                    #)
-
-                    if not result:
+                # 3. Ergebnisse verarbeiten
+                for res in results:
+                    res_id = str(res.get("id"))
+                    if res_id not in item_map:
                         continue
-
-                    market_price = price + result.get('expected_margin')
                     
-                    expected_margin = float(result.get("expected_margin", 0))
-                    negotiability = result.get("negotiability", "niedrig")
+                    original_data = item_map[res_id]
+                    item = original_data["item"]
+                    price = original_data["price"]
+                    
+                    score = res.get("score", 0)
+                    expected_margin = float(res.get("expected_margin", 0))
+                    negotiability = res.get("negotiability", "niedrig")
+                    
+                    # Logik für Marge und Filter
+                    market_price = price + expected_margin
                     negotiated_price = estimate_negotiated_price(price, negotiability)
                     current_margin_pct = margin_percent(price, market_price)
                     negotiated_margin_pct = margin_percent(negotiated_price, market_price)
-                    
-                    if max(current_margin_pct, negotiated_margin_pct) < 0.30:
-                        continue  # ❌ keine 30 % erreichbar
 
-                    score = result.get("score", 0)
-
-                    if score >= 75:
+                    if max(current_margin_pct, negotiated_margin_pct) >= 0.30 and score >= 75:
+                        posted_date = format_date(item.date)
                         telegram.send_message(
-                            f"🔥 GPT DEAL {score}/100\n"
-                            f"{title}\n"
+                            f"🔥 GPT BATCH DEAL {score}/100\n"
+                            f"{item.title}\n"
                             f"📅 Inseriert: {posted_date}\n"
                             f"💰 Preis: {price} €\n"
-                            #f"📊 Markt: {market_price} €\n"
-                            f"📈 Marge: {result.get('expected_margin')} €\n"
-                            f"🤝 Verhandelbar: {result.get('negotiability')}\n"
-                            f"🔗 {url}"
+                            f"📈 Marge: {expected_margin} €\n"
+                            f"🤝 Verhandelbar: {negotiability}\n"
+                            f"🔗 {item.link}"
                         )
-
-                except Exception as e:
-                    log.error(f"GPT evaluation failed: {e}")
 
         sleep(randint(0, 40) / 10)
 
