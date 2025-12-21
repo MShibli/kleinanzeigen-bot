@@ -83,15 +83,62 @@ def links(show, remove, clear, url, init):
 
 def get_all_post(db: Session, telegram_message=False):
     links = crud_link.get_all(db=db)
-    if links:
-        for link_model in links:
-            print("Processing link - id: {} - link: {} ".format(link_model.id, link_model.link))
-            post_factory = ebayclass.EbayItemFactory(link_model.link)
-            items = crud_post.add_items_to_db(db=db, items=post_factory.item_list)
-            if telegram_message:
-                for item in items:
-                    telegram.send_formated_message(item)
-            sleep(randint(0, 40)/10)
+    if not links:
+        return
+
+    for link_model in links:
+        print(f"Processing link - id: {link_model.id} - link: {link_model.link}")
+
+        post_factory = ebayclass.EbayItemFactory(link_model.link)
+        items = crud_post.add_items_to_db(db=db, items=post_factory.item_list)
+
+        if telegram_message:
+            for item in items:
+                try:
+                    title = item.title
+                    description = item.description or ""
+                    price = float(item.price)
+                    url = item.link
+
+                    # 🔍 Produkt-Suchbegriff (erstmal simpel)
+                    product_query = title.lower()
+
+                   # market_price = get_cached_market_price(product_query)
+                    #if not market_price:
+                     #   continue
+
+                    # 💸 Vorfilter → GPT nur bei Sinn
+                    #if not cheap_precheck(price, market_price):
+                        #continue
+
+                    # 🤖 GPT Bewertung
+                    result = evaluate_listing(
+                        title=title,
+                        description=description,
+                        price=price,
+                        market_price=market_price
+                    )
+
+                    if not result:
+                        continue
+
+                    score = result.get("score", 0)
+
+                    if score >= 75:
+                        telegram.send_message(
+                            f"🔥 GPT DEAL {score}/100\n"
+                            f"{title}\n"
+                            f"💰 Preis: {price} €\n"
+                            f"📊 Markt: {market_price} €\n"
+                            f"📈 Marge: {result.get('expected_margin')} €\n"
+                            f"🤝 Verhandelbar: {result.get('negotiability')}\n"
+                            f"🔗 {url}"
+                        )
+
+                except Exception as e:
+                    log.error(f"GPT evaluation failed: {e}")
+
+        sleep(randint(0, 40) / 10)
 
 
 if __name__ == "__main__":
