@@ -113,7 +113,7 @@ def get_all_post(db: Session, telegram_message=False):
                 try:
                     title = item.title
                     description = item.description or ""
-                    #price = parse_price(item.price)
+                    price = parse_price(item.price)
                     posted_date = format_date(item.date)
                     
                     if not price:
@@ -128,6 +128,7 @@ def get_all_post(db: Session, telegram_message=False):
                     product_query = title.lower()
 
                    # market_price = get_cached_market_price(product_query)
+                    market_price = price + result.get('expected_margin')
                     #if not market_price:
                      #   continue
 
