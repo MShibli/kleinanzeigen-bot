@@ -9,83 +9,68 @@ client = OpenAI(api_key=settings.OPEN_API_KEY)
 MODEL = "gpt-4o-mini"
 
 SYSTEM_PROMPT = """
-Du bist ein professioneller Reseller.
-Antworte AUSSCHLIESSLICH mit gültigem JSON.
-KEIN Text, KEINE Erklärungen, KEIN Markdown.
-Wenn eine Bewertung nicht möglich ist, gib folgendes JSON zurück:
+Du bist ein professioneller Reseller. Dir wird eine Liste von Verkaufsanzeigen im JSON-Format übergeben.
+Bewerte jede Anzeige einzeln.
 
+Antworte AUSSCHLIESSLICH mit einem validen JSON-Array von Objekten.
+Jedes Objekt MUSS die 'id' der Anzeige enthalten, um sie zuzuordnen.
+
+Format pro Objekt:
 {
-  "condition": "unbekannt",
-  "negotiability": "niedrig",
-  "expected_margin": 0,
-  "score": 0
+  "id": "string",
+  "condition": "neu" | "sehr gut" | "gebraucht" | "defekt",
+  "negotiability": "hoch" | "mittel" | "niedrig",
+  "expected_margin": zahl,
+  "score": 0-100
 }
+
+KEIN Text, KEIN Markdown, nur das Array.
 """
 
+def evaluate_listings_batch(listings: list):
+    """
+    listings: Liste von dicts mit {id, title, description, price}
+    """
+    if not listings:
+        return []
 
-def evaluate_listing(title: str, description: str, price: float):
-    user_prompt = f"""
-Titel: {title}
-Beschreibung: {description}
-Angebotspreis: {price} EUR
-
-Bewerte die Anzeige.
-
-Gib zurück:
-- condition: neu | sehr gut | gebraucht | defekt
-- negotiability: hoch | mittel | niedrig
-- expected_margin: erwarteter Gewinn in EUR
-- score: 0-100 (Gewinn + Risiko kombiniert)
-
-Antwort ausschließlich als JSON:
-"""
+    user_prompt = json.dumps(listings, ensure_ascii=False)
 
     try:
         response = client.chat.completions.create(
             model=MODEL,
             temperature=0.1,
-            max_tokens=300,
+            response_format={"type": "json_object"},  # Erzwingt JSON-Mode
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": user_prompt}
+                {"role": "user", "content": f"Bewerte diese Anzeigen: {user_prompt}"}
             ]
         )
 
         content = response.choices[0].message.content
-        print("GPT RAW RESPONSE:", content)
-
-        parsed = extract_json(content)
-        if not parsed:
-            return {
-                "condition": "unbekannt",
-                "negotiability": "niedrig",
-                "expected_margin": 0,
-                "score": 0
-            }
-
-        return parsed
+        # Wir erwarten ein Objekt mit einem Key "evaluations" oder direkt ein Array. 
+        # Da wir JSON-Mode nutzen, packen wir es sicherheitshalber in ein Root-Objekt im Prompt.
+        parsed = json.loads(content)
+        
+        # Falls GPT das Array in einen Key packt (passiert oft bei json_object mode)
+        if isinstance(parsed, dict):
+            for key in parsed:
+                if isinstance(parsed[key], list):
+                    return parsed[key]
+        
+        return parsed if isinstance(parsed, list) else []
 
     except Exception as e:
-        print("GPT parsing error:", e)
-        return {
-            "condition": "unbekannt",
-            "negotiability": "niedrig",
-            "expected_margin": 0,
-            "score": 0
-        }
-
+        print("GPT Batch Error:", e)
+        return []
 
 def extract_json(text: str):
+    # Hilfsfunktion bleibt für Notfälle, wird aber durch response_format seltener gebraucht
     try:
         return json.loads(text)
     except:
-        pass
-
-    match = re.search(r"\{.*\}", text, re.DOTALL)
-    if match:
-        try:
-            return json.loads(match.group())
-        except:
-            return None
-
+        match = re.search(r"\[.*\]", text, re.DOTALL)
+        if match:
+            try: return json.loads(match.group())
+            except: return None
     return None
