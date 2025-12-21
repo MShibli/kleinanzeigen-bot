@@ -4,3 +4,4 @@ python-telegram-bot
 lxml
 sqlalchemy
 click
+bs4
