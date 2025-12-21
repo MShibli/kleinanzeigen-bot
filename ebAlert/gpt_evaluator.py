@@ -2,7 +2,7 @@ import os
 import json
 from openai import OpenAI
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=os.getenv("OPEN_API_KEY"))
 
 MODEL = "gpt-4o-mini"  # oder "gpt-3.5-turbo"
 
