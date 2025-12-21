@@ -12,12 +12,13 @@ Bewerte Kleinanzeigen ausschließlich objektiv und realistisch.
 Antworte IMMER im gültigen JSON-Format.
 """
 
-def evaluate_listing(title: str, description: str, price: float, market_price: float):
+#def evaluate_listing(title: str, description: str, price: float, market_price: float):
+def evaluate_listing(title: str, description: str, price: float):
+#Marktpreis (real verkauft): {market_price} EUR
     user_prompt = f"""
 Titel: {title}
 Beschreibung: {description}
 Angebotspreis: {price} EUR
-Marktpreis (real verkauft): {market_price} EUR
 
 Bewerte die Anzeige.
 
