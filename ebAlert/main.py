@@ -1,4 +1,5 @@
 import sys
+import re
 from random import randint
 from time import sleep
 
@@ -97,7 +98,11 @@ def get_all_post(db: Session, telegram_message=False):
                 try:
                     title = item.title
                     description = item.description or ""
-                    price = float(item.price)
+                    price = parse_price(item.price)
+                    
+                    if not price:
+                        continue
+                        
                     url = item.link
 
                     # 🔍 Produkt-Suchbegriff (erstmal simpel)
@@ -143,3 +148,28 @@ def get_all_post(db: Session, telegram_message=False):
 
 if __name__ == "__main__":
     cli(sys.argv[1:])
+
+def parse_price(raw_price) -> float | None:
+    if not raw_price:
+        return None
+
+    text = str(raw_price).lower()
+
+    # Zu verschenken / VB ohne Zahl
+    if "verschenk" in text or text.strip() in ["vb", "verhandlungsbasis"]:
+        return None
+
+    # Zahl extrahieren
+    match = re.search(r"(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d+)?)", text)
+    if not match:
+        return None
+
+    number = match.group(1)
+
+    # Tausenderpunkte entfernen
+    number = number.replace(".", "").replace(",", ".")
+
+    try:
+        return float(number)
+    except:
+        return None
