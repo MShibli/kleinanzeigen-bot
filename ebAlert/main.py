@@ -113,7 +113,7 @@ def get_all_post(db: Session, telegram_message=False):
                 try:
                     title = item.title
                     description = item.description or ""
-                    price = parse_price(item.price)
+                    #price = parse_price(item.price)
                     posted_date = format_date(item.date)
                     
                     if not price:
