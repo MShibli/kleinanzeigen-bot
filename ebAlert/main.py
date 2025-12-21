@@ -128,7 +128,6 @@ def get_all_post(db: Session, telegram_message=False):
                     product_query = title.lower()
 
                    # market_price = get_cached_market_price(product_query)
-                    market_price = price + result.get('expected_margin')
                     #if not market_price:
                      #   continue
 
@@ -153,6 +152,8 @@ def get_all_post(db: Session, telegram_message=False):
                     if not result:
                         continue
 
+                    market_price = price + result.get('expected_margin')
+                    
                     expected_margin = float(result.get("expected_margin", 0))
                     negotiability = result.get("negotiability", "niedrig")
                     negotiated_price = estimate_negotiated_price(price, negotiability)
