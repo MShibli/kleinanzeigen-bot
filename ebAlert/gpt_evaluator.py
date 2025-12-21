@@ -2,8 +2,9 @@ import os
 import re
 import json
 from openai import OpenAI
+from ebAlert.core.config import settings
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=settings.OPEN_API_KEY))
 
 MODEL = "gpt-4o-mini"
 
