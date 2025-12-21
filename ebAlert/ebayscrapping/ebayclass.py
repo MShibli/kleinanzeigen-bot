@@ -7,6 +7,7 @@ from bs4.element import Tag
 
 from ebAlert import create_logger
 from ebAlert.core.config import settings
+from datetime import datetime, timedelta
 
 log = create_logger(__name__)
 
@@ -54,6 +55,37 @@ class EbayItem:
     def distance(self):
         return self._distance
 
+    @property
+    def date_raw(self) -> str:
+        return self._find_text_in_class("aditem-main--top--right") or ""
+
+    @property
+    def date(self):
+        raw = self.date_raw.lower().strip()
+        now = datetime.now()
+    
+        if not raw:
+            return None
+    
+        try:
+            if "heute" in raw:
+                time_part = raw.split(",")[1].strip()
+                hour, minute = map(int, time_part.split(":"))
+                return now.replace(hour=hour, minute=minute, second=0)
+    
+            if "gestern" in raw:
+                time_part = raw.split(",")[1].strip()
+                hour, minute = map(int, time_part.split(":"))
+                d = now - timedelta(days=1)
+                return d.replace(hour=hour, minute=minute, second=0)
+    
+            # Format: 15.09.2025
+            return datetime.strptime(raw, "%d.%m.%Y")
+    
+        except Exception:
+            return None
+
+    
     def __repr__(self):
         return '{}; {}; {}'.format(self.title, self.city, self.distance)
 
