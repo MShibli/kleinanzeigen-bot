@@ -10,7 +10,7 @@ from ebAlert.crud.base import crud_link, get_session
 from ebAlert.crud.post import crud_post
 from ebAlert.ebayscrapping import ebayclass
 from ebAlert.telegram.telegramclass import telegram
-#from ebAlert.ebay_market import get_cached_market_price
+from ebAlert.ebay_market import get_ebay_sold_price
 from ebAlert.gpt_evaluator import evaluate_listings_batch
 
 EXCLUDED_KEYWORDS = [
@@ -137,6 +137,7 @@ def get_all_post(db: Session, telegram_message=False):
             # 1. Sammeln und Vorfiltern
             for item in items:
                 try:
+                    print(f"Processing Item - title: {title} - price: {price}")
                     price = parse_price(item.price)
                     title = item.title
                     description = item.description or ""
@@ -144,23 +145,30 @@ def get_all_post(db: Session, telegram_message=False):
                     if not price or contains_excluded_keywords(title, description):
                         continue
 
-
                     if price < 30:
                         continue
 
+                    search_query = " ".join(title.split()[:5])
+                    market_price = get_ebay_sold_price(search_query)
+
+                    print(f"search_query: {search_query} - market_price: {market_price}")
+                    
+                    if not market_price:
+                        continue # Ohne Vergleichspreis kein sicheres Scoring möglich
+                    
                     # Anzeige für Batch vorbereiten
                     listing_id = str(item.id)
                     batch_to_evaluate.append({
                         "id": listing_id,
                         "title": title,
                         "description": description[:500],  # Kürzen um Token zu sparen
-                        "price": price
+                        "price": price,
+                        "market_price": market_price # Der KI den Vergleichswert geben
                     })
                     item_map[listing_id] = {
                         "item": item,
                         "price": price
-                    }
-                    print(f"Processing Item - id: {listing_id} - title: {title} - price: {price}")
+                    }                    
                 except Exception as e:
                     log.error(f"Error preparing item: {e}")
 
