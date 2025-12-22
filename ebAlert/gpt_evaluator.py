@@ -24,17 +24,19 @@ Format pro Objekt:
   "score": 0-100
 }
 
-Der Score soll ausschließlich den zu erwartenden NETTO-GEWINN widerspiegeln.
+Berechne intern:
+- realistischer eBay.de Verkaufspreis anhand historischer Daten bei eBay.de
+- eBay-Gebühren pauschal 6,5%
+- Versandkosten pauschal 6 €
 
-Ein hoher Score (80–100) bedeutet:
-- hoher Wiederverkaufswert auf eBay.de
-- schnelle Verkäuflichkeit (<30 Tage)
-- realistische Marge nach Gebühren
+expected_margin_eur =
+Verkaufspreis - Einkaufspreis - Gebühren - Versand
 
-Ein niedriger Score (0–30) bedeutet:
-- kaum oder kein Gewinn
-- sehr langsamer Verkauf
-- hohes Risiko
+Der Score basiert PRIMÄR auf expected_margin_eur:
+- >50 € → Score 80–100
+- 20–50 € → Score 50–79
+- 5–20 € → Score 20–49
+- <5 € → Score 0–19
 
 KEIN Text, KEIN Markdown, nur das Array.
 """
