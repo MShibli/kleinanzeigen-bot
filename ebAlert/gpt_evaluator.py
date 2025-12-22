@@ -54,7 +54,8 @@ def generate_search_queries_batch(items: list):
             ]
         )
         return json.loads(response.choices[0].message.content).get('queries', [])
-    except:
+    except Exception as e:
+        print("GPT search_queries_batch Error:", e)
         return []
 
 def evaluate_listings_batch(listings: list):
