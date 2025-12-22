@@ -23,6 +23,7 @@ EXCLUDED_KEYWORDS = [
     "lightning",
     "ladestation",
     "a16",
+    "kein versand",
     "airpods",
     "huawei",
     "notebook",
