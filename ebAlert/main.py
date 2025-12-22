@@ -29,6 +29,9 @@ EXCLUDED_KEYWORDS = [
     "2400",
     "AM3",
     "2133",
+    "gesprungen",
+    "gesplittert",
+    "kaputt",
     "schrott"
 ]
 
