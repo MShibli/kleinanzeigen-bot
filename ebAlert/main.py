@@ -134,6 +134,7 @@ def get_all_post(db: Session, telegram_message=False):
                         "item": item,
                         "price": price
                     }
+                    print(f"Processing Item - id: {listing_id} - title: {title} - price: {price}")
                 except Exception as e:
                     log.error(f"Error preparing item: {e}")
 
@@ -163,7 +164,7 @@ def get_all_post(db: Session, telegram_message=False):
                     current_margin_pct = margin_percent(price, market_price)
                     negotiated_margin_pct = margin_percent(negotiated_price, market_price)
 
-                    if max(current_margin_pct, negotiated_margin_pct) >= 0.30 and score >= 75:
+                    if max(current_margin_pct, negotiated_margin_pct) >= 0.40 and score >= 75:
                         posted_date = format_date(item.date)
                         telegram.send_message(
                             f"🔥 GPT BATCH DEAL {score}/100\n"
