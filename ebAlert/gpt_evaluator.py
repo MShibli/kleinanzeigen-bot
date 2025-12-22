@@ -6,7 +6,7 @@ from ebAlert.core.config import settings
 
 client = OpenAI(api_key=settings.OPEN_API_KEY)
 
-MODEL = "gpt-4o-mini"
+MODEL = "gpt-5-mini"
 
 SYSTEM_PROMPT = """
 Du bist ein professioneller Reseller. Dir wird eine Liste von Verkaufsanzeigen im JSON-Format übergeben.
