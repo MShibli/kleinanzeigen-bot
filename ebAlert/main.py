@@ -19,6 +19,12 @@ EXCLUDED_KEYWORDS = [
     "so-dimm",
     "sodimm",
     "laptop",
+    "buds",
+    "lightning",
+    "ladestation",
+    "a16",
+    "airpods",
+    "huawei",
     "notebook",
     "pentium",
     "defekt",
@@ -163,6 +169,10 @@ def get_all_post(db: Session, telegram_message=False):
                     
                     score = res.get("score", 0)
                     expected_margin = float(res.get("expected_margin", 0))
+
+                    if "DDR5" in item.title:
+                        expected_margin = expected_margin * 2
+                        
                     negotiability = res.get("negotiability", "niedrig")
                     
                     # Logik für Marge und Filter
