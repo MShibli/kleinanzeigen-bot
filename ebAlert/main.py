@@ -137,8 +137,8 @@ def get_all_post(db: Session, telegram_message=False):
 
             for item in items:             
                 p = parse_price(item.price)
-                print(f"Processing Item - title: {item.title} - price: {p}")
                 if p and not contains_excluded_keywords(item.title):
+                    print(f"Processing Item - title: {item.title} - price: {p}")
                     potential_items.append({"id": item.id, "title": item.title, "item": item, "price": p})
 
             if not potential_items: return
