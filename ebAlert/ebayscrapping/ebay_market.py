@@ -9,6 +9,7 @@ def get_ebay_median_price(query: str):
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0.4472.124 Safari/537.36"}
     
     try:
+        print(f"Searching selling price for item: {query}")
         res = requests.get(url, headers=headers, timeout=5)
         soup = BeautifulSoup(res.text, 'html.parser')
         prices = []
@@ -22,6 +23,7 @@ def get_ebay_median_price(query: str):
 
         if len(prices) < 3: return None # Zu wenig Daten für Statistik
         
+        print(f"Average selling price for item: {query} is : {round(statistics.median(prices), 2)}")
         # Median ist robuster gegen Ausreißer (z.B. defekte Geräte)
         return round(statistics.median(prices), 2)
     except:
