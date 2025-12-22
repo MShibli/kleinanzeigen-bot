@@ -25,6 +25,10 @@ EXCLUDED_KEYWORDS = [
     "athlon",
     "defekt",
     "für bastler",
+    "tausch",
+    "2400",
+    "AM3",
+    "2133",
     "schrott"
 ]
 
