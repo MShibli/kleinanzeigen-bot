@@ -22,6 +22,8 @@ EXCLUDED_KEYWORDS = [
     "buds",
     "lightning",
     "ladestation",
+    "fernbedienung",
+    "watch",
     "a16",
     "kein versand",
     "nur abholung",
