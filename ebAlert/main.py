@@ -11,7 +11,7 @@ from ebAlert.crud.post import crud_post
 from ebAlert.ebayscrapping import ebayclass
 from ebAlert.telegram.telegramclass import telegram
 from ebAlert.gpt_evaluator import generate_search_queries_batch, evaluate_listings_batch
-from ebAlert.ebay_market import get_ebay_median_price
+from ebAlert.ebayscrapping.ebay_market import get_ebay_median_price
 
 EXCLUDED_KEYWORDS = [
     "ddr3",
