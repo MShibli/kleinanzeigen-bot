@@ -9,8 +9,14 @@ client = OpenAI(api_key=settings.OPEN_API_KEY)
 MODEL = "gpt-4o-mini"
 
 SYSTEM_PROMPT = """
-Du bist ein professioneller Reseller. Dir wird eine Liste von Verkaufsanzeigen im JSON-Format übergeben.
-Bewerte jede Anzeige einzeln.
+Du bist ein professioneller Reseller. Dir wird eine Liste von Anzeigen sowie deren aktueller eBay-Marktpreis (Median verkaufter Artikel) übergeben.
+Bewerte das Gewinnpotenzial.
+
+Kalkulationslogik:
+- Marge = Marktpreis - Angebotspreis.
+- Score-Abzug bei: Schlechtem Zustand, fehlendem Zubehör, hohem Risiko.
+- Ein hoher Score (>80) entsteht nur, wenn die Marge >25% ist UND der Zustand 'gut/sehr gut' ist.
+- Es muss auch das Verhandlungspotential mit berücksichtigt werden.
 
 Antworte AUSSCHLIESSLICH mit einem validen JSON-Array von Objekten.
 Jedes Objekt MUSS die 'id' der Anzeige enthalten, um sie zuzuordnen.
@@ -23,11 +29,6 @@ Format pro Objekt:
   "expected_margin_eur": number,
   "score": 0-100
 }
-
-Berechne intern:
-- realistischer eBay.de Verkaufspreis anhand historischer Daten bei eBay.de
-- eBay-Gebühren pauschal 6,5%
-- Versandkosten pauschal 6 €
 
 Der Score basiert PRIMÄR auf expected_margin_eur:
 - >100 € → Score 80–100
