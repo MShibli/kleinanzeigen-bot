@@ -27,6 +27,7 @@ EXCLUDED_KEYWORDS = [
     "universal",
     "fernbedienung",
     "watch",
+    "nur paypal",
     "a16",
     "kein versand",
     "nur abholung",
