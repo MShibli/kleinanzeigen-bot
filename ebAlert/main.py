@@ -22,6 +22,7 @@ EXCLUDED_KEYWORDS = [
     "buds",
     "lightning",
     "ladestation",
+    "magsafe",
     "lenkrad",
     "universal",
     "fernbedienung",
@@ -139,6 +140,10 @@ def get_all_post(db: Session, telegram_message=False):
                     description = item.description or ""
                     
                     if not price or contains_excluded_keywords(title, description):
+                        continue
+
+
+                    if price < 30:
                         continue
 
                     # Anzeige für Batch vorbereiten
