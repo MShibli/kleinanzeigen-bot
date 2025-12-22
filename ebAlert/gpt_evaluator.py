@@ -20,9 +20,21 @@ Format pro Objekt:
   "id": "string",
   "condition": "neu" | "sehr gut" | "gebraucht" | "defekt",
   "negotiability": "hoch" | "mittel" | "niedrig",
-  "expected_margin": zahl,
+  "expected_margin_eur": number,
   "score": 0-100
 }
+
+Der Score soll ausschließlich den zu erwartenden NETTO-GEWINN widerspiegeln.
+
+Ein hoher Score (80–100) bedeutet:
+- hoher Wiederverkaufswert auf eBay.de
+- schnelle Verkäuflichkeit (<30 Tage)
+- realistische Marge nach Gebühren
+
+Ein niedriger Score (0–30) bedeutet:
+- kaum oder kein Gewinn
+- sehr langsamer Verkauf
+- hohes Risiko
 
 KEIN Text, KEIN Markdown, nur das Array.
 """
