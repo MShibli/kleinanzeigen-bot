@@ -6,7 +6,8 @@ from ebAlert.core.config import settings
 
 client = OpenAI(api_key=settings.OPEN_API_KEY)
 
-MODEL = "gpt-4o-mini"
+MODEL = "gpt-5-mini"
+MODEL_SEARCH_QUERY = "gpt-5-nano"
 
 SYSTEM_PROMPT = """
 Du bist ein professioneller Reseller. Dir wird eine Liste von Anzeigen sowie deren aktueller eBay-Marktpreis (Median verkaufter Artikel) übergeben.
@@ -46,7 +47,7 @@ def generate_search_queries_batch(items: list):
     
     try:
         response = client.chat.completions.create(
-            model=MODEL,
+            model=MODEL_SEARCH_QUERY,
             response_format={"type": "json_object"},
             messages=[
                 {"role": "system", "content": "Du bist ein Daten-Parser. Extrahiere nur Markennamen und Modell."},
