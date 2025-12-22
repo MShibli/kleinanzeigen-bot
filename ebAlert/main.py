@@ -22,6 +22,8 @@ EXCLUDED_KEYWORDS = [
     "buds",
     "lightning",
     "ladestation",
+    "lenkrad",
+    "universal",
     "fernbedienung",
     "watch",
     "a16",
