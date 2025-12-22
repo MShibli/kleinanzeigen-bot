@@ -10,8 +10,8 @@ from ebAlert.crud.base import crud_link, get_session
 from ebAlert.crud.post import crud_post
 from ebAlert.ebayscrapping import ebayclass
 from ebAlert.telegram.telegramclass import telegram
-from ebAlert.ebay_market import get_ebay_sold_price
-from ebAlert.gpt_evaluator import evaluate_listings_batch
+from ebAlert.gpt_evaluator import generate_search_queries_batch, evaluate_listings_batch
+from ebAlert.ebay_market import get_ebay_median_price
 
 EXCLUDED_KEYWORDS = [
     "ddr3",
@@ -131,90 +131,55 @@ def get_all_post(db: Session, telegram_message=False):
         items = crud_post.add_items_to_db(db=db, items=post_factory.item_list)
 
         if telegram_message and items:
-            batch_to_evaluate = []
+            potential_items = []
+            batch_for_gpt = []
             item_map = {}  # Um später schnell auf das Item-Objekt per ID zuzugreifen
 
-            # 1. Sammeln und Vorfiltern
-            for item in items:
-                try:
-                    print(f"Processing Item - title: {title} - price: {price}")
-                    price = parse_price(item.price)
-                    title = item.title
-                    description = item.description or ""
-                    
-                    if not price or contains_excluded_keywords(title, description):
-                        continue
+            for item in items:             
+                p = parse_price(item.price)
+                print(f"Processing Item - title: {item.title} - price: {p}")
+                if p and not contains_excluded_keywords(item.title):
+                    potential_items.append({"id": item.id, "title": item.title, "item": item, "price": p})
 
-                    if price < 30:
-                        continue
+            if not potential_items: return
+            
+            # 2. KI: Saubere Suchbegriffe generieren (Batch)
+            clean_queries = generate_search_queries_batch(potential_items)
 
-                    search_query = " ".join(title.split()[:5])
-                    market_price = get_ebay_sold_price(search_query)
-
-                    print(f"search_query: {search_query} - market_price: {market_price}")
+            for q_data in clean_queries:
+                item_id = q_data['id']
+                # Finde das originale Item-Objekt
+                orig = next((x for x in potential_items if str(x['id']) == item_id), None)
+                if not orig: continue
                     
-                    if not market_price:
-                        continue # Ohne Vergleichspreis kein sicheres Scoring möglich
-                    
-                    # Anzeige für Batch vorbereiten
-                    listing_id = str(item.id)
-                    batch_to_evaluate.append({
-                        "id": listing_id,
-                        "title": title,
-                        "description": description[:500],  # Kürzen um Token zu sparen
-                        "price": price,
-                        "market_price": market_price # Der KI den Vergleichswert geben
+                m_price = get_ebay_median_price(q_data['query'])
+                if m_price:
+                    batch_for_gpt.append({
+                        "id": item_id,
+                        "title": orig['title'],
+                        "price": orig['price'],
+                        "market_price": m_price,
+                        "description": (orig['item'].description or "")[:400]
                     })
-                    item_map[listing_id] = {
-                        "item": item,
-                        "price": price
-                    }                    
-                except Exception as e:
-                    log.error(f"Error preparing item: {e}")
+                    item_map[item_id] = {"obj": orig['item'], "m_price": m_price, "price": orig['price']}
 
-            # 2. Batch-Anfrage an GPT (z.B. in 15er Blöcken, falls die Liste sehr lang ist)
-            chunk_size = 15 
-            for i in range(0, len(batch_to_evaluate), chunk_size):
-                chunk = batch_to_evaluate[i:i + chunk_size]
-                results = evaluate_listings_batch(chunk)
+            # 4. KI: Finales Batch-Scoring
+            results = evaluate_listings_batch(batch_for_gpt)
 
-                # 3. Ergebnisse verarbeiten
-                for res in results:
-                    res_id = str(res.get("id"))
-                    if res_id not in item_map:
-                        continue
+            # 5. Telegram
+            for res in results:
+                rid = str(res.get('id'))    
+                if rid in item_map and res.get('score', 0) >= 80:
+                    info = item_map[rid]
+                    telegram.send_message(
+                        f"💎 TOP DEAL: {res.get('score')}/100\n"
+                        f"{info['obj'].title}\n"
+                        f"💰 Preis: {info['price']}€ | 📊 Markt: {info['m_price']}€\n"
+                        f"📈 Marge: {res.get('expected_margin')}€\n"
+                        f"🔗 {info['obj'].link}"
+                    )
                     
-                    original_data = item_map[res_id]
-                    item = original_data["item"]
-                    price = original_data["price"]
-                    
-                    score = res.get("score", 0)
-                    expected_margin = parse_price(res.get("expected_margin_eur", 0))
-
-                    if "DDR5" in item.title:
-                        expected_margin = expected_margin * 2
-                        
-                    negotiability = res.get("negotiability", "niedrig")
-                    
-                    # Logik für Marge und Filter
-                    market_price = price + expected_margin
-                    negotiated_price = estimate_negotiated_price(price, negotiability)
-                    current_margin_pct = margin_percent(price, market_price)
-                    negotiated_margin_pct = margin_percent(negotiated_price, market_price)
-
-                    if max(current_margin_pct, negotiated_margin_pct) >= 0.40 and score >= 75:
-                        posted_date = format_date(item.date)
-                        telegram.send_message(
-                            f"🔥 GPT BATCH DEAL {score}/100\n"
-                            f"{item.title}\n"
-                            f"📅 Inseriert: {posted_date}\n"
-                            f"💰 Preis: {price} €\n"
-                            f"📈 Marge: {expected_margin} €\n"
-                            f"🤝 Verhandelbar: {negotiability}\n"
-                            f"🔗 {item.link}"
-                        )
-
-        sleep(randint(0, 40) / 10)
+            sleep(randint(0, 40) / 10)
 
 
 if __name__ == "__main__":
