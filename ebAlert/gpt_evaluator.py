@@ -29,11 +29,8 @@ Berechne intern:
 - eBay-Gebühren pauschal 6,5%
 - Versandkosten pauschal 6 €
 
-expected_margin_eur =
-Verkaufspreis - Einkaufspreis - Gebühren - Versand
-
 Der Score basiert PRIMÄR auf expected_margin_eur:
-- >50 € → Score 80–100
+- >100 € → Score 80–100
 - 20–50 € → Score 50–79
 - 5–20 € → Score 20–49
 - <5 € → Score 0–19
