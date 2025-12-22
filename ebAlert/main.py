@@ -24,6 +24,7 @@ EXCLUDED_KEYWORDS = [
     "ladestation",
     "a16",
     "kein versand",
+    "nur abholung",
     "airpods",
     "huawei",
     "notebook",
