@@ -26,6 +26,7 @@ EXCLUDED_KEYWORDS = [
     "lenkrad",
     "universal",
     "fernbedienung",
+    "ich suche",
     "watch",
     "nur paypal",
     "a16",
