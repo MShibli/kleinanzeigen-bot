@@ -11,12 +11,13 @@ def get_ebay_median_price(query: str):
     try:
         print(f"Searching selling price for item: {query}")
         res = requests.get(url, headers=headers, timeout=5)
+        print(f"ebay reqeust statuscode: {res.status_code}")
         soup = BeautifulSoup(res.text, 'html.parser')
         prices = []
         
         for el in soup.find_all('span', class_='s-item__price'):
             p_text = el.get_text().replace('.', '').replace(',', '.')
-            match = re.search(r"(\d+\.\d+)", p_text)
+            match = re.search(r"(\d+(?:\.\d+)?)", p_text)
             if match:
                 val = float(match.group(1))
                 if val > 10: prices.append(val) # Kleinteile filtern
@@ -26,5 +27,6 @@ def get_ebay_median_price(query: str):
         print(f"Average selling price for item: {query} is : {round(statistics.median(prices), 2)}")
         # Median ist robuster gegen Ausreißer (z.B. defekte Geräte)
         return round(statistics.median(prices), 2)
-    except:
+    except Exception as e:
+        print("get_ebay_median_price Error:", e)
         return None
