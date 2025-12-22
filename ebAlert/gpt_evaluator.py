@@ -39,6 +39,24 @@ Der Score basiert PRIMÄR auf expected_margin_eur:
 KEIN Text, KEIN Markdown, nur das Array.
 """
 
+def generate_search_queries_batch(items: list):
+    """Wandelt Titel in präzise eBay-Suchbegriffe um."""
+    prompt = "Extrahiere für jede Anzeige den präzisesten Suchbegriff für eBay (Modellname, Kapazität, etc.). Keine Farben oder Zustandsbeschreibungen. Antworte als JSON-Objekt: {'queries': [{'id': '...', 'query': '...'}]}"
+    input_data = [{"id": str(i.get('id')), "title": i.get('title')} for i in items]
+    
+    try:
+        response = client.chat.completions.create(
+            model=MODEL,
+            response_format={"type": "json_object"},
+            messages=[
+                {"role": "system", "content": "Du bist ein Daten-Parser. Extrahiere nur Markennamen und Modell."},
+                {"role": "user", "content": f"{prompt}\nAnzeigen: {json.dumps(input_data)}"}
+            ]
+        )
+        return json.loads(response.choices[0].message.content).get('queries', [])
+    except:
+        return []
+
 def evaluate_listings_batch(listings: list):
     """
     listings: Liste von dicts mit {id, title, description, price}
