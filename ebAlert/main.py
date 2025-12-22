@@ -180,7 +180,7 @@ def get_all_post(db: Session, telegram_message=False):
                     price = original_data["price"]
                     
                     score = res.get("score", 0)
-                    expected_margin = float(res.get("expected_margin", 0))
+                    expected_margin = float(res.get("expected_margin_eur", 0))
 
                     if "DDR5" in item.title:
                         expected_margin = expected_margin * 2
