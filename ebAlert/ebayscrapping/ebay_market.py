@@ -24,24 +24,32 @@ def get_ebay_median_price(query: str):
             print(f"ebay reqeust statuscode: {res.status_code}")
             res.raise_for_status() # Fehler bei 403, 404 etc. werfen
             
-            soup = BeautifulSoup(res.text, 'html.parser')
-            prices = []
+            # Wir nutzen Regex direkt auf dem Text, um "EUR 123,45" zu finden
+            # Das Pattern sucht nach 'EUR', Leerzeichen, Ziffern, optional Tausenderpunkt, Komma, Ziffern
+            raw_prices = re.findall(r"EUR\s?(\d+(?:\.\d+)?,\d{2})", res.text)
+        
+            cleaned_prices = []
+            for p in raw_prices:
+                # Umwandlung von Deutsch (1.234,56) in Float (1234.56)
+                p_float = float(p.replace('.', '').replace(',', '.'))
             
-            # Alle Preis-Elemente finden
-            for el in soup.find_all('span', class_='s-item__price'):
-                p_text = el.get_text().replace('.', '').replace(',', '.')
-                # Extrahiert nur die Zahlen (auch bei Preisspannen)
-                match = re.search(r"(\d+\.\d+)", p_text)
-                if match:
-                    val = float(match.group(1))
-                    if val > 10: 
-                        prices.append(val)
+                # Ausreißer-Schutz: 
+                # 1. Sehr kleine Beträge sind meist Versand oder Zubehör
+                # 2. Wir ignorieren den "Startpreis" oder "UVP", falls diese doppelt auftauchen
+                if p_float > 15:
+                    cleaned_prices.append(p_float)
 
-            if len(prices) < 3:
+            # WICHTIG: eBay listet oft "Ähnliche Artikel" am Ende. 
+            # Wir nehmen daher nur die ersten ~20-30 Treffer, um den Median nicht zu verfälschen
+            valid_prices = cleaned_prices[:30]
+
+            if len(valid_prices) < 3:
+                print(f"DEBUG: Zu wenige Preise ({len(valid_prices)}) gefunden für '{query}'")
                 return None
 
-            print(f"Average selling price for item: {query} is : {round(statistics.median(prices), 2)}")
-            return round(statistics.median(prices), 2)
+            median_price = round(statistics.median(valid_prices), 2)
+            print(f"✅ Median für '{query}': {median_price}€ ({len(valid_prices)} Treffer)")
+            return median_price
 
         except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout):
             print(f"⚠️ Timeout bei '{query}' (Versuch {attempt+1}/{max_retries})...")
