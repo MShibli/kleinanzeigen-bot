@@ -53,6 +53,7 @@ def generate_search_queries_batch(items: list):
                 {"role": "user", "content": f"{prompt}\nAnzeigen: {json.dumps(input_data)}"}
             ]
         )
+        print("GPT search_queries_batch Result:", json.loads(response.choices[0].message.content).get('queries', []))
         return json.loads(response.choices[0].message.content).get('queries', [])
     except Exception as e:
         print("GPT search_queries_batch Error:", e)
