@@ -3,38 +3,26 @@ from bs4 import BeautifulSoup
 import re
 import statistics
 
-def get_ebay_sold_price(query: str):
-    """Sucht nach verkauften Artikeln auf eBay.de und gibt den Median-Preis zurück."""
-    # Bereinige den Suchbegriff (Sonderzeichen entfernen)
-    clean_query = re.sub(r'[^a-zA-Z0-9\s]', '', query)
-    url = f"https://www.ebay.de/sch/i.html?_nkw={clean_query.replace(' ', '+')}&LH_Sold=1&LH_Complete=1"
+def get_ebay_median_price(query: str):
+    """Scrapt verkaufte Artikel auf eBay.de und berechnet den Median."""
+    url = f"https://www.ebay.de/sch/i.html?_nkw={query.replace(' ', '+')}&LH_Sold=1&LH_Complete=1&_ipg=60"
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0.4472.124 Safari/537.36"}
     
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-    }
-
     try:
-        response = requests.get(url, headers=headers, timeout=10)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        
-        # Suche nach allen Preis-Elementen
-        price_elements = soup.find_all('span', class_='s-item__price')
+        res = requests.get(url, headers=headers, timeout=5)
+        soup = BeautifulSoup(res.text, 'html.parser')
         prices = []
         
-        for el in price_elements:
-            # Extrahiere Zahl aus Strings wie "EUR 150,00" oder "150,00 EUR"
-            text = el.get_text().replace('.', '').replace(',', '.')
-            match = re.search(r"(\d+\.\d+)", text)
+        for el in soup.find_all('span', class_='s-item__price'):
+            p_text = el.get_text().replace('.', '').replace(',', '.')
+            match = re.search(r"(\d+\.\d+)", p_text)
             if match:
-                price = float(match.group(1))
-                if price > 5: # Ignoriere Kleinteile/Versand
-                    prices.append(price)
+                val = float(match.group(1))
+                if val > 10: prices.append(val) # Kleinteile filtern
 
-        if not prices:
-            return None
-            
-        # Wir nutzen den Median, um Ausreißer (Ersatzteile/defekte Geräte) zu ignorieren
+        if len(prices) < 3: return None # Zu wenig Daten für Statistik
+        
+        # Median ist robuster gegen Ausreißer (z.B. defekte Geräte)
         return round(statistics.median(prices), 2)
-    except Exception as e:
-        print(f"Fehler beim eBay-Abruf für {query}: {e}")
+    except:
         return None
