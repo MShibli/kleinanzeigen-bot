@@ -78,6 +78,7 @@ def evaluate_listings_batch(listings: list):
         )
 
         content = response.choices[0].message.content
+        print("GPT evaluate_listings_batch Result:", content)
         # Wir erwarten ein Objekt mit einem Key "evaluations" oder direkt ein Array. 
         # Da wir JSON-Mode nutzen, packen wir es sicherheitshalber in ein Root-Objekt im Prompt.
         parsed = json.loads(content)
