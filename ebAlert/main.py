@@ -141,7 +141,8 @@ def get_all_post(db: Session, telegram_message=False):
             batch_for_gpt = []
             item_map = {}  # Um später schnell auf das Item-Objekt per ID zuzugreifen
 
-            for item in items:             
+            for item in items:    
+                item_date_str = item.date.strftime("%d.%m.%Y %H:%M") if hasattr(item.date, 'strftime') else str(item.date)
                 p = parse_price(item.price)
                 if p and not contains_excluded_keywords(item.title):
                     print(f"Processing Item - title: {item.title} - price: {p}")
@@ -158,7 +159,7 @@ def get_all_post(db: Session, telegram_message=False):
                         # So wird für diesen Artikel kein eBay-Preis gesucht und kein GPT genutzt.
                         continue
                     
-                    potential_items.append({"id": item.id, "title": item.title, "item": item, "price": p, "date": item.date})
+                    potential_items.append({"id": item.id, "title": item.title, "item": item, "price": p, "date": item_date_str})
 
             if not potential_items: return
             
