@@ -50,6 +50,8 @@ def get_ebay_median_price(query: str, offer_price: float):
             print(f"📦 Cache-Hit für '{query}': {entry['price']}€ (Alter: {int((current_time - entry['timestamp'])/3600)}h)")
             return entry['price']
 
+        print(f"💾 Ebay scrap-Cache vorhanden ist aber abgelaufen! Aktuelles Datum: {current_time}, Entrydatum: {entry['timestamp']}")
+
     # 2. Wenn nicht im Cache oder abgelaufen -> Scrapen
     url = f"https://www.ebay.de/sch/i.html?_nkw={query.replace(' ', '+')}&LH_Sold=1&LH_Complete=1&_ipg=60"
     headers = {
