@@ -31,6 +31,7 @@ def load_cache():
     return {}
 
 def save_cache(cache_data):
+    print(f"💾 Speichere ebay scrap-Cache ({len(cache_data)} Einträge) in: {CACHE_FILE}")
     with open(CACHE_FILE, "w", encoding="utf-8") as f:
         json.dump(cache_data, f, indent=4)
 
