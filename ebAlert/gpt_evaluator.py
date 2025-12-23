@@ -74,7 +74,7 @@ def evaluate_listings_batch(listings: list):
         )
 
         content = json.loads(response.choices[0].message.content)
-        return content if isinstance(content, list) else content.get('evaluations', [])
+        return content if isinstance(content, list) else content.get('result', [])
 
     except Exception as e:
         print("GPT Batch Error:", e)
