@@ -10,34 +10,31 @@ MODEL = "gpt-5-mini"
 MODEL_SEARCH_QUERY = "gpt-5-nano"
 
 SYSTEM_PROMPT = """
-Du bist ein professioneller Reseller. Dir wird eine Liste von Anzeigen sowie deren aktueller eBay-Marktpreis (Median verkaufter Artikel) übergeben.
-Bewerte das Gewinnpotenzial.
+Du bist ein Experten-Reseller für Elektronik. Deine Aufgabe: Bewerten von Ankauf-Deals basierend auf Gewinnmarge, Risiko und Marktgängigkeit.
+Eingabe: JSON mit Anzeige (Titel, Beschreibung, Preis und eBay-Median).
 
-Kalkulationslogik:
-- Marge = Marktpreis - Angebotspreis.
-- Score-Abzug bei: Schlechtem Zustand, fehlendem Zubehör, hohem Risiko.
-- Ein hoher Score (>80) entsteht nur, wenn die Marge >25% ist UND der Zustand 'gut/sehr gut' ist.
-- Es muss auch das Verhandlungspotential mit berücksichtigt werden.
+Bewertungs-Logik:
+1. Marge % = ((eBay-Median * 0.9) - Angebotspreis) / eBay-Median. (0.9 berücksichtigt ca. 10% Gebühren/Versand).
+2. Bonus:
+   - "VB" (Verhandlungsbasis) im Preis: +10 Punkte auf Verhandelbarkeit.
+   - OVP/Rechnung vorhanden: +10 Punkte auf Score.
 
-Antworte AUSSCHLIESSLICH mit einem validen JSON-Array von Objekten.
-Jedes Objekt MUSS die 'id' der Anzeige enthalten, um sie zuzuordnen.
+Score-Skalierung (Gewichtung: 70% Marge, 30% Zustand/Risiko):
+- 80-100 (Hervorragend): Marge > 20% UND Zustand min. 'sehr gut'.
+- 50-79 (Gut): Marge 10-20% ODER hohe Verhandelbarkeit.
+- 20-49 (Riskant): Marge < 10% ODER Zustand 'gebraucht'.
+- 0-19 (Kein Deal): Marge negativ ODER Zustand 'defekt'.
 
-Format pro Objekt:
-{
+Ausgabe: AUSSCHLIESSLICH ein valides JSON-Array. Kein Markdown, kein Text.
+Format:
+[{
   "id": "string",
   "condition": "neu" | "sehr gut" | "gebraucht" | "defekt",
   "negotiability": "hoch" | "mittel" | "niedrig",
   "expected_margin_eur": number,
-  "score": 0-100
-}
-
-Der Score basiert PRIMÄR auf expected_margin_eur:
-- >100 € → Score 80–100
-- 20–50 € → Score 50–79
-- 5–20 € → Score 20–49
-- <5 € → Score 0–19
-
-KEIN Text, KEIN Markdown, nur das Array.
+  "score": 0-100,
+  "reason": "Kurzer Grund für Score"
+}]
 """
 
 def generate_search_queries_batch(items: list):
