@@ -15,6 +15,7 @@ from ebAlert.ebayscrapping.ebay_market import get_ebay_median_price
 
 WHITELIST = ["bundle", "aufrüstkit", "5800x3d", "5700x3d"]
 MINIMUM_SCORE = 60
+MINIMUM_MARGIN_EUR = 25
 MAX_ITEM_PRICE = 800
 EXCLUDED_KEYWORDS = [
     "ddr3",
@@ -23,6 +24,8 @@ EXCLUDED_KEYWORDS = [
     "sodimm",
     "laptop",
     "amplifier",
+    "pico",
+    "docking station",
     "halterung",
     "gesucht",
     "lcd",
@@ -215,12 +218,17 @@ def get_all_post(db: Session, telegram_message=False):
 
             # 5. Telegram
             for res in results:
-                rid = str(res.get('id'))    
+                rid = str(res.get('id'))   
+                expected_margin = res.get('expected_margin_eur')
+
+                if expected_margin and expected_margin < MINIMUM_MARGIN_EUR:
+                    continue
+                
                 if rid in item_map and res.get('score', 0) >= MINIMUM_SCORE:
                     info = item_map[rid]
                     # Wir reichern das Dictionary mit den GPT-Ergebnissen an
                     info['score'] = res.get('score')
-                    info['expected_margin_eur'] = res.get('expected_margin_eur')
+                    info['expected_margin_eur'] = expected_margin
 
                     # ÜBERGABE DES GANZEN DICTS STATT NUR info["obj"]
                     telegram.send_formated_message(info)
