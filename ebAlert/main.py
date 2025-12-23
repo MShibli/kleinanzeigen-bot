@@ -192,7 +192,7 @@ def get_all_post(db: Session, telegram_message=False):
                 rid = str(res.get('id'))    
                 if rid in item_map and res.get('score', 0) >= 80:
                     info = item_map[rid]
-                    telegram.send_formated_message(info)
+                    telegram.send_formated_message(info["obj"])
                     
             sleep(randint(0, 40) / 10)
 
