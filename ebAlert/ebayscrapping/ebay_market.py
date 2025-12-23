@@ -48,7 +48,7 @@ def get_ebay_median_price(query: str, offer_price: float):
 
     try:
         res = requests.get(url, headers=headers, timeout=10)
-        raw_matches = re.findall(r"EUR\s?(\d+(?:\.\d+)?,\d{2})", res.text)
+        raw_matches = re.findall(r"EUR\s?(\d+(?:\.\d+)?,\d{2})", res.Text)
         print(f"ebay Scrap Text: {res.Text}")
         all_prices = []
         min_gate = offer_price * 0.5
