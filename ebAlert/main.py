@@ -204,7 +204,7 @@ def get_all_post(db: Session, telegram_message=False):
                     info = item_map[rid]
                     telegram.send_message(
                         f"💎 TOP DEAL: {res.get('score')}/100\n"
-                        f"{info['obj'].title}\n
+                        f"{info['obj'].title}\n"
                         f"Inseriert: {info['date']}"
                         f"💰 Preis: {info['price']}€ | 📊 Markt: {info['m_price']}€\n"
                         f"📈 Marge: {res.get('expected_margin')}€\n"
