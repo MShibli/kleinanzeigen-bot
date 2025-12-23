@@ -158,7 +158,7 @@ def get_all_post(db: Session, telegram_message=False):
                         # So wird für diesen Artikel kein eBay-Preis gesucht und kein GPT genutzt.
                         continue
                     
-                    potential_items.append({"id": item.id, "title": item.title, "item": item, "price": p})
+                    potential_items.append({"id": item.id, "title": item.title, "item": item, "price": p, "date": item.date})
 
             if not potential_items: return
             
@@ -181,7 +181,7 @@ def get_all_post(db: Session, telegram_message=False):
                         "market_price": m_price,
                         "description": (orig['item'].description or "")[:400]
                     })
-                    item_map[item_id] = {"obj": orig['item'], "m_price": m_price, "price": orig['price']}
+                    item_map[item_id] = {"obj": orig['item'], "m_price": m_price, "price": orig['price'], "date": orig['date']}
 
             # 4. KI: Finales Batch-Scoring
             results = evaluate_listings_batch(batch_for_gpt)
