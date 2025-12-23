@@ -15,7 +15,7 @@ from ebAlert.ebayscrapping.ebay_market import get_ebay_median_price
 
 WHITELIST = ["bundle", "aufrüstkit", "5800x3d", "5700x3d"]
 MINIMUM_SCORE = 60
-
+MAX_ITEM_PRICE = 800
 EXCLUDED_KEYWORDS = [
     "ddr3",
     "core 2 duo",
@@ -152,7 +152,14 @@ def get_all_post(db: Session, telegram_message=False):
             for item in items:    
                 item_date_str = item.date.strftime("%d.%m.%Y %H:%M") if hasattr(item.date, 'strftime') else str(item.date)
                 p = parse_price(item.price)
-                if p and not contains_excluded_keywords(item.title):
+
+                if not p:
+                    continue
+
+                if p > MAX_ITEM_PRICE:
+                    continue
+                
+                if not contains_excluded_keywords(item.title):
                     print(f"Processing Item - title: {item.title} - price: {p}")
 
                     title_lower = item.title.lower()
