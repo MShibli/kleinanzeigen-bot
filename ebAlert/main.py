@@ -14,6 +14,7 @@ from ebAlert.gpt_evaluator import generate_search_queries_batch, evaluate_listin
 from ebAlert.ebayscrapping.ebay_market import get_ebay_median_price
 
 WHITELIST = ["bundle", "aufrüstkit", "5800x3d", "5700x3d", "9800x3d"]
+MINIMUM_SCORE = 60
 
 EXCLUDED_KEYWORDS = [
     "ddr3",
@@ -28,6 +29,7 @@ EXCLUDED_KEYWORDS = [
     "lenkrad",
     "universal",
     "stuhl",
+    "dockingstation",
     "netzteil",
     "mobile",
     "macbook",
@@ -173,16 +175,23 @@ def get_all_post(db: Session, telegram_message=False):
                 if not orig: continue
                     
                 m_price = get_ebay_median_price(q_data['query'], orig['price'])
-                if m_price:
-                    batch_for_gpt.append({
-                        "id": item_id,
-                        "title": orig['title'],
-                        "price": orig['price'],
-                        "date": orig['date'],
-                        "market_price": m_price,
-                        "description": (orig['item'].description or "")[:400]
-                    })
-                    item_map[item_id] = {"obj": orig['item'], "m_price": m_price, "price": orig['price'], "date": orig['date']}
+
+                if not m_price
+                    continue
+
+                if orig['price'] > m_price
+                    continue
+                
+                batch_for_gpt.append({
+                    "id": item_id
+                    "title": orig['title'],
+                    "price": orig['price'],
+                    "date": orig['date'],
+                    "market_price": m_price,
+                    "description": (orig['item'].description or "")[:400]
+                })
+                
+                item_map[item_id] = {"obj": orig['item'], "m_price": m_price, "price": orig['price'], "date": orig['date']}
 
             # 4. KI: Finales Batch-Scoring
             results = evaluate_listings_batch(batch_for_gpt)
@@ -190,7 +199,7 @@ def get_all_post(db: Session, telegram_message=False):
             # 5. Telegram
             for res in results:
                 rid = str(res.get('id'))    
-                if rid in item_map and res.get('score', 0) >= 40:
+                if rid in item_map and res.get('score', 0) >= MINIMUM_SCORE:
                     info = item_map[rid]
                     # Wir reichern das Dictionary mit den GPT-Ergebnissen an
                     info['score'] = res.get('score')
