@@ -32,11 +32,6 @@ class SendingClass:
         except Exception as e:
             print(f"Telegram Fehler: {e}")
             return False
-
-    def format_date(value):
-        if not value:
-            return "unbekannt"
-        return value.strftime("%d.%m.%Y %H:%M")
     
     def send_formated_message(self, item: EbayItem, is_whitelist=False):
         # Nachrichtentext aufbauen
@@ -62,5 +57,10 @@ class SendingClass:
         ]
 
         return self.send_message(message, buttons=buttons)
+
+    def format_date(value):
+        if not value:
+            return "unbekannt"
+        return value.strftime("%d.%m.%Y %H:%M")
 
 telegram = SendingClass()
