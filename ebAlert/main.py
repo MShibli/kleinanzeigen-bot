@@ -194,8 +194,6 @@ def get_all_post(db: Session, telegram_message=False):
                     info = item_map[rid]
                     # Wir reichern das Dictionary mit den GPT-Ergebnissen an
                     info['score'] = res.get('score')
-                    info['reason'] = res.get('reason')
-                    info['condition'] = res.get('condition')
 
                     # ÜBERGABE DES GANZEN DICTS STATT NUR info["obj"]
                     telegram.send_formated_message(info)
