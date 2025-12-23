@@ -33,15 +33,20 @@ class SendingClass:
             print(f"Telegram Fehler: {e}")
             return False
 
+    def format_date(value):
+        if not value:
+            return "unbekannt"
+        return value.strftime("%d.%m.%Y %H:%M")
+    
     def send_formated_message(self, item: EbayItem, is_whitelist=False):
         # Nachrichtentext aufbauen
         prefix = "🚨 <b>WHITELIST TREFFER</b>\n" if is_whitelist else "🔥 <b>NEUER DEAL</b>\n"
-        
+        posted_date = format_date(item.date)
         message = (
             f"{prefix}"
             f"📦 <b>{item.title}</b>\n"
-            f"📦 Datum: {item.date}\n"
-            f"💰 Preis: <code>{item.price} €</code>\n"
+            f"📦 Datum: {posted_date}\n"
+            f"💰 Preis: <code>{item.price}</code>\n"
             f"📍 Ort: {item.city}\n"
         )
 
