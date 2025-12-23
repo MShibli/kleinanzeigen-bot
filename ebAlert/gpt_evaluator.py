@@ -46,7 +46,8 @@ def load_gpt_cache():
         try:
             with open(GPT_CACHE_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
-        except:
+        except Exception as e:
+            print("GPT load_gpt_cache Error:", e)
             return {}
     return {}
 
