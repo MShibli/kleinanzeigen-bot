@@ -6,8 +6,8 @@ from ebAlert.core.config import settings
 
 client = OpenAI(api_key=settings.OPEN_API_KEY)
 
-MODEL = "gpt-5-mini"
-MODEL_SEARCH_QUERY = "gpt-5-nano"
+MODEL = "gpt-4.1-mini"
+MODEL_SEARCH_QUERY = "gpt-4.1-mini"
 
 SYSTEM_PROMPT = """
 Du bist ein Experten-Reseller für Elektronik. Deine Aufgabe: Bewerten von Ankauf-Deals basierend auf Gewinnmarge, Risiko und Marktgängigkeit.
@@ -45,6 +45,7 @@ def generate_search_queries_batch(items: list):
     try:
         response = client.chat.completions.create(
             model=MODEL_SEARCH_QUERY,
+            temperature=0.1,
             response_format={"type": "json_object"},
             messages=[
                 {"role": "system", "content": "Du bist ein Daten-Parser. Extrahiere nur Markennamen und Modell."},
@@ -69,7 +70,7 @@ def evaluate_listings_batch(listings: list):
     try:
         response = client.chat.completions.create(
             model=MODEL,
-            #temperature=0.1,
+            temperature=0.1,
             response_format={"type": "json_object"},  # Erzwingt JSON-Mode
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
