@@ -23,8 +23,11 @@ def load_cache():
         try:
             with open(CACHE_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
-        except:
+        except exception as e:
+            print("ebay scrap load_cache Error:", e)
             return {}
+
+    print("ebay scrap load_cache Error: Keine Cachedatei gefunden!")
     return {}
 
 def save_cache(cache_data):
