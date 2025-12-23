@@ -177,6 +177,7 @@ def get_all_post(db: Session, telegram_message=False):
                         "id": item_id,
                         "title": orig['title'],
                         "price": orig['price'],
+                        "date": orig['date'],
                         "market_price": m_price,
                         "description": (orig['item'].description or "")[:400]
                     })
