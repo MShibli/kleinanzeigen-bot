@@ -22,6 +22,7 @@ EXCLUDED_KEYWORDS = [
     "so-dimm",
     "sodimm",
     "laptop",
+    "amplifier",
     "halterung",
     "gesucht",
     "lcd",
@@ -219,6 +220,7 @@ def get_all_post(db: Session, telegram_message=False):
                     info = item_map[rid]
                     # Wir reichern das Dictionary mit den GPT-Ergebnissen an
                     info['score'] = res.get('score')
+                    info['expected_margin_eur'] = res.get('expected_margin_eur')
 
                     # ÜBERGABE DES GANZEN DICTS STATT NUR info["obj"]
                     telegram.send_formated_message(info)
