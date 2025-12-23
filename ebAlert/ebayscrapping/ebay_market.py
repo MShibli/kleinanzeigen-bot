@@ -49,7 +49,12 @@ def get_ebay_median_price(query: str, offer_price: float):
     try:
         res = requests.get(url, headers=headers, timeout=10)
         raw_matches = re.findall(r"EUR\s?(\d+(?:\.\d+)?,\d{2})", res.text)
-        print(f"Ebay Scrap Text: {res.text}")
+
+        # Prüfen, ob eBay uns blockiert hat oder die Seite existiert
+        if res.status_code != 200:
+            print(f"⚠️ eBay Fehler: Status {res.status_code} für '{query}'")
+            return None
+       
         all_prices = []
         min_gate = offer_price * 0.5
         max_gate = offer_price * 2.0
