@@ -236,8 +236,3 @@ def margin_percent(buy_price, sell_price):
 def contains_excluded_keywords(title, description=""):
     text = f"{title} {description}".lower()
     return any(word in text for word in EXCLUDED_KEYWORDS)
-
-def format_date(value):
-    if not value:
-        return "unbekannt"
-    return value.strftime("%d.%m.%Y %H:%M")
