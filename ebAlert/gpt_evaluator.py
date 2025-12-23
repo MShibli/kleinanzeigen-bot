@@ -25,16 +25,14 @@ Score-Skalierung (Gewichtung: 70% Marge, 30% Zustand/Risiko):
 - 20-49 (Riskant): Marge < 10% ODER Zustand 'gebraucht'.
 - 0-19 (Kein Deal): Marge negativ ODER Zustand 'defekt'.
 
-Ausgabe: AUSSCHLIESSLICH ein valides JSON-Array. Kein Markdown, kein Text.
-Format:
+Antworte als JSON-Array von Objekten mit folgendem Format:
 [{
   "id": "string",
   "condition": "neu" | "sehr gut" | "gebraucht" | "defekt",
   "negotiability": "hoch" | "mittel" | "niedrig",
   "expected_margin_eur": number,
-  "score": 0-100,
-  "reason": "Kurzer Grund für Score"
-}]
+  "score": 0-100
+  }]
 """
 
 def generate_search_queries_batch(items: list):
@@ -78,19 +76,8 @@ def evaluate_listings_batch(listings: list):
             ]
         )
 
-        content = response.choices[0].message.content
-        print("GPT evaluate_listings_batch Result:", content)
-        # Wir erwarten ein Objekt mit einem Key "evaluations" oder direkt ein Array. 
-        # Da wir JSON-Mode nutzen, packen wir es sicherheitshalber in ein Root-Objekt im Prompt.
-        parsed = json.loads(content)
-        
-        # Falls GPT das Array in einen Key packt (passiert oft bei json_object mode)
-        if isinstance(parsed, dict):
-            for key in parsed:
-                if isinstance(parsed[key], list):
-                    return parsed[key]
-        
-        return parsed if isinstance(parsed, list) else []
+        content = json.loads(response.choices[0].message.content)
+        return content if isinstance(content, list) else content.get('evaluations', [])
 
     except Exception as e:
         print("GPT Batch Error:", e)
