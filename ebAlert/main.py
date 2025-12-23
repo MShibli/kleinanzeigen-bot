@@ -152,7 +152,7 @@ def get_all_post(db: Session, telegram_message=False):
                 orig = next((x for x in potential_items if str(x['id']) == item_id), None)
                 if not orig: continue
                     
-                m_price = get_ebay_median_price(q_data['query'])
+                m_price = get_ebay_median_price(q_data['query'], orig['price'])
                 if m_price:
                     batch_for_gpt.append({
                         "id": item_id,
