@@ -23,13 +23,15 @@ Score-Skalierung:
 - 0-19 (Kein Deal): Marge negativ.
 
 Antworte als JSON-Array von Objekten mit folgendem Format:
-[{
-  "id": "string",
-  "condition": "neu" | "sehr gut" | "gebraucht" | "defekt",
-  "negotiability": "hoch" | "mittel" | "niedrig",
-  "expected_margin_eur": number,
-  "score": 0-100
-  }]
+{
+	"result": [
+		"id": "string",
+		"condition": "neu" | "sehr gut" | "gebraucht" | "defekt",
+		"negotiability": "hoch" | "mittel" | "niedrig",
+		"expected_margin_eur": number,
+		"score": 0-100
+  ]
+}
 """
 
 def generate_search_queries_batch(items: list):
