@@ -152,19 +152,7 @@ def get_all_post(db: Session, telegram_message=False):
                     whitelist_match = [word for word in WHITELIST if word.lower() in title_lower]
     
                     if whitelist_match:
-                        msg = (
-                            f"⭐ <b>WHITELIST TREFFER: {whitelist_match[0].upper()}</b>\n\n"
-                            f"📦 <b>{item.title}</b>\n"
-                            f"    Inseriert: {item.date}"
-                            f"💰 Preis: <code>{item.price} €</code>\n"
-                        )
-        
-                        buttons = [
-                            {"text": "📱 Direkt zur Anzeige", "url": item_obj.link}
-                        ]
-        
-                        # Sofort senden
-                        telegram.send_message(msg, buttons=buttons)
+                        telegram.send_formated_message(item, is_whitelist=True)
         
                         # Wichtig: Mit 'continue' springen wir zum nächsten Artikel in der Schleife.
                         # So wird für diesen Artikel kein eBay-Preis gesucht und kein GPT genutzt.
@@ -202,14 +190,7 @@ def get_all_post(db: Session, telegram_message=False):
                 rid = str(res.get('id'))    
                 if rid in item_map and res.get('score', 0) >= 80:
                     info = item_map[rid]
-                    telegram.send_message(
-                        f"💎 TOP DEAL: {res.get('score')}/100\n"
-                        f"{info['obj'].title}\n"
-                        f"Inseriert: {info['date']}"
-                        f"💰 Preis: {info['price']}€ | 📊 Markt: {info['m_price']}€\n"
-                        f"📈 Marge: {res.get('expected_margin')}€\n"
-                        f"🔗 {info['obj'].link}"
-                    )
+                    telegram.send_formated_message(info)
                     
             sleep(randint(0, 40) / 10)
 
