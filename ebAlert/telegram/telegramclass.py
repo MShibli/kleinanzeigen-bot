@@ -14,7 +14,7 @@ class SendingClass:
         url = f"{settings.TELEGRAM_API_URL.split('?')[0].replace('sendMessage', '')}sendMessage"
         
         payload = {
-            "chat_id": settings.TELEGRAM_CHAT_ID,  # Stelle sicher, dass die ID in der Config ist
+            "chat_id": settings.CHAT_ID,  # Stelle sicher, dass die ID in der Config ist
             "text": message,
             "parse_mode": "HTML",
             "disable_web_page_preview": False
@@ -40,6 +40,7 @@ class SendingClass:
         message = (
             f"{prefix}"
             f"📦 <b>{item.title}</b>\n"
+            f"📦 Datum: {item.date}\n"
             f"💰 Preis: <code>{item.price} €</code>\n"
             f"📍 Ort: {item.city}\n"
         )
