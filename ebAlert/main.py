@@ -212,7 +212,7 @@ def get_all_post(db: Session, telegram_message=False):
                     "description": (orig['item'].description or "")[:400]
                 })
                 
-                item_map[item_id] = {"obj": orig['item'], "m_price": m_price, "price": orig['price'], "date": orig['date'], "cleaned_query": cleaned_query}
+                item_map[item_id] = {"obj": orig['item'], "m_price": m_price, "price": orig['price'], "date": orig['date']}
 
             # 4. KI: Finales Batch-Scoring
             results = evaluate_listings_batch(batch_for_gpt)
