@@ -6,18 +6,25 @@ import os
 import time
 
 # --- CACHE KONFIGURATION ---
-CACHE_FILE = "ebay_price_cache.json"
+# Prüft, ob CACHE_DIR in den Umgebungsvariablen existiert (Railway)
+# Falls nicht (lokal), wird der aktuelle Ordner (.) verwendet
+CACHE_DIR = os.getenv("CACHE_DIR", ".")
+CACHE_FILE = os.path.join(CACHE_DIR, "ebay_price_cache.json")
+
+# Stelle sicher, dass das Verzeichnis existiert (verhindert Fehler beim ersten Start)
+if CACHE_DIR != "." and not os.path.exists(CACHE_DIR):
+    os.makedirs(CACHE_DIR)
+    
 CACHE_EXPIRY = 604800  # 24 Stunden in Sekunden (24 * 60 * 60)
 
+# In deinen Funktionen nutzt du jetzt einfach CACHE_FILE
 def load_cache():
     if os.path.exists(CACHE_FILE):
         try:
             with open(CACHE_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
-        except Exception as e:
-            print(f"❌ Fehler: {e}")
+        except:
             return {}
-    print(f"❌ load_cache. Cachedatei: {CACHE_FILE} nicht gefunden!")
     return {}
 
 def save_cache(cache_data):
