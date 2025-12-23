@@ -36,7 +36,7 @@ class SendingClass:
     def send_formated_message(self, item: EbayItem, is_whitelist=False):
         # Nachrichtentext aufbauen
         prefix = "🚨 <b>WHITELIST TREFFER</b>\n" if is_whitelist else "🔥 <b>NEUER DEAL</b>\n"
-        posted_date = format_date(item.date)
+        posted_date = self.format_date(item.date)
         message = (
             f"{prefix}"
             f"📦 <b>{item.title}</b>\n"
