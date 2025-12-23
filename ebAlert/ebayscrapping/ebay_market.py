@@ -14,8 +14,10 @@ def load_cache():
         try:
             with open(CACHE_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
-        except:
+        except Exception as e:
+            print(f"❌ Fehler: {e}")
             return {}
+    print(f"❌ load_cache. Cachedatei: {CACHE_FILE} nicht gefunden!")
     return {}
 
 def save_cache(cache_data):
