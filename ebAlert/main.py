@@ -24,6 +24,8 @@ EXCLUDED_KEYWORDS = [
     "laptop",
     "halterung",
     "gesucht",
+    "lcd",
+    "ersatz",
     "logitech",
     "seat",
     "racing",
