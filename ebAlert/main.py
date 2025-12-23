@@ -176,10 +176,10 @@ def get_all_post(db: Session, telegram_message=False):
                     
                 m_price = get_ebay_median_price(q_data['query'], orig['price'])
 
-                if not m_price
+                if not m_price:
                     continue
 
-                if orig['price'] > m_price
+                if orig['price'] > m_price:
                     continue
                 
                 batch_for_gpt.append({
