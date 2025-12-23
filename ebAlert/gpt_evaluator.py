@@ -24,11 +24,11 @@ Score-Skalierung:
 
 Antworte als JSON-Array von Objekten mit folgendem Format:
 {
-	"result": [
-		"id": "string",
-		"negotiability": "hoch" | "mittel" | "niedrig",
-		"expected_margin_eur": number,
-		"score": 0-100
+    "result": [
+        "id": "string",
+        "negotiability": "hoch" | "mittel" | "niedrig",
+        "expected_margin_eur": number,
+        "score": 0-100
   ]
 }
 """
@@ -37,6 +37,8 @@ SYSTEM_PROMPT_QUERY_SEARCH= """
 Du bist ein Daten-Parser. Extrahiere nur Markennamen und Modell.
 """
 
+# Sicherstellen, dass CACHE_DIR definiert ist (aus Umgebungsvariable oder lokal)
+CACHE_DIR = os.getenv("CACHE_DIR", ".")
 GPT_CACHE_FILE = os.path.join(CACHE_DIR, "gpt_query_cache.json")
 
 def load_gpt_cache():
@@ -68,7 +70,7 @@ def generate_search_queries_batch(items: list):
         
         if title in gpt_cache:
             # Aus Cache nehmen
-			print(f"✅ GPT-Cache Treffer: id: {item_id}, query: {gpt_cache[title]}")
+            print(f"✅ GPT-Cache Treffer: id: {item_id}, query: {gpt_cache[title]}")
             results.append({'id': item_id, 'query': gpt_cache[title]})
         else:
             # Für GPT-Anfrage vormerken
@@ -99,12 +101,12 @@ def generate_search_queries_batch(items: list):
         
         # 3. Schritt: Neue Ergebnisse cachen und zur Liste hinzufügen
         for q_data in gpt_results:
-            q_id = q_data['id']
-            q_text = q_data['query']
+            q_id = q_data.get('id')
+            q_text = q_data.get('query')
 
-			if not q_text:
-				continue
-			
+            if not q_text:
+                continue
+            
             # Finde den originalen Titel für den Cache-Key
             orig_item = next((x for x in to_request_gpt if str(x['id']) == q_id), None)
             if orig_item:
