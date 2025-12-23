@@ -193,8 +193,9 @@ def get_all_post(db: Session, telegram_message=False):
                 # Finde das originale Item-Objekt
                 orig = next((x for x in potential_items if str(x['id']) == item_id), None)
                 if not orig: continue
-                    
-                m_price = get_ebay_median_price(q_data['query'], orig['price'])
+
+                cleaned_query = q_data['query']
+                m_price = get_ebay_median_price(cleaned_query, orig['price'])
 
                 if not m_price:
                     continue
@@ -211,7 +212,7 @@ def get_all_post(db: Session, telegram_message=False):
                     "description": (orig['item'].description or "")[:400]
                 })
                 
-                item_map[item_id] = {"obj": orig['item'], "m_price": m_price, "price": orig['price'], "date": orig['date']}
+                item_map[item_id] = {"obj": orig['item'], "m_price": m_price, "price": orig['price'], "date": orig['date'], "cleaned_query": cleaned_query}
 
             # 4. KI: Finales Batch-Scoring
             results = evaluate_listings_batch(batch_for_gpt)
