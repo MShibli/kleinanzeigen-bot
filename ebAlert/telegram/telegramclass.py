@@ -36,7 +36,7 @@ class SendingClass:
             item = item_data["obj"]
             score = item_data.get("score")
             m_price = item_data.get("m_price")
-            margin = expected_margin_eur
+            margin = item_data.get("expected_margin_eur")
         # FALL B: Direktes Objekt (Whitelist oder alter Aufruf)
         else:
             item = item_data
