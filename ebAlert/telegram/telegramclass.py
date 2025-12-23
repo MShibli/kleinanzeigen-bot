@@ -58,7 +58,7 @@ class SendingClass:
 
         return self.send_message(message, buttons=buttons)
 
-    def format_date(value):
+    def format_date(self, value):
         if not value:
             return "unbekannt"
         return value.strftime("%d.%m.%Y %H:%M")
