@@ -49,6 +49,8 @@ def load_gpt_cache():
         except Exception as e:
             print("GPT load_gpt_cache Error:", e)
             return {}
+
+    print("GPT load_gpt_cache Error: Keine Cachedatei gefunden!")
     return {}
 
 def save_gpt_cache(cache):
