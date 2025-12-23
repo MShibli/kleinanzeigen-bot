@@ -69,7 +69,7 @@ def evaluate_listings_batch(listings: list):
     try:
         response = client.chat.completions.create(
             model=MODEL,
-            temperature=0.1,
+            #temperature=0.1,
             response_format={"type": "json_object"},  # Erzwingt JSON-Mode
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
