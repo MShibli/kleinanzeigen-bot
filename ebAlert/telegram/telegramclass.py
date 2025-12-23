@@ -76,7 +76,7 @@ class SendingClass:
                 message += f"🎯 <b>KI-Margin: {margin} €</b>\n"
         
         # Buttons
-        ebay_query = item_data["cleaned_query"]
+        ebay_query = item_data["cleanedquery"]
         ebay_url = f"https://www.ebay.de/sch/i.html?_nkw={ebay_query}&LH_Sold=1&LH_Complete=1"
         
         buttons = [
