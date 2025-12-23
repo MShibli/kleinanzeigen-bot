@@ -13,7 +13,7 @@ from ebAlert.telegram.telegramclass import telegram
 from ebAlert.gpt_evaluator import generate_search_queries_batch, evaluate_listings_batch
 from ebAlert.ebayscrapping.ebay_market import get_ebay_median_price
 
-WHITELIST = ["bundle", "aufrüstkit", "5800x3d", "5700x3d"]
+WHITELIST = ["bundle", "aufrüstkit", "5800x3d", "5700x3d", "9800x3d"]
 
 EXCLUDED_KEYWORDS = [
     "ddr3",
