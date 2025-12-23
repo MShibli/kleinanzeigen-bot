@@ -38,8 +38,8 @@ Du bist ein Daten-Parser. Extrahiere nur Markennamen und Modell.
 """
 
 # Sicherstellen, dass CACHE_DIR definiert ist (aus Umgebungsvariable oder lokal)
-CACHE_DIR = os.getenv("CACHE_DIR", ".")
-GPT_CACHE_FILE = os.path.join(CACHE_DIR, "gpt_query_cache.json")
+BASE_DIR = os.getenv("CACHE_DIR", os.path.expanduser("~"))
+GPT_CACHE_FILE = os.path.join(BASE_DIR, "gpt_query_cache.json")
 
 def load_gpt_cache():
     if os.path.exists(GPT_CACHE_FILE):
@@ -52,8 +52,13 @@ def load_gpt_cache():
     return {}
 
 def save_gpt_cache(cache):
-    with open(GPT_CACHE_FILE, "w", encoding="utf-8") as f:
-        json.dump(cache, f, indent=4)
+    try:
+        # Debug: Zeige wo gespeichert wird
+        print(f"💾 Speichere GPT-Cache ({len(cache)} Einträge) in: {GPT_CACHE_FILE}")
+        with open(GPT_CACHE_FILE, "w", encoding="utf-8") as f:
+            json.dump(cache, f, indent=4)
+    except Exception as e:
+        print(f"❌ Fehler beim Speichern des Caches: {e}")
 
 def generate_search_queries_batch(items: list):
     """Wandelt Titel in präzise eBay-Suchbegriffe um mit Caching."""
@@ -64,18 +69,21 @@ def generate_search_queries_batch(items: list):
     results = []
     to_request_gpt = []
 
-    # 1. Schritt: Prüfen, was wir schon wissen
     for item in items:
-        title = item.get('title', '').strip()
+        # Radikale Normalisierung für den Cache-Key
+        raw_title = item.get('title', '')
+        # Entferne alle doppelten Leerzeichen und trimme
+        clean_key = " ".join(raw_title.split()).lower()
         item_id = str(item.get('id'))
         
-        if title in gpt_cache:
-            # Aus Cache nehmen
-            print(f"✅ GPT-Cache Treffer: id: {item_id}, query: {gpt_cache[title]}")
-            results.append({'id': item_id, 'query': gpt_cache[title]})
+        if clean_key in gpt_cache:
+            print(f"✅ Cache-Hit: {clean_key}")
+            results.append({'id': item_id, 'query': gpt_cache[clean_key]})
         else:
-            # Für GPT-Anfrage vormerken
             to_request_gpt.append(item)
+
+    if not to_request_gpt:
+        return results
 
     # Wenn alles im Cache war, können wir hier schon aufhören
     if not to_request_gpt:
@@ -101,22 +109,27 @@ def generate_search_queries_batch(items: list):
         gpt_results = json.loads(response.choices[0].message.content).get('queries', [])
         
         # 3. Schritt: Neue Ergebnisse cachen und zur Liste hinzufügen
+        new_entries = 0
         for q_data in gpt_results:
-            q_id = q_data.get('id')
+            q_id = str(q_data.get('id')) # Sicherstellen, dass ID ein String ist
             q_text = q_data.get('query')
 
-            if not q_text:
-                continue
+            if not q_text: continue
             
-            # Finde den originalen Titel für den Cache-Key
-            orig_item = next((x for x in to_request_gpt if str(x['id']) == q_id), None)
+            # Suche das Item anhand der ID
+            orig_item = next((x for x in to_request_gpt if str(x.get('id')) == q_id), None)
+            
             if orig_item:
-                gpt_cache[orig_item['title'].strip()] = q_text
+                # Nutze den exakt gleichen clean_key wie oben!
+                clean_key = " ".join(orig_item.get('title', '').split()).lower()
+                gpt_cache[clean_key] = q_text
+                new_entries += 1
             
-            results.append(q_data)
+            results.append({'id': q_id, 'query': q_text})
 
-        # Cache speichern
-        save_gpt_cache(gpt_cache)
+        if new_entries > 0:
+            save_gpt_cache(gpt_cache)
+            
         return results
 
     except Exception as e:
