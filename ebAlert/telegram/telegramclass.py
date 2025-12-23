@@ -36,12 +36,14 @@ class SendingClass:
             item = item_data["obj"]
             score = item_data.get("score")
             m_price = item_data.get("m_price")
+            margin = expected_margin_eur
         # FALL B: Direktes Objekt (Whitelist oder alter Aufruf)
         else:
             item = item_data
             score = None
             m_price = None
-        
+            margin = None
+            
         # Prefix wählen
         if is_whitelist:
             prefix = "🚨 <b>WHITELIST TREFFER</b>\n"
@@ -70,6 +72,8 @@ class SendingClass:
                 f"---------------------------\n"
                 f"🎯 <b>KI-Score: {score}/100</b>\n"
             )
+            if margin
+                message += f"🎯 <b>KI-Margin: {margin} €</b>\n"
         
         # Buttons
         ebay_query = quote(item.title)
