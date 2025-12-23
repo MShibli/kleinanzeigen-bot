@@ -14,7 +14,9 @@ Du bist ein Experten-Reseller für Elektronik. Deine Aufgabe: Bewerten von Ankau
 Eingabe: JSON mit Anzeige (Titel, Beschreibung, Preis und eBay-Median).
 
 Bewertungs-Logik:
-Marge % = ((eBay-Median * 0.9) - Angebotspreis) / eBay-Median. (0.9 berücksichtigt ca. 10% Gebühren/Versand).
+Marge % = ((eBay-Median * 0.9) - (Angebotspreis * 0.8)) / eBay-Median. 
+(0.9 berücksichtigt ca. 10% Gebühren/Versand).
+(0.8 berücksichtigt ca. 20% Reduzierung durch Verhandlung).
 
 Score-Skalierung:
 - 80-100 (Hervorragend): Marge > 20%.
@@ -26,7 +28,6 @@ Antworte als JSON-Array von Objekten mit folgendem Format:
 {
     "result": [
         "id": "string",
-        "negotiability": "hoch" | "mittel" | "niedrig",
         "expected_margin_eur": number,
         "score": 0-100
   ]
