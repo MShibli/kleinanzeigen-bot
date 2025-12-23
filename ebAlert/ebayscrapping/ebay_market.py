@@ -60,7 +60,7 @@ def get_ebay_median_price(query: str, offer_price: float):
                 all_prices.append(val)
 
         if len(all_prices) < 3:
-            print(f"⚠️ Zu wenige Preise im Korridor ({min_gate:.2f}€ - {max_gate:.2f}€) gefunden.")
+            print(f"⚠️ Zu wenige Preise im Korridor ({min_gate:.2f}€ - {max_gate:.2f}€) für '{query}' gefunden.")
             return None
 
         # Clustering Logik
