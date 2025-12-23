@@ -87,31 +87,7 @@ def send_formated_message(self, item_data, is_whitelist=False):
 		]
 		
 		return self.send_message(message, buttons=buttons)
-    
-    def send_formated_message_alt(self, item: EbayItem, is_whitelist=False):
-        # Nachrichtentext aufbauen
-        prefix = "🚨 <b>WHITELIST TREFFER</b>\n" if is_whitelist else "🔥 <b>NEUER DEAL</b>\n"
-        posted_date = self.format_date(item.date)
-        message = (
-            f"{prefix}"
-            f"📦 <b>{item.title}</b>\n"
-            f"📅 Inseriert: {posted_date}\n"
-            f"💰 Preis: <code>{item.price}</code>\n"
-            f"📍 Ort: {item.city}\n"
-        )
-
-        # Buttons erstellen
-        # 1. Button zur Anzeige
-        # 2. Button zum eBay Preischeck (Verkaufte Artikel)
-        ebay_query = quote(item.title)
-        ebay_url = f"https://www.ebay.de/sch/i.html?_nkw={ebay_query}&LH_Sold=1&LH_Complete=1"
-        
-        buttons = [
-            {"text": "📱 Anzeige öffnen", "url": item.link},
-            {"text": "📊 eBay Check", "url": ebay_url}
-        ]
-
-        return self.send_message(message, buttons=buttons)
+ 
 
     def format_date(self, value):
         if not value:
