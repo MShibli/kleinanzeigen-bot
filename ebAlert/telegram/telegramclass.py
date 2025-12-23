@@ -45,7 +45,7 @@ class SendingClass:
         message = (
             f"{prefix}"
             f"📦 <b>{item.title}</b>\n"
-            f"📦 Datum: {posted_date}\n"
+            f"📅 Inseriert: {posted_date}\n"
             f"💰 Preis: <code>{item.price}</code>\n"
             f"📍 Ort: {item.city}\n"
         )
