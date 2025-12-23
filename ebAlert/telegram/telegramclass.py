@@ -72,7 +72,7 @@ class SendingClass:
                 f"---------------------------\n"
                 f"🎯 <b>KI-Score: {score}/100</b>\n"
             )
-            if margin
+            if margin:
                 message += f"🎯 <b>KI-Margin: {margin} €</b>\n"
         
         # Buttons
