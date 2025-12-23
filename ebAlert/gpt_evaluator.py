@@ -26,7 +26,6 @@ Antworte als JSON-Array von Objekten mit folgendem Format:
 {
 	"result": [
 		"id": "string",
-		"condition": "neu" | "sehr gut" | "gebraucht" | "defekt",
 		"negotiability": "hoch" | "mittel" | "niedrig",
 		"expected_margin_eur": number,
 		"score": 0-100
