@@ -183,7 +183,7 @@ def get_all_post(db: Session, telegram_message=False):
                     continue
                 
                 batch_for_gpt.append({
-                    "id": item_id
+                    "id": item_id,
                     "title": orig['title'],
                     "price": orig['price'],
                     "date": orig['date'],
