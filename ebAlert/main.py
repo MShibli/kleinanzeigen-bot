@@ -23,6 +23,7 @@ EXCLUDED_KEYWORDS = [
     "sodimm",
     "laptop",
     "halterung",
+    "gesucht",
     "logitech",
     "seat",
     "racing",
