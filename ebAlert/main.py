@@ -13,6 +13,8 @@ from ebAlert.telegram.telegramclass import telegram
 from ebAlert.gpt_evaluator import generate_search_queries_batch, evaluate_listings_batch
 from ebAlert.ebayscrapping.ebay_market import get_ebay_median_price
 
+WHITELIST = ["bundle", "aufrüstkit", "5800x3d", "5700x3d"]
+
 EXCLUDED_KEYWORDS = [
     "ddr3",
     "core 2 duo",
@@ -25,6 +27,10 @@ EXCLUDED_KEYWORDS = [
     "magsafe",
     "lenkrad",
     "universal",
+    "stuhl",
+    "netzteil",
+    "mobile",
+    "macbook",
     "fernbedienung",
     "ich suche",
     "watch",
@@ -139,6 +145,31 @@ def get_all_post(db: Session, telegram_message=False):
                 p = parse_price(item.price)
                 if p and not contains_excluded_keywords(item.title):
                     print(f"Processing Item - title: {item.title} - price: {p}")
+
+                    title_lower = item.title.lower()
+    
+                    # --- WHITELIST CHECK (Sofort-Benachrichtigung) ---
+                    whitelist_match = [word for word in WHITELIST if word.lower() in title_lower]
+    
+                    if whitelist_match:
+                        msg = (
+                            f"⭐ <b>WHITELIST TREFFER: {whitelist_match[0].upper()}</b>\n\n"
+                            f"📦 <b>{item.title}</b>\n"
+                            f"    Inseriert: {item.date}"
+                            f"💰 Preis: <code>{item.price} €</code>\n"
+                        )
+        
+                        buttons = [
+                            {"text": "📱 Direkt zur Anzeige", "url": item_obj.link}
+                        ]
+        
+                        # Sofort senden
+                        telegram.send_message(msg, buttons=buttons)
+        
+                        # Wichtig: Mit 'continue' springen wir zum nächsten Artikel in der Schleife.
+                        # So wird für diesen Artikel kein eBay-Preis gesucht und kein GPT genutzt.
+                        continue
+                    
                     potential_items.append({"id": item.id, "title": item.title, "item": item, "price": p})
 
             if not potential_items: return
@@ -173,7 +204,8 @@ def get_all_post(db: Session, telegram_message=False):
                     info = item_map[rid]
                     telegram.send_message(
                         f"💎 TOP DEAL: {res.get('score')}/100\n"
-                        f"{info['obj'].title}\n"
+                        f"{info['obj'].title}\n
+                        f"Inseriert: {info['date']}"
                         f"💰 Preis: {info['price']}€ | 📊 Markt: {info['m_price']}€\n"
                         f"📈 Marge: {res.get('expected_margin')}€\n"
                         f"🔗 {info['obj'].link}"
