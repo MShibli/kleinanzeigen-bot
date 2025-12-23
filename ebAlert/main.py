@@ -192,7 +192,14 @@ def get_all_post(db: Session, telegram_message=False):
                 rid = str(res.get('id'))    
                 if rid in item_map and res.get('score', 0) >= 40:
                     info = item_map[rid]
-                    telegram.send_formated_message(info["obj"])
+                    # Wir reichern das Dictionary mit den GPT-Ergebnissen an
+                    info['score'] = res.get('score')
+                    info['reason'] = res.get('reason')
+                    info['condition'] = res.get('condition')
+
+                    # ÜBERGABE DES GANZEN DICTS STATT NUR info["obj"]
+                    telegram.send_formated_message(info)
+                    #telegram.send_formated_message(info["obj"])
                     
             sleep(randint(0, 40) / 10)
 
