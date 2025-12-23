@@ -15,7 +15,7 @@ CACHE_FILE = os.path.join(CACHE_DIR, "ebay_price_cache.json")
 if CACHE_DIR != "." and not os.path.exists(CACHE_DIR):
     os.makedirs(CACHE_DIR)
     
-CACHE_EXPIRY = 604800  # 24 Stunden in Sekunden (24 * 60 * 60)
+CACHE_EXPIRY = 604800  # 1 Woche in Sekunden
 
 # In deinen Funktionen nutzt du jetzt einfach CACHE_FILE
 def load_cache():
@@ -45,10 +45,12 @@ def get_ebay_median_price(query: str, offer_price: float):
 
     if cache_key in cache:
         entry = cache[cache_key]
-        # Prüfen, ob der Eintrag noch nicht abgelaufen ist
-        if current_time - entry['timestamp'] < CACHE_EXPIRY:
-            print(f"📦 Cache-Hit für '{query}': {entry['price']}€ (Alter: {int((current_time - entry['timestamp'])/3600)}h)")
-            return entry['price']
+
+        if entry['price'] > 15        
+            # Prüfen, ob der Eintrag noch nicht abgelaufen ist
+            if current_time - entry['timestamp'] < CACHE_EXPIRY:
+                print(f"📦 Cache-Hit für '{query}': {entry['price']}€ (Alter: {int((current_time - entry['timestamp'])/3600)}h)")
+                return entry['price']
 
         print(f"💾 Ebay scrap-Cache vorhanden ist aber abgelaufen! Aktuelles Datum: {current_time}, Entrydatum: {entry['timestamp']}")
 
