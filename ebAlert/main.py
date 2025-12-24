@@ -17,7 +17,7 @@ from ebAlert.models.sqlmodel import EbayPost  # Importiere dein Modell
 
 WHITELIST = ["bundle", "aufrüstkit", "5800x3d", "5700x3d"]
 MINIMUM_SCORE = 60
-MINIMUM_MARGIN_EUR = 25
+MINIMUM_MARGIN_EUR = 19
 MAX_ITEM_PRICE = 800
 EXCLUDED_KEYWORDS = [
     "ddr3",
@@ -266,10 +266,18 @@ def get_all_post(db: Session, telegram_message=False):
                 rid = str(res.get('id'))   
                 expected_margin = res.get('expected_margin_eur')
 
-                if expected_margin and expected_margin < MINIMUM_MARGIN_EUR:
+                skipItem = True
+                
+                if not expected_margin and expected_margin > MINIMUM_MARGIN_EUR:
+                    skipItem = False
+
+                if skipItem == True and res.get('score', 0) >= MINIMUM_SCORE:
+                    skipItem = False
+                    
+                if skipItem == True:
                     continue
                 
-                if rid in item_map and res.get('score', 0) >= MINIMUM_SCORE:
+                if rid in item_map:
                     info = item_map[rid]
                     # Wir reichern das Dictionary mit den GPT-Ergebnissen an
                     info['score'] = res.get('score')
