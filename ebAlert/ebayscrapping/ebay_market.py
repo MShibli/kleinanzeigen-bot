@@ -17,7 +17,7 @@ if CACHE_DIR != "." and not os.path.exists(CACHE_DIR):
     os.makedirs(CACHE_DIR)
     
 CACHE_EXPIRY = 604800  # 1 Woche in Sekunden
-CACHE_VERSION = "v2"  # Ändere dies auf v3, v4 etc., wenn du die Logik anpasst
+CACHE_VERSION = "v3"  # Ändere dies auf v3, v4 etc., wenn du die Logik anpasst
 
 # In deinen Funktionen nutzt du jetzt einfach CACHE_FILE
 def load_cache():
@@ -48,6 +48,10 @@ def clear_cache():
 
 def build_refined_ebay_url(query: str):
     base_url = "https://www.ebay.de/sch/i.html"
+
+    # 1. Basis-Parameter (Einfach encodiert für die URL)
+    # Wir stellen sicher, dass die Query sauber ist
+    clean_query = query.replace("+", " ").strip()
     
     # Basis-Parameter für verkaufte Artikel
     params = {
@@ -56,39 +60,29 @@ def build_refined_ebay_url(query: str):
         "LH_Complete": "1",
         "_ipg": "120"
     }
-    
-    # 1. Spezielle Logik für iPhones
-    if "iphone" in query.lower():
-        # Säuberung des Modell-Strings:
-        # Entferne 'apple', 'iphone' und Speicherangaben (GB/TB)
-        # Regex sucht nach: Zahlenfolge + optional Leerzeichen + GB oder TB
-        model_name = query.lower().replace("apple", "").replace("iphone", "")
-        model_name = re.sub(r"\d+\s?(gb|tb|mb)", "", model_name, flags=re.IGNORECASE)
+
+    # 2. Modell-Filter (Spezialbehandlung für iPhone)
+    ebay_filter = ""
+    if "iphone" in clean_query.lower():
+        # Modell extrahieren und säubern
+        model_part = clean_query.lower().replace("apple", "").replace("iphone", "").strip()
         
-        # Entferne überflüssige Sonderzeichen und Leerzeichen
-        model_name = model_name.replace("/", "").replace("-", "").strip()
-        # Mehrfache Leerzeichen durch eins ersetzen
-        model_name = " ".join(model_name.split())
+        # Wichtig: "iPhone" korrekt schreiben (i klein, P groß)
+        full_model = f"Apple iPhone {model_part.title()}"
         
-        # 2. Modell-String für eBay formatieren
-        full_model_string = f"Apple iPhone {model_name}".title()
-        
-        # eBay-spezifische Formatierung für 'Pro Max' (Title Case macht daraus Pro Max)
-        # Manche Modelle brauchen Sonderbehandlung, falls nötig:
-        full_model_string = full_model_string.replace("Pro Max", "Pro Max")
-        ebay_filter = f"&Modell={quote(full_model_string)}"
-    else:
-        ebay_filter = ""
+        # Doppelte Encodierung für den Modell-Parameter sicherstellen
+        # quote(quote(...)) macht aus Leerzeichen -> %20 -> %2520
+        double_encoded_model = quote(full_model)
+        ebay_filter = f"&Modell={double_encoded_model}"
 
     # 3. URL zusammenbauen
-    query_string = "&".join([f"{k}={quote(v)}" for k, v in params.items()])
+    # Für _nkw nutzen wir das Plus als Trenner (Standard bei eBay)
+    query_string = "&".join([f"{k}={quote(v).replace('%20', '+')}" for k, v in params.items()])
     final_url = f"{base_url}?{query_string}{ebay_filter}"
-    # Testlauf:
-    # "iPhone 14 Pro 256GB" -> ...&_nkw=iPhone+14+Pro+256GB&Modell=Apple+iPhone+14+Pro
     return final_url
+    
 
 def get_ebay_median_price(query: str, offer_price: float):
-    clear_cache()
     # 1. Cache laden und prüfen
     cache = load_cache()
     current_time = time.time()
