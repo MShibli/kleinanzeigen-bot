@@ -17,7 +17,7 @@ if CACHE_DIR != "." and not os.path.exists(CACHE_DIR):
     os.makedirs(CACHE_DIR)
     
 CACHE_EXPIRY = 604800  # 1 Woche in Sekunden
-CACHE_VERSION = "v3"  # Ändere dies auf v3, v4 etc., wenn du die Logik anpasst
+CACHE_VERSION = "v4"  # Ändere dies auf v3, v4 etc., wenn du die Logik anpasst
 
 # In deinen Funktionen nutzt du jetzt einfach CACHE_FILE
 def load_cache():
