@@ -78,10 +78,12 @@ class SendingClass:
         # Buttons
         ebay_query = item_data["cleanedquery"]
         ebay_url = f"https://www.ebay.de/sch/i.html?_nkw={ebay_query}&LH_Sold=1&LH_Complete=1"
+        ebay_live_url = f"https://www.ebay.de/sch/i.html?_nkw={ebay_query}&LH_BIN=1&_sop=15"
         
         buttons = [
             {"text": "📱 Anzeige öffnen", "url": item.link},
-            {"text": "📊 eBay Check", "url": ebay_url}
+            {"text": "📊 eBay Check", "url": ebay_url},
+            {"text": "🛍️ eBay Live", "url": ebay_live_url}
         ]
         
         return self.send_message(message, buttons=buttons)
