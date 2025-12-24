@@ -50,7 +50,7 @@ EXCLUDED_KEYWORDS = [
     "mobile",
     "macbook",
     "fernbedienung",
-    "ich suche",
+    "suche",
     "watch",
     "nur paypal",
     "a16",
