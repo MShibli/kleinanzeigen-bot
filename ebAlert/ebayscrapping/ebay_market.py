@@ -4,6 +4,7 @@ import requests
 import json
 import os
 import time
+from urllib.parse import quote
 
 # --- CACHE KONFIGURATION ---
 # Prüft, ob CACHE_DIR in den Umgebungsvariablen existiert (Railway)
@@ -16,6 +17,7 @@ if CACHE_DIR != "." and not os.path.exists(CACHE_DIR):
     os.makedirs(CACHE_DIR)
     
 CACHE_EXPIRY = 604800  # 1 Woche in Sekunden
+CACHE_VERSION = "v2"  # Ändere dies auf v3, v4 etc., wenn du die Logik anpasst
 
 # In deinen Funktionen nutzt du jetzt einfach CACHE_FILE
 def load_cache():
@@ -35,7 +37,59 @@ def save_cache(cache_data):
     with open(CACHE_FILE, "w", encoding="utf-8") as f:
         json.dump(cache_data, f, indent=4)
 
+def clear_all_caches():
+    files = ["ebay_price_cache.json", "gpt_query_cache.json"]
+    base = os.environ.get("CACHE_DIR", os.path.expanduser("~"))
+    for f in files:
+        path = os.path.join(base, f)
+        if os.path.exists(path):
+            os.remove(path)
+            print(f"🗑️ Cache gelöscht: {path}")
+
+def build_refined_ebay_url(query: str):
+    base_url = "https://www.ebay.de/sch/i.html"
+    
+    # Basis-Parameter für verkaufte Artikel
+    params = {
+        "_nkw": query,
+        "LH_Sold": "1",
+        "LH_Complete": "1",
+        "_ipg": "120"
+    }
+    
+    # 1. Spezielle Logik für iPhones
+    if "iphone" in query.lower():
+        # Säuberung des Modell-Strings:
+        # Entferne 'apple', 'iphone' und Speicherangaben (GB/TB)
+        # Regex sucht nach: Zahlenfolge + optional Leerzeichen + GB oder TB
+        model_name = query.lower().replace("apple", "").replace("iphone", "")
+        model_name = re.sub(r"\d+\s?(gb|tb|mb)", "", model_name, flags=re.IGNORECASE)
+        
+        # Entferne überflüssige Sonderzeichen und Leerzeichen
+        model_name = model_name.replace("/", "").replace("-", "").strip()
+        # Mehrfache Leerzeichen durch eins ersetzen
+        model_name = " ".join(model_name.split())
+        
+        # 2. Modell-String für eBay formatieren
+        full_model_string = f"Apple iPhone {model_name}".title()
+        
+        # eBay-spezifische Formatierung für 'Pro Max' (Title Case macht daraus Pro Max)
+        # Manche Modelle brauchen Sonderbehandlung, falls nötig:
+        full_model_string = full_model_string.replace("Pro Max", "Pro Max")
+        full_model_string = full_model_string.replace(" ", "%2520")
+        ebay_filter = f"&Modell={quote(full_model_string)}"
+    else:
+        ebay_filter = ""
+
+    # 3. URL zusammenbauen
+    query_string = "&".join([f"{k}={quote(v)}" for k, v in params.items()])
+    final_url = f"{base_url}?{query_string}{ebay_filter}"
+    # Testlauf:
+    # "iPhone 14 Pro 256GB" -> ...&_nkw=iPhone+14+Pro+256GB&Modell=Apple+iPhone+14+Pro
+    return final_url
+
 def get_ebay_median_price(query: str, offer_price: float):
+    clear_all_caches()
     # 1. Cache laden und prüfen
     cache = load_cache()
     current_time = time.time()
@@ -45,17 +99,19 @@ def get_ebay_median_price(query: str, offer_price: float):
 
     if cache_key in cache:
         entry = cache[cache_key]
-
-        if entry['price'] > 15:        
-            # Prüfen, ob der Eintrag noch nicht abgelaufen ist
-            if current_time - entry['timestamp'] < CACHE_EXPIRY:
-                print(f"📦 Cache-Hit für '{query}': {entry['price']}€ (Alter: {int((current_time - entry['timestamp'])/3600)}h)")
-                return entry['price']
+        if entry.get('version') == CACHE_VERSION:
+            if entry['price'] > 15:        
+                # Prüfen, ob der Eintrag noch nicht abgelaufen ist
+                if current_time - entry['timestamp'] < CACHE_EXPIRY:
+                    print(f"📦 Cache-Hit für '{query}': {entry['price']}€ (Alter: {int((current_time - entry['timestamp'])/3600)}h)")
+                    return entry['price']
 
         print(f"💾 Ebay scrap-Cache vorhanden ist aber abgelaufen! Aktuelles Datum: {current_time}, Entrydatum: {entry['timestamp']}")
 
     # 2. Wenn nicht im Cache oder abgelaufen -> Scrapen
-    url = f"https://www.ebay.de/sch/i.html?_nkw={query.replace(' ', '+')}&LH_Sold=1&LH_Complete=1&_ipg=120"
+    #url = f"https://www.ebay.de/sch/i.html?_nkw={query.replace(' ', '+')}&LH_Sold=1&LH_Complete=1&_ipg=120"
+    url = build_refined_ebay_url(query.replace(' ', '+'))
+    print(f"💾 Ebay scrap-URL: {url}")
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept-Language": "de-DE,de;q=0.9"
@@ -97,7 +153,8 @@ def get_ebay_median_price(query: str, offer_price: float):
         # 3. Ergebnis in Cache speichern
         cache[cache_key] = {
             "price": market_median,
-            "timestamp": current_time
+            "timestamp": current_time,
+            "version": CACHE_VERSION
         }
         save_cache(cache)
         
