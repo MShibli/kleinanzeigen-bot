@@ -128,6 +128,8 @@ def get_ebay_median_price(query: str, offer_price: float):
 
         for p in raw_matches:
             val = float(p.replace('.', '').replace(',', '.'))
+            if val <= 15:
+                continue
             if min_gate <= val <= max_gate:
                 all_prices.append(val)
 
