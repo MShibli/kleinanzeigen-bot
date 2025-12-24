@@ -38,7 +38,7 @@ def save_cache(cache_data):
         json.dump(cache_data, f, indent=4)
 
 def clear_all_caches():
-    files = ["ebay_price_cache.json", "gpt_query_cache.json"]
+    files = ["ebay_price_cache.json"]
     base = os.environ.get("CACHE_DIR", os.path.expanduser("~"))
     for f in files:
         path = os.path.join(base, f)
