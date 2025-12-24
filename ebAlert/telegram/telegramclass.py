@@ -76,7 +76,12 @@ class SendingClass:
                 message += f"🎯 <b>KI-Margin: {margin} €</b>\n"
         
         # Buttons
-        ebay_query = item_data["cleanedquery"]
+
+        if is_whitelist == true:
+            ebay_query = item.title
+        else:
+            ebay_query = item_data["cleanedquery"]
+        
         ebay_url = f"https://www.ebay.de/sch/i.html?_nkw={ebay_query}&LH_Sold=1&LH_Complete=1"
         ebay_live_url = f"https://www.ebay.de/sch/i.html?_nkw={ebay_query}&LH_BIN=1&_sop=15"
         
