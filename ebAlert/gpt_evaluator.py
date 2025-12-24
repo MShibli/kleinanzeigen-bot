@@ -45,7 +45,7 @@ CLASS:
 
 OUTPUT:
 {
-  "results": [
+  "result": [
     {
       "id": "string",
       "expected_margin_eur": number,
