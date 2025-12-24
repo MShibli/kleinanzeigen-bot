@@ -12,6 +12,8 @@ from ebAlert.ebayscrapping import ebayclass
 from ebAlert.telegram.telegramclass import telegram
 from ebAlert.gpt_evaluator import generate_search_queries_batch, evaluate_listings_batch
 from ebAlert.ebayscrapping.ebay_market import get_ebay_median_price
+from datetime import datetime, timedelta
+from ebAlert.db.sqlmodel import EbayPost  # Importiere dein Modell
 
 WHITELIST = ["bundle", "aufrüstkit", "5800x3d", "5700x3d"]
 MINIMUM_SCORE = 60
@@ -74,6 +76,20 @@ EXCLUDED_KEYWORDS = [
     "schrott"
 ]
 
+def delete_old_items(db: Session):
+    """Löscht alle Anzeigen aus der Datenbank, die älter als 24 Stunden sind."""
+    try:
+        threshold = datetime.now() - timedelta(hours=24)
+        old_items = db.query(EbayPost).filter(EbayPost.date < threshold)
+        count = old_items.count()
+        if count > 0:
+            old_items.delete(synchronize_session=False)
+            db.commit()
+            print(f"🧹 Cleanup: {count} alte Einträge gelöscht.")
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Cleanup Fehler: {e}")
+
 log = create_logger(__name__)
 
 try:
@@ -86,18 +102,43 @@ except ImportError:
 @click.group()
 def cli() -> BaseCommand:
     pass
-
-
-@cli.command(help="Fetch new post and send telegramclass notification.")
+    
+@cli.command(help="Fetch new post and send telegram notification in an infinite loop.")
 def start():
     """
-    loop through the urls in the database and send message
+    Endlosschleife für den Bot-Betrieb.
     """
-    print(">> Starting Ebay alert")
-    with get_session() as db:
-        get_all_post(db=db, telegram_message=True)
-    print("<< Ebay alert finished")
+    print(">> Starting Ebay alert Service (Infinite Loop)")
+    
+    # Timer für den stündlichen Cleanup initialisieren
+    last_cleanup = datetime.now() - timedelta(hours=1)
 
+    while True:
+        try:
+            now = datetime.now()
+            print(f"\n--- 🛰️ Scan gestartet: {now.strftime('%H:%M:%S')} ---")
+            
+            with get_session() as db:
+                # 1. Stündlicher Cleanup
+                if now - last_cleanup > timedelta(minutes=60):
+                    delete_old_items(db)
+                    last_cleanup = now
+                
+                # 2. Die eigentliche Arbeit (Anzeigen holen)
+                get_all_post(db=db, telegram_message=True)
+            
+            # 3. Random Pause (zwischen 60 und 120 Sekunden)
+            wait_time = randint(60, 120)
+            print(f"--- ✅ Scan fertig. Pause: {wait_time}s ---")
+            sleep(wait_time)
+
+        except KeyboardInterrupt:
+            print("\n<< Bot manuell beendet.")
+            sys.exit(0)
+        except Exception as e:
+            print(f"⚠️ Loop-Fehler: {e}")
+            # Bei Fehlern (z.B. Internet weg) 30 Sek warten und neu versuchen
+            sleep(30)
 
 @cli.command(options_metavar="<options>", help="Add/Show/Remove URL from database.")
 @click.option("-r", "--remove_link", 'remove', metavar="<link id>", help="Remove link from database.")
