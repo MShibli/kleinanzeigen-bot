@@ -48,40 +48,43 @@ def clear_cache():
 
 def build_refined_ebay_url(query: str):
     base_url = "https://www.ebay.de/sch/i.html"
-
-    # 1. Basis-Parameter (Einfach encodiert für die URL)
-    # Wir stellen sicher, dass die Query sauber ist
-    clean_query = query.replace("+", " ").strip()
     
-    # Basis-Parameter für verkaufte Artikel
+    # 1. Query für die Textsuche säubern (GB bleibt hier drin)
+    # Macht aus "iPhone+6s+16GB" -> "iPhone 6s 16GB"
+    clean_query_for_nkw = query.replace("+", " ").strip()
+    
     params = {
-        "_nkw": query,
+        "_nkw": clean_query_for_nkw,
         "LH_Sold": "1",
         "LH_Complete": "1",
         "_ipg": "120"
     }
-
+    
     # 2. Modell-Filter (Spezialbehandlung für iPhone)
     ebay_filter = ""
-    if "iphone" in clean_query.lower():
-        # Modell extrahieren und säubern
-        model_part = clean_query.lower().replace("apple", "").replace("iphone", "").strip()
+    if "iphone" in clean_query_for_nkw.lower():
+        # Modell-Name extrahieren (ohne Apple/iPhone/GB)
+        model_part = clean_query_for_nkw.lower().replace("apple", "").replace("iphone", "")
+        # Entferne Speicherangaben wie 16GB, 64 GB etc.
+        model_part = re.sub(r"\d+\s?(gb|tb|mb)", "", model_part, flags=re.IGNORECASE).strip()
         
-        # Wichtig: "iPhone" korrekt schreiben (i klein, P groß)
-        full_model = f"Apple iPhone {model_part.title()}"
+        # Formatierung: Apple iPhone [Modell]
+        # Wir nutzen .title() und korrigieren danach das "iPhone"
+        full_model = f"Apple iPhone {model_part.title()}".replace("Iphone", "iPhone").strip()
         
-        # Doppelte Encodierung für den Modell-Parameter sicherstellen
-        # quote(quote(...)) macht aus Leerzeichen -> %20 -> %2520
-        double_encoded_model = quote(full_model)
-        ebay_filter = f"&Modell={double_encoded_model}"
+        # ERZWINGEN von %2520:
+        # quote() macht Leerzeichen zu %20. Wir ersetzen %20 durch %2520.
+        encoded_model = quote(full_model).replace("%20", "%2520")
+        ebay_filter = f"&Modell={encoded_model}"
 
     # 3. URL zusammenbauen
-    # Für _nkw nutzen wir das Plus als Trenner (Standard bei eBay)
+    # Für _nkw nutzen wir das Standard-Verfahren (Leerzeichen zu +)
     query_string = "&".join([f"{k}={quote(v).replace('%20', '+')}" for k, v in params.items()])
     final_url = f"{base_url}?{query_string}{ebay_filter}"
+    # Test mit: "iPhone 6s 16GB"
+    # Ergebnis Modell-Teil: &Modell=Apple%2520iPhone%25206S
     return final_url
     
-
 def get_ebay_median_price(query: str, offer_price: float):
     # 1. Cache laden und prüfen
     cache = load_cache()
