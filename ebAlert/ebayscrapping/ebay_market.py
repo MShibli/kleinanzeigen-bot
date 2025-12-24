@@ -37,7 +37,7 @@ def save_cache(cache_data):
     with open(CACHE_FILE, "w", encoding="utf-8") as f:
         json.dump(cache_data, f, indent=4)
 
-def clear_all_caches():
+def clear_cache():
     files = ["ebay_price_cache.json"]
     base = os.environ.get("CACHE_DIR", os.path.expanduser("~"))
     for f in files:
@@ -76,7 +76,6 @@ def build_refined_ebay_url(query: str):
         # eBay-spezifische Formatierung für 'Pro Max' (Title Case macht daraus Pro Max)
         # Manche Modelle brauchen Sonderbehandlung, falls nötig:
         full_model_string = full_model_string.replace("Pro Max", "Pro Max")
-        full_model_string = full_model_string.replace(" ", "%2520")
         ebay_filter = f"&Modell={quote(full_model_string)}"
     else:
         ebay_filter = ""
@@ -89,6 +88,7 @@ def build_refined_ebay_url(query: str):
     return final_url
 
 def get_ebay_median_price(query: str, offer_price: float):
+    clear_cache()
     # 1. Cache laden und prüfen
     cache = load_cache()
     current_time = time.time()
