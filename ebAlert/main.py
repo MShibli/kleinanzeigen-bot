@@ -169,7 +169,7 @@ def get_all_post(db: Session, telegram_message=False):
                 if p > MAX_ITEM_PRICE:
                     continue
                 
-                if not contains_excluded_keywords(item.title):
+                if not contains_excluded_keywords(item.title) and not contains_excluded_keywords(item.description):
                     print(f"Processing Item - title: {item.title} - price: {p}")
 
                     title_lower = item.title.lower()
