@@ -77,7 +77,7 @@ class SendingClass:
         
         # Buttons
 
-        if is_whitelist == true:
+        if is_whitelist == True:
             ebay_query = item.title
         else:
             ebay_query = item_data["cleanedquery"]
