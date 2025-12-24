@@ -31,7 +31,8 @@ MARKET ADJUSTMENT:
 - high liquidity (GPU, recent CPU, MacBook): +10
 - niche or slow-moving hardware: -10
 - outdated technology (e.g. DDR3, old CPUs): -20
-
+- accessories only (cases, cables, chargers, adapters, phone cases, mounts, fans, stands): market_adjustment = -100
+  
 SCORE:
 base = margin_pct * 100
 score = clamp(base + risk_adjustment, 0, 100)
