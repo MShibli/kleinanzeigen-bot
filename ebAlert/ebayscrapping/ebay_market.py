@@ -55,7 +55,7 @@ def get_ebay_median_price(query: str, offer_price: float):
         print(f"💾 Ebay scrap-Cache vorhanden ist aber abgelaufen! Aktuelles Datum: {current_time}, Entrydatum: {entry['timestamp']}")
 
     # 2. Wenn nicht im Cache oder abgelaufen -> Scrapen
-    url = f"https://www.ebay.de/sch/i.html?_nkw={query.replace(' ', '+')}&LH_Sold=1&LH_Complete=1&_ipg=60"
+    url = f"https://www.ebay.de/sch/i.html?_nkw={query.replace(' ', '+')}&LH_Sold=1&LH_Complete=1&_ipg=120"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept-Language": "de-DE,de;q=0.9"
@@ -72,7 +72,7 @@ def get_ebay_median_price(query: str, offer_price: float):
        
         all_prices = []
         min_gate = offer_price * 0.5
-        max_gate = offer_price * 2.0
+        max_gate = offer_price * 3.0
 
         for p in raw_matches:
             val = float(p.replace('.', '').replace(',', '.'))
