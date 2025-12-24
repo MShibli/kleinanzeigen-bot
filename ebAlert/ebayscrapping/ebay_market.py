@@ -89,7 +89,6 @@ def build_refined_ebay_url(query: str):
     return final_url
 
 def get_ebay_median_price(query: str, offer_price: float):
-    clear_all_caches()
     # 1. Cache laden und prüfen
     cache = load_cache()
     current_time = time.time()
