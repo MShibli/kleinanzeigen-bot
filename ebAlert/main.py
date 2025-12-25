@@ -29,6 +29,7 @@ EXCLUDED_KEYWORDS = [
     "i5",
     "i7",
     "honor",
+    "xiaomi",
     "motorola",
     "iphone xs",
     "iphone x",
