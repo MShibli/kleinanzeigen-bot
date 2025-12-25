@@ -24,6 +24,15 @@ EXCLUDED_KEYWORDS = [
     "core 2 duo",
     "so-dimm",
     "sodimm",
+    "thinkpad",
+    "intel",
+    "i5",
+    "i7",
+    "honor",
+    "motorola",
+    "iphone xs",
+    "iphone x",
+    "iphone xr",
     "laptop",
     "amplifier",
     "pico",
@@ -127,8 +136,8 @@ def start():
                 # 2. Die eigentliche Arbeit (Anzeigen holen)
                 get_all_post(db=db, telegram_message=True)
             
-            # 3. Random Pause (zwischen 60 und 120 Sekunden)
-            wait_time = randint(60, 120)
+            # 3. Random Pause (zwischen 120 und 180 Sekunden)
+            wait_time = randint(120, 180)
             print(f"--- ✅ Scan fertig. Pause: {wait_time}s ---")
             sleep(wait_time)
 
