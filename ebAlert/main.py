@@ -25,6 +25,7 @@ EXCLUDED_KEYWORDS = [
     "so-dimm",
     "sodimm",
     "thinkpad",
+    "ideapad",
     "intel",
     "i5",
     "i7",
