@@ -274,7 +274,7 @@ def get_all_post(db: Session, telegram_message=False):
             # 5. Telegram
             for res in results:
                 rid = str(res.get('id'))   
-                expected_margin = res.get('expected_margin_eur')
+                expected_margin = res.get('margin_eur')
 
                 skipItem = True
                 
@@ -291,7 +291,7 @@ def get_all_post(db: Session, telegram_message=False):
                     info = item_map[rid]
                     # Wir reichern das Dictionary mit den GPT-Ergebnissen an
                     info['score'] = res.get('score')
-                    info['expected_margin_eur'] = expected_margin
+                    info['margin_eur'] = expected_margin
 
                     # ÜBERGABE DES GANZEN DICTS STATT NUR info["obj"]
                     telegram.send_formated_message(info)
