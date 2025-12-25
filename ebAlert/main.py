@@ -254,9 +254,6 @@ def get_all_post(db: Session, telegram_message=False):
 
                 if not m_price:
                     continue
-
-                if orig['price'] > m_price:
-                    continue
                 
                 batch_for_gpt.append({
                     "id": item_id,
