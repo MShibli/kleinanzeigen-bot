@@ -290,7 +290,7 @@ def get_all_post(db: Session, telegram_message=False):
                 if rid in item_map:
                     info = item_map[rid]
 
-                    itemPrice = float(info['obj'].price.replace('€','').replace('VB','').strip())
+                    itemPrice = parse_price(info['obj'].price)
                     ebayMedianPrice = info['m_price']
 
                     if score == 100 and itemPrice > ebayMedianPrice * 2:
