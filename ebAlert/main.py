@@ -24,6 +24,7 @@ EXCLUDED_KEYWORDS = [
     "core 2 duo",
     "so-dimm",
     "sodimm",
+    "joystick",
     "xcover",
     "lenovo",
     "telekom",
@@ -293,33 +294,39 @@ def get_all_post(db: Session, telegram_message=False):
                 rid = str(res.get('id'))   
                 expected_margin = res.get('margin_eur')
                 score = res.get('score', 0)
+                
+                # Standardmäßig überspringen, außer ein Kriterium passt
                 skipItem = True
                 
-                if not expected_margin and expected_margin > MINIMUM_MARGIN_EUR:
+                # Kriterium 1: Margin passt
+                if expected_margin is not None and expected_margin >= MINIMUM_MARGIN_EUR:
                     skipItem = False
 
-                if skipItem == True and score >= MINIMUM_SCORE:
+                # Kriterium 2: Score passt
+                if skipItem and score >= MINIMUM_SCORE:
                     skipItem = False
                 
-                if rid in item_map:
-                    info = item_map[rid]
+                # Sicherheits-Check: Wenn rid nicht in Map, können wir nichts senden
+                if rid not in item_map:
+                    continue
 
-                    itemPrice = parse_price(info['obj'].price)
-                    ebayMedianPrice = info['m_price']
+                info = item_map[rid]
+                itemPrice = parse_price(info['obj'].price)
+                ebayMedianPrice = info['m_price']
 
-                    if score == 100 and itemPrice > ebayMedianPrice * 1.3:
-                        skipItem = True
+                # Sicherheits-Check gegen KI-Fehler (Price > Median trotz hohem Score)
+                if score >= 80 and itemPrice and ebayMedianPrice and itemPrice > ebayMedianPrice:
+                    skipItem = True
+                
+                if skipItem:
+                    continue
                     
-                    if skipItem == True:
-                        continue
-                    
-                    # Wir reichern das Dictionary mit den GPT-Ergebnissen an
-                    info['score'] = res.get('score')
-                    info['margin_eur'] = expected_margin
-
-                    # ÜBERGABE DES GANZEN DICTS STATT NUR info["obj"]
-                    telegram.send_formated_message(info)
-                    #telegram.send_formated_message(info["obj"])
+                # Wir reichern das Dictionary mit den GPT-Ergebnissen an
+                info['score'] = res.get('score')
+                info['margin_eur'] = expected_margin
+                # ÜBERGABE DES GANZEN DICTS STATT NUR info["obj"]
+                telegram.send_formated_message(info)
+                #telegram.send_formated_message(info["obj"])
                     
             sleep(randint(0, 40) / 10)
 
