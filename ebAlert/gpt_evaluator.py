@@ -23,7 +23,7 @@ CALCULATION LOGIC:
 1. sell_net = ebay_median_eur * 0.90 (Subtract 10% for fees/shipping)
 2. buy_target = offer_price_eur * 0.85 (max 15% negotiation)
 3. margin_eur = sell_net - buy_target
-4. margin_pct = (margin_eur / buy_price)
+4. margin_pct = (margin_eur / buy_target)
 
 ADJUSTMENTS:
 - BUNDLE BOOST: Only for different categories (e.g., CPU + Mainboard). 4 sticks of RAM is NOT a bundle: +30
@@ -174,7 +174,7 @@ def evaluate_listings_batch(listings: list):
     try:
         response = client.chat.completions.create(
             model=MODEL,
-            temperature=0.1,
+            temperature=0.0,
             response_format={"type": "json_object"},  # Erzwingt JSON-Mode
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT_SCORING},
