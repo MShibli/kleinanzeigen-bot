@@ -15,24 +15,26 @@ TASK: Score buy-deals for eBay/Kleinanzeigen resale based on profit potential an
 
 RULES:
 - Output JSON only (No prose, no markdown)
-- Strict identification of "Bundles" (CPU + Mainboard + RAM combinations)
-
+- Strict identification of "Bundles" (minimum of 2 different componentes e.g CPU + Mainboard etc.)
 			  
 INPUT: id, title, description, offer_price_eur, ebay_median_eur
 
 CALCULATION LOGIC:
 1. sell_net = ebay_median_eur * 0.90 (Subtract 10% for fees/shipping)
-2. buy_target = offer_price_eur * 0.80 (Subtract 20% for negotiation)
+2. buy_target = offer_price_eur * 0.85 (max 15% negotiation)
 3. margin_eur = sell_net - buy_target
+4. margin_pct = (margin_eur / buy_price)
 
 ADJUSTMENTS:
-- BUNDLE BOOST: If title/description contains 2+ core components (e.g., CPU+Mainboard, CPU+RAM, Full Kit): Add +30 to score.
-- OBSOLETE: Old tech (DDR3, Intel < 8th Gen, AM3): -30
-- ACCESSORY ONLY: (Cases, cables, fans, etc. without core component): Score = 0 (Immediate Reject)
+- BUNDLE BOOST: Only for different categories (e.g., CPU + Mainboard). 4 sticks of RAM is NOT a bundle: +30
+- OBSOLETE: DDR3 or Intel < 8th Gen: -40
+- ACCESSORY ONLY: Score = 0
 	
-SCORE:
-base = margin_pct * 100
-score = clamp(base + risk_adjustment, 0, 100)
+FINAL SCORE CALCULATION:
+- base_score = margin_pct * 150 (Example: 20% margin = 30 points)
+- Adjusted_score = base_score + adjustments
+- IF margin_eur < 0: final_score = max(0, 10) (Negative margin cannot have high score!)
+- final_score = clamp(Adjusted_score, 0, 100)
 
 SPECIAL RULE: If BUNDLE BOOST is active and expected_margin_eur > 10: Minimum Score = 85
 
@@ -42,7 +44,6 @@ CLASS:
 30-59 borderline
 0-29 reject  				   										 
 		   
-
 OUTPUT FORMAT:
 {
   "result": [
