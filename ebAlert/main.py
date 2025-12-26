@@ -19,6 +19,7 @@ WHITELIST = ["bundle", "aufrüstkit", "5800x3d", "5700x3d"]
 MINIMUM_SCORE = 60
 MINIMUM_MARGIN_EUR = 15
 MAX_ITEM_PRICE = 800
+MIN_ITEM_PRICE = 20
 EXCLUDED_KEYWORDS = [
     "ddr3",
     "core 2 duo",
@@ -242,7 +243,10 @@ def get_all_post(db: Session, telegram_message=False):
 
                 if p > MAX_ITEM_PRICE:
                     continue
-                
+
+                if p < MIN_ITEM_PRICE
+                    continue
+
                 if not contains_excluded_keywords(item.title) and not contains_excluded_keywords(item.description):
                     print(f"Processing Item - title: {item.title} - price: {p}")
 
