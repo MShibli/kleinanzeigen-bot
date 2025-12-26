@@ -262,9 +262,8 @@ def get_all_post(db: Session, telegram_message=False):
                 batch_for_gpt.append({
                     "id": item_id,
                     "title": orig['title'],
-                    "price": orig['price'],
-                    "date": orig['date'],
-                    "market_price": m_price,
+                    "offer_price_eur": orig['price'],
+                    "ebay_median_eur": m_price,
                     "description": (orig['item'].description or "")[:400]
                 })
                 
