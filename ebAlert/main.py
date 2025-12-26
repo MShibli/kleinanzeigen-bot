@@ -27,6 +27,7 @@ EXCLUDED_KEYWORDS = [
     "joystick",
     "xcover",
     "lenovo",
+    "displayschaden",
     "telekom",
     "aldi",
     "pedale",
