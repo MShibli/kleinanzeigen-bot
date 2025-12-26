@@ -31,6 +31,8 @@ EXCLUDED_KEYWORDS = [
     "i7",
     "honor",
     "xiaomi",
+    "realme",
+    "huawei",
     "redmi",
     "großhandel",
     "raspberry",
