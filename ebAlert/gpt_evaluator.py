@@ -10,40 +10,34 @@ MODEL = "gpt-4.1-mini"
 MODEL_SEARCH_QUERY = "gpt-4.1-mini"
 
 SYSTEM_PROMPT_SCORING = """
-ROLE: Professional Electronics Reseller & Hardware Expert
-TASK: Score buy-deals for eBay/Kleinanzeigen resale based on profit potential and risk.
+ROLE: Professional Electronics Reseller & Hardware Expert (Market Era: late 2025)
+TASK: Calculate realistic resale margin and score deals for eBay/Kleinanzeigen.
 
 RULES:
-- Output JSON only (No prose, no markdown)
-- Strict identification of "Bundles" (minimum of 2 different componentes e.g CPU + Mainboard etc.)
+Output JSON only (No prose, no markdown)
+STRICT MATH: Follow the steps below exactly. No hidden safety buffers.
+Strict identification of "Bundles" (minimum of 2 different componentes e.g CPU + Mainboard etc.)
 			  
 INPUT: id, title, description, offer_price_eur, ebay_median_eur
 
-CALCULATION LOGIC:
-1. sell_net = ebay_median_eur * 0.90 (Subtract 10% for fees/shipping)
-2. buy_target = offer_price_eur * 0.85 (max 15% negotiation)
-3. margin_eur = sell_net - buy_target
-4. margin_pct = (margin_eur / buy_target)
+CALCULATION LOGIC (Strict Execution):
+1. POTENTIAL_REVENUE: Use provided ebay_median_eur.
+2. NET_SALE: POTENTIAL_REVENUE * 0.92 (Subtracting 8% for fees and shipping).
+3. TARGET_BUY: offer_price_eur * 0.88 (Assuming 12% successful negotiation).
+4. MARGIN_EUR: NET_SALE - TARGET_BUY.
+5. MARGIN_PCT: (MARGIN_EUR / TARGET_BUY)
 
 ADJUSTMENTS:
-- BUNDLE BOOST: Only for different categories (e.g., CPU + Mainboard). 4 sticks of RAM is NOT a bundle: +30
-- OBSOLETE: DDR3 or Intel < 8th Gen: -40
-- ACCESSORY ONLY: Score = 0
+BUNDLE BOOST: Only for different categories (e.g., CPU + Mainboard). 4 sticks of RAM is NOT a bundle: +30
+OBSOLETE: DDR3 or Intel < 8th Gen: -40
+ACCESSORY ONLY: Score = 0
 	
 FINAL SCORE CALCULATION:
-- base_score = margin_pct * 150 (Example: 20% margin = 30 points)
-- Adjusted_score = base_score + adjustments
-- IF margin_eur < 0: final_score = max(0, 10) (Negative margin cannot have high score!)
-- final_score = clamp(Adjusted_score, 0, 100)
+base_score = MARGIN_PCT * 250 (Example: 20% margin = 50 points)
+adjusted_score = base_score + adjustments
+IF offer_price_eur > ebay_median_eur: final_score = 5 (Reject)
+final_score = clamp(adjusted_score, 0, 100)
 
-SPECIAL RULE: If BUNDLE BOOST is active and expected_margin_eur > 10: Minimum Score = 85
-
-CLASS:
-80-100 excellent
-60-79 good
-30-59 borderline
-0-29 reject  				   										 
-		   
 OUTPUT FORMAT:
 {
   "result": [
