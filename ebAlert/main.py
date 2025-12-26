@@ -315,7 +315,7 @@ def get_all_post(db: Session, telegram_message=False):
                 ebayMedianPrice = info['m_price']
 
                 # Sicherheits-Check gegen KI-Fehler (Price > Median trotz hohem Score)
-                if score >= 80 and itemPrice and ebayMedianPrice and itemPrice > ebayMedianPrice:
+                if score >= 90 and itemPrice and ebayMedianPrice and itemPrice > ebayMedianPrice * 1.3:
                     skipItem = True
                 
                 if skipItem:
