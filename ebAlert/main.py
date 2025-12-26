@@ -242,7 +242,7 @@ def get_all_post(db: Session, telegram_message=False):
                     
                     potential_items.append({"id": item.id, "title": item.title, "item": item, "price": p, "date": item_date_str})
 
-            if not potential_items: return
+            if not potential_items: continue
             
             # 2. KI: Saubere Suchbegriffe generieren (Batch)
             clean_queries = generate_search_queries_batch(potential_items)
