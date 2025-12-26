@@ -290,8 +290,8 @@ def get_all_post(db: Session, telegram_message=False):
                 if rid in item_map:
                     info = item_map[rid]
 
-                    itemPrice = info['offer_price_eur']
-                    ebayMedianPrice = info['ebay_median_eur']
+                    itemPrice = info['obj'].price
+                    ebayMedianPrice = info['m_price']
 
                     if score == 100 and itemPrice > ebayMedianPrice * 2:
                         skipItem = True
