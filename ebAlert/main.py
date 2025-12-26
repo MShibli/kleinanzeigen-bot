@@ -24,6 +24,11 @@ EXCLUDED_KEYWORDS = [
     "core 2 duo",
     "so-dimm",
     "sodimm",
+    "fanatec"
+    "beelink",
+    "handycam",
+    "panasonic",
+    "xperia",
     "thinkpad",
     "ideapad",
     "intel",
