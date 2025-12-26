@@ -26,6 +26,8 @@ EXCLUDED_KEYWORDS = [
     "sodimm",
     "xcover",
     "lenovo",
+    "telekom",
+    "aldi",
     "pedale",
     "siemens",
     "wiko",
