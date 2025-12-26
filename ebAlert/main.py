@@ -293,7 +293,7 @@ def get_all_post(db: Session, telegram_message=False):
                     itemPrice = parse_price(info['obj'].price)
                     ebayMedianPrice = info['m_price']
 
-                    if score == 100 and itemPrice > ebayMedianPrice * 2:
+                    if score == 100 and itemPrice > ebayMedianPrice * 1.3:
                         skipItem = True
                     
                     if skipItem == True:
