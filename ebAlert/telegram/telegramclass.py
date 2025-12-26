@@ -67,12 +67,12 @@ class SendingClass:
         
         message += f"\n📍 Ort: {item.city}\n"
         
-        if score:
+        if score is not None:
             message += (
                 f"---------------------------\n"
                 f"🎯 <b>KI-Score: {score}/100</b>\n"
             )
-            if margin:
+            if margin is not None:
                 message += f"🎯 <b>KI-Margin: {margin} €</b>\n"
         
         # Buttons
