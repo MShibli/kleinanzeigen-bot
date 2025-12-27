@@ -17,7 +17,7 @@ from ebAlert.models.sqlmodel import EbayPost  # Importiere dein Modell
 
 WHITELIST = ["bundle", "aufrüstkit", "5800x3d", "5700x3d"]
 MINIMUM_SCORE = 60
-MINIMUM_MARGIN_EUR = 15
+MINIMUM_MARGIN_EUR = 25
 MAX_ITEM_PRICE = 800
 MIN_ITEM_PRICE = 20
 EXCLUDED_KEYWORDS = [
