@@ -17,7 +17,7 @@ from ebAlert.models.sqlmodel import EbayPost  # Importiere dein Modell
 
 WHITELIST = ["bundle", "aufrüstkit", "5800x3d", "5700x3d"]
 MINIMUM_SCORE = 60
-MINIMUM_MARGIN_EUR = 25
+MINIMUM_MARGIN_EUR = 40
 MAX_ITEM_PRICE = 800
 MIN_ITEM_PRICE = 20
 EXCLUDED_KEYWORDS = [
@@ -334,8 +334,8 @@ def get_all_post(db: Session, telegram_message=False):
                 skipItem = True
                 
                 # Kriterium 1: Margin passt
-                #if expected_margin is not None and expected_margin >= MINIMUM_MARGIN_EUR:
-                #    skipItem = False
+                if expected_margin is not None and expected_margin >= MINIMUM_MARGIN_EUR:
+                    skipItem = False
 
                 # Kriterium 2: Score passt
                 if skipItem and score >= MINIMUM_SCORE:
@@ -343,8 +343,8 @@ def get_all_post(db: Session, telegram_message=False):
 
                 
                 # Sicherheits-Check gegen KI-Fehler (Price > Median trotz hohem Score)
-                #if score == 0:
-                #    skipItem = True
+                if score == 0:
+                    skipItem = True
                 
                 if skipItem:
                     continue
