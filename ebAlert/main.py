@@ -301,8 +301,25 @@ def get_all_post(db: Session, telegram_message=False):
             # 5. Telegram
             for res in results:
                 rid = str(res.get('id'))   
-                expected_margin = res.get('margin_eur')
-                score = res.get('score', 0)
+                
+                # Sicherheits-Check: Wenn rid nicht in Map, können wir nichts senden
+                if rid not in item_map:
+                    continue
+                    
+                expected_margin, score = calculate_score(
+                  offer_price=item_price,
+                  ebay_median=ebay_median,
+                  gpt_flags=res  # GPT liefert nur Flags!
+                )
+
+                print(
+                 f"id={rid} "
+                 f"buy={itemPrice} "
+                 f"median={ebayMedianPrice} "
+                 f"margin={expected_margin} "
+                 f"score={score} "
+                 f"flags={flags}"
+                )
                 
                 # Standardmäßig überspringen, außer ein Kriterium passt
                 skipItem = True
@@ -313,11 +330,7 @@ def get_all_post(db: Session, telegram_message=False):
 
                 # Kriterium 2: Score passt
                 if skipItem and score >= MINIMUM_SCORE:
-                    skipItem = False
-                
-                # Sicherheits-Check: Wenn rid nicht in Map, können wir nichts senden
-                if rid not in item_map:
-                    continue
+                    skipItem = False 
 
                 info = item_map[rid]
                 itemPrice = parse_price(info['obj'].price)
@@ -331,7 +344,7 @@ def get_all_post(db: Session, telegram_message=False):
                     continue
                     
                 # Wir reichern das Dictionary mit den GPT-Ergebnissen an
-                info['score'] = res.get('score')
+                info['score'] = score
                 info['margin_eur'] = expected_margin
                 # ÜBERGABE DES GANZEN DICTS STATT NUR info["obj"]
                 telegram.send_formated_message(info)
@@ -368,6 +381,24 @@ def parse_price(raw_price) -> float | None:
     except:
         return None
 
+
+def calculate_score(offer_price, ebay_median, gpt_flags):
+    net_sale = ebay_median * 0.92
+    target_buy = offer_price * 0.88
+    margin_eur = net_sale - target_buy
+    margin_pct = margin_eur / target_buy if target_buy else -1
+    score = margin_pct * 200
+
+    if gpt_flags.get("bundle"):
+        score += 30
+    if gpt_flags.get("obsolete"):
+        score -= 40
+    if gpt_flags.get("accessory_only"):
+        score = 0
+
+    score = max(0, min(100, int(score)))
+    return round(margin_eur, 2), score
+    
 def estimate_negotiated_price(price, negotiability):
     if negotiability == "hoch":
         return price * 0.85
