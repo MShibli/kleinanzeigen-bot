@@ -10,9 +10,7 @@ MODEL = "gpt-4.1-mini"
 MODEL_SEARCH_QUERY = "gpt-4.1-mini"
 
 SYSTEM_PROMPT_SCORING = """
-ROLE: Professional Electronics Reseller & Hardware Expert (Market Era: late 2025)
 ROLE: Professional Electronics Reseller.
-
 TASK:
 Classify each listing. Do NOT calculate prices or margins.
 
@@ -22,10 +20,22 @@ RULES:
 - One object per input item
 
 CLASSIFICATION RULES:
-- bundle: true ONLY if multiple different hardware categories
-- obsolete: true if DDR3 or Intel < 8th Gen or AMD < 2000 series or iPhone < 11
-- accessory_only: true if no primary electronic device
-- liquidity: high | medium | low
+1) BUNDLE DEFINITION (VERY IMPORTANT):
+bundle = true ONLY if the listing contains TWO OR MORE PRIMARY ELECTRONIC DEVICES
+PRIMARY devices are: CPU, GPU, Mainboard, Smartphone, Laptop, Console, PC
+Accessories do NOT count as devices
+
+NEVER mark as bundle:
+Smartphone + case
+Smartphone + screen protector
+Smartphone + charger
+Smartphone + headphones
+Any device + accessories
+
+If only ONE primary device exists → bundle = false
+2) obsolete: true if DDR3 or Intel < 8th Gen or AMD < 2000 series or iPhone < 11
+3) accessory_only: true if no primary electronic device
+4) liquidity: high | medium | low
 
 OUTPUT FORMAT:
 {
