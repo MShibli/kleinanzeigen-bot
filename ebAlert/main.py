@@ -401,7 +401,7 @@ def calculate_score(offer_price, ebay_median, gpt_flags):
     score = margin_pct * 200
 
     if gpt_flags.get("bundle"):
-        score += 30
+        score = 100 # Bundles Sonderbehandlung!
     if gpt_flags.get("obsolete"):
         score -= 40
     if gpt_flags.get("accessory_only"):
