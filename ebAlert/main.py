@@ -311,8 +311,8 @@ def get_all_post(db: Session, telegram_message=False):
                 ebayMedianPrice = info['m_price']
                     
                 expected_margin, score = calculate_score(
-                  offer_price=item_price,
-                  ebay_median=ebay_median,
+                  offer_price=itemprice,
+                  ebay_median=ebayMedianPrice,
                   gpt_flags=res  # GPT liefert nur Flags!
                 )
 
