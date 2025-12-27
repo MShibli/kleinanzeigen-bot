@@ -40,6 +40,7 @@ EXCLUDED_KEYWORDS = [
     "pedale",
     "siemens",
     "wiko",
+    "headset",
     "scanner",
     "satelliten",
     "bastler",
