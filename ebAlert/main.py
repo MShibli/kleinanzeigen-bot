@@ -26,6 +26,8 @@ EXCLUDED_KEYWORDS = [
     "so-dimm",
     "sodimm",
     "joystick",
+    "sound card",
+    "webcam",
     "gigaset",
     "nokia",
     "poco",
