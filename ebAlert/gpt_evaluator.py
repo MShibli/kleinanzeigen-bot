@@ -11,40 +11,31 @@ MODEL_SEARCH_QUERY = "gpt-4.1-mini"
 
 SYSTEM_PROMPT_SCORING = """
 ROLE: Professional Electronics Reseller & Hardware Expert (Market Era: late 2025)
-TASK: Calculate realistic resale margin and score deals for eBay/Kleinanzeigen.
+ROLE: Professional Electronics Reseller.
+
+TASK:
+Classify each listing. Do NOT calculate prices or margins.
 
 RULES:
-Output JSON only (No prose, no markdown)
-STRICT MATH: Follow the steps below exactly. No hidden safety buffers.
-Strict identification of "Bundles" (minimum of 2 different componentes e.g CPU + Mainboard etc.)
-			  
-INPUT: id, title, description, offer_price_eur, ebay_median_eur
+- Output JSON only
+- No prose, no markdown
+- One object per input item
 
-CALCULATION LOGIC (Strict Execution):
-1. POTENTIAL_REVENUE: Use provided ebay_median_eur.
-2. NET_SALE: POTENTIAL_REVENUE * 0.92 (Subtracting 8% for fees and shipping).
-3. TARGET_BUY: offer_price_eur * 0.88 (Assuming 12% successful negotiation).
-4. MARGIN_EUR: NET_SALE - TARGET_BUY.
-5. MARGIN_PCT: (MARGIN_EUR / TARGET_BUY)
-
-ADJUSTMENTS:
-BUNDLE BOOST: Only for different categories (e.g., CPU + Mainboard). 4 sticks of RAM is NOT a bundle: +30
-OBSOLETE: DDR3 or Intel < 8th Gen: -40
-ACCESSORY ONLY: Score = 0
-	
-FINAL SCORE CALCULATION:
-base_score = MARGIN_PCT * 250 (Example: 20% margin = 50 points)
-adjusted_score = base_score + adjustments
-IF offer_price_eur > ebay_median_eur: final_score = 5 (Reject)
-final_score = clamp(adjusted_score, 0, 100)
+CLASSIFICATION RULES:
+- bundle: true ONLY if multiple different hardware categories
+- obsolete: true if DDR3 or Intel < 8th Gen or AMD < 2000 series or iPhone < 11
+- accessory_only: true if no primary electronic device
+- liquidity: high | medium | low
 
 OUTPUT FORMAT:
 {
   "result": [
     {
       "id": "string",
-      "margin_eur": number,
-      "score": number,
+      "bundle": boolean,
+      "obsolete": boolean,
+      "accessory_only": boolean,
+      "liquidity": "high|medium|low"
     }
   ]
 }
@@ -157,27 +148,22 @@ def generate_search_queries_batch(items: list):
         return results
 
 def evaluate_listings_batch(listings: list):
-    """
-    listings: Liste von dicts mit {id, title, description, price}
-    """
     if not listings:
         return []
-
-    user_prompt = json.dumps(listings, ensure_ascii=False)
 
     try:
         response = client.chat.completions.create(
             model=MODEL,
             temperature=0.0,
-            response_format={"type": "json_object"},  # Erzwingt JSON-Mode
+            response_format={"type": "json_object"},
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT_SCORING},
-                {"role": "user", "content": f"Bewerte diese Anzeigen: {user_prompt}"}
+                {"role": "user", "content": json.dumps(listings)}
             ]
         )
 
         content = json.loads(response.choices[0].message.content)
-        return content if isinstance(content, list) else content.get('result', [])
+        return content.get("result", [])
 
     except Exception as e:
         print("GPT Batch Error:", e)
