@@ -22,7 +22,7 @@ RULES:
 CLASSIFICATION RULES:
 1) BUNDLE DEFINITION (VERY IMPORTANT):
 bundle = true ONLY if the listing contains TWO OR MORE PRIMARY ELECTRONIC DEVICES
-PRIMARY devices are: CPU, GPU, Mainboard, Smartphone, Laptop, Console, PC
+PRIMARY devices are: CPU, GPU, RAM, Mainboard, Smartphone, Laptop, Console, PC
 Accessories do NOT count as devices
 
 NEVER mark as bundle:
