@@ -29,6 +29,8 @@ EXCLUDED_KEYWORDS = [
     "sound card",
     "webcam",
     "gigaset",
+    "anrufbeantworter",
+    "brille",
     "nokia",
     "poco",
     "sandisk",
@@ -44,7 +46,7 @@ EXCLUDED_KEYWORDS = [
     "scanner",
     "satelliten",
     "bastler",
-    "fanatec"
+    "fanatec",
     "beelink",
     "handycam",
     "panasonic",
