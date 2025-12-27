@@ -40,7 +40,7 @@ If only ONE primary device exists → bundle = false
 - iPhone < 11
 - Samsung S Series < S22
 - Samsung A Series < A55
-- Otherwise all Smartphones older than 2023
+- Otherwise all Smartphones older than year 2023
 
 3) accessory_only: true if no primary electronic device
 4) liquidity: high | medium | low
