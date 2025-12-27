@@ -322,7 +322,7 @@ def get_all_post(db: Session, telegram_message=False):
                  f"median={ebayMedianPrice} "
                  f"margin={expected_margin} "
                  f"score={score} "
-                 f"flags={flags}"
+                 f"flags={res}"
                 )
                 
                 # Standardmäßig überspringen, außer ein Kriterium passt
