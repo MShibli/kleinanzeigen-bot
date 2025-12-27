@@ -33,7 +33,15 @@ Smartphone + headphones
 Any device + accessories
 
 If only ONE primary device exists → bundle = false
-2) obsolete: true if <= DDR3 or Intel < 8th Gen or AMD < 2000 series or iPhone < 11
+2) obsolete: true if 
+- RAM <= DDR3
+- Intel < 8th Gen
+- AMD < 2000 series
+- iPhone < 11
+- Samsung S Series < S22
+- Samsung A Series < A55
+- Otherwise all Smartphones older than 2023
+
 3) accessory_only: true if no primary electronic device
 4) liquidity: high | medium | low
 
