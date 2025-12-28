@@ -256,14 +256,14 @@ def get_all_post(db: Session, telegram_message=False):
                 item_date_str = item.date.strftime("%d.%m.%Y %H:%M") if hasattr(item.date, 'strftime') else str(item.date)
                 p = parse_price(item.price)
 
-                if not p:
-                    continue
+                if not p or p <= 0:
+                    p = 50
+                else
+                    if p > MAX_ITEM_PRICE:
+                        continue
 
-                if p > MAX_ITEM_PRICE:
-                    continue
-
-                if p < MIN_ITEM_PRICE:
-                    continue
+                    if p < MIN_ITEM_PRICE:
+                        continue
 
                 if not contains_excluded_keywords(item.title, item.description):
                     print(f"Processing Item - title: {item.title} - price: {p}")
