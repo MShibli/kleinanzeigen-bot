@@ -23,7 +23,8 @@ CLASSIFICATION RULES:
 1) BUNDLE DEFINITION (VERY IMPORTANT):
 bundle = true ONLY if the listing contains TWO OR MORE PC Hardware parts.
 Hardware Parts therefor are only: CPU, GPU, RAM, Mainboard.
-If only ONE hardware part exists → bundle = false
+Two parts from the same type (e.g. 2x 8GB Ram) does not count as a bundle.
+If only ONE hardware part type exists → bundle = false
 
 2) obsolete: true if 
 - RAM <= DDR3
