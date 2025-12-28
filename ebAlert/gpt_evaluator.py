@@ -34,7 +34,7 @@ If only ONE hardware part exists → bundle = false
 - Samsung A Series < A55
 - Otherwise all Smartphones older than year 2023
 
-3) accessory_only: true if neither a hardware part nor a smartphone.
+3) accessory_only: true if neither a hardware part nor a complete pc nor a smartphone.
 4) liquidity: high | medium | low
 
 OUTPUT FORMAT:
