@@ -20,9 +20,14 @@ RULES:
 - One object per input item
 
 CLASSIFICATION RULES:
-1) BUNDLE: true only if listing has ≥2 different hardware types from {CPU, GPU, RAM, Mainboard}.
-Multiple items of the same type (e.g., 2x RAM) do NOT count.
-If only 1 hardware type → bundle = false.
+1) BUNDLE: 
+true if: 
+listing has ≥2 different hardware types from {CPU, GPU, RAM, Mainboard}.
+listing for a complete PC.
+
+false if:
+Multiple items of the same type (e.g., 2x RAM).
+only 1 hardware type.
 
 2) obsolete: true if 
 - RAM <= DDR3
