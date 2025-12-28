@@ -32,6 +32,7 @@ EXCLUDED_KEYWORDS = [
     "klapphandy",
     "festnetz",
     "yealink",
+    "mac book",
     "moza",
     "seniorenhandy",
     "klapphandy",
