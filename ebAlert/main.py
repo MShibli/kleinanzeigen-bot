@@ -258,7 +258,7 @@ def get_all_post(db: Session, telegram_message=False):
 
                 if not p or p <= 0:
                     p = 50
-                else
+                else:
                     if p > MAX_ITEM_PRICE:
                         continue
 
