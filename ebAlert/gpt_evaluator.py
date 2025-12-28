@@ -21,18 +21,10 @@ RULES:
 
 CLASSIFICATION RULES:
 1) BUNDLE DEFINITION (VERY IMPORTANT):
-bundle = true ONLY if the listing contains TWO OR MORE PRIMARY ELECTRONIC DEVICES
-PRIMARY devices are: CPU, GPU, RAM, Mainboard, Smartphone, Laptop, Console, PC
-Accessories do NOT count as devices
+bundle = true ONLY if the listing contains TWO OR MORE PC Hardware parts.
+Hardware Parts therefor are only: CPU, GPU, RAM, Mainboard.
+If only ONE hardware part exists → bundle = false
 
-NEVER mark as bundle:
-Smartphone + case
-Smartphone + screen protector
-Smartphone + charger
-Smartphone + headphones
-Any device + accessories
-
-If only ONE primary device exists → bundle = false
 2) obsolete: true if 
 - RAM <= DDR3
 - Intel < 8th Gen
@@ -42,7 +34,7 @@ If only ONE primary device exists → bundle = false
 - Samsung A Series < A55
 - Otherwise all Smartphones older than year 2023
 
-3) accessory_only: true if no primary electronic device
+3) accessory_only: true if neither a hardware part nor a smartphone.
 4) liquidity: high | medium | low
 
 OUTPUT FORMAT:
