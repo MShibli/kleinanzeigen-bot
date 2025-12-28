@@ -299,7 +299,7 @@ def get_all_post(db: Session, telegram_message=False):
                 m_price = get_ebay_median_price(cleaned_query, orig['price'])
 
                 if not m_price:
-                    continue
+                    m_price = 1000
                 
                 batch_for_gpt.append({
                     "id": item_id,
@@ -396,7 +396,7 @@ def parse_price(raw_price) -> float | None:
     try:
         return float(number)
     except:
-        return None
+        return 50
 
 
 def calculate_score(offer_price, ebay_median, gpt_flags):
