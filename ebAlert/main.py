@@ -408,7 +408,7 @@ def calculate_score(offer_price, ebay_median, gpt_flags):
     if gpt_flags.get("obsolete"):
         score -= 40
     if gpt_flags.get("accessory_only"):
-        score = 0
+        score = 69
 
     score = max(0, min(100, int(score)))
     return round(margin_eur, 2), score
