@@ -20,6 +20,7 @@ MINIMUM_SCORE = 60
 MINIMUM_MARGIN_EUR = 40
 MAX_ITEM_PRICE = 800
 MIN_ITEM_PRICE = 20
+NONE_PRICE = 50
 EXCLUDED_KEYWORDS = [
     "ddr3",
     "core 2 duo",
@@ -259,7 +260,7 @@ def get_all_post(db: Session, telegram_message=False):
                 p = parse_price(item.price)
 
                 if not p or p <= 0:
-                    p = 50
+                    p = NONE_PRICE
                 else:
                     if p > MAX_ITEM_PRICE:
                         continue
@@ -375,18 +376,18 @@ if __name__ == "__main__":
 
 def parse_price(raw_price) -> float | None:
     if not raw_price:
-        return None
+        return NONE_PRICE
 
     text = str(raw_price).lower()
 
     # Zu verschenken / VB ohne Zahl
     if "verschenk" in text or text.strip() in ["vb", "verhandlungsbasis"]:
-        return None
+        return NONE_PRICE
 
     # Zahl extrahieren
     match = re.search(r"(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d+)?)", text)
     if not match:
-        return None
+        return NONE_PRICE
 
     number = match.group(1)
 
@@ -396,7 +397,7 @@ def parse_price(raw_price) -> float | None:
     try:
         return float(number)
     except:
-        return 50
+        return NONE_PRICE
 
 
 def calculate_score(offer_price, ebay_median, gpt_flags):
