@@ -304,7 +304,8 @@ def get_all_post(db: Session, telegram_message=False):
                     continue
 
                 if contains_excluded_keywords(seller_info["description"]):
-                    print(f"Backlist Word! title: {item.title} - price: {p} - id: {item.id} - description: {seller_info["description"]} → Skip")
+                    # Hier: 'description' statt "description"
+                    print(f"Backlist Word! title: {item.title} - price: {p} - id: {item.id} - description: {seller_info['description']} → Skip")
                     continue
                 
                 title_lower = item.title.lower()
