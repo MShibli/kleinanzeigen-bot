@@ -14,6 +14,7 @@ from ebAlert.gpt_evaluator import generate_search_queries_batch, evaluate_listin
 from ebAlert.ebayscrapping.ebay_market import get_ebay_median_price
 from datetime import datetime, timedelta
 from ebAlert.models.sqlmodel import EbayPost  # Importiere dein Modell
+from ebAlert.seller_helper import fetch_seller_info
 
 WHITELIST = ["bundle", "aufrüstkit", "5800x3d", "5700x3d"]
 MINIMUM_SCORE = 60
@@ -312,8 +313,19 @@ def get_all_post(db: Session, telegram_message=False):
                     # Wichtig: Mit 'continue' springen wir zum nächsten Artikel in der Schleife.
                     # So wird für diesen Artikel kein eBay-Preis gesucht und kein GPT genutzt.
                     continue
-                
+
+                seller_info = fetch_seller_info(item.link)
+
+                if not seller_info:
+                    continue  # defensiv
+
+                # ❌ Neue Accounts rausfiltern
+                if seller_info["seller_age_days"] < 7:
+                    print(f"⛔ Neuer Verkäufer ({seller_info['seller_name']}, "f"{seller_info['seller_age_days']} Tage) → Skip")
+                    continue
+
                 potential_items.append({"id": item.id, "title": item.title, "item": item, "price": p, "date": item.date.strftime("%d.%m.%Y %H:%M") if hasattr(item.date, 'strftime') else str(item.date)})
+                print(f"Verkäufer ({seller_info['seller_name']}, "f"{seller_info['seller_age_days']} Tage) → Skip")
         except Exception as e:
             print(f"⚠️ Fehler bei Vorfilterung Item {item.id}: {e}")
             
