@@ -280,11 +280,7 @@ def get_all_post(db: Session, telegram_message=False):
     # SCHRITT 2: Vorfilterung & Vorbereitung (Python-Logik)
     potential_items = []
     for item in all_scraped_items:
-        try:
-            if item.is_commercial:
-                print(f"Gewerbliche Anzeige! title: {item.title} - id: {item.id} → Skip")
-                continue  # Gewerbliche Verkäufer überspringen
-                
+        try: 
             print(item.id, item.ad_seller_type)
             p = parse_price(item.price)
             
@@ -297,11 +293,15 @@ def get_all_post(db: Session, telegram_message=False):
                 if p < MIN_ITEM_PRICE:
                     continue
             
-            if not contains_excluded_keywords(item.title, item.description):
-                print(f"Processing Item - title: {item.title} - price: {p} - id: {item.id}")
-
+            if not contains_excluded_keywords(item.title, item.description):               
                 seller_info = fetch_seller_info(item.link)
                 sleep(0.3)
+
+                print(f"Processing Item - title: {item.title} - price: {p} - id: {item.id} - Sellertype: {seller_info["seller_type"]}")
+                # Verkäufer-Typ prüfen
+                if seller_info["seller_type"] == "COMMERCIAL":
+                    print(f"🔎 Überspringe gewerblichen Verkäufer: {seller_info['seller_name']}")
+                    continue
                 
                 # ❌ Neue Accounts rausfiltern
                 if seller_info["seller_age_days"] < 7:
