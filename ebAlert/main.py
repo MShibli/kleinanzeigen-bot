@@ -21,6 +21,11 @@ MINIMUM_MARGIN_EUR = 40
 MAX_ITEM_PRICE = 800
 MIN_ITEM_PRICE = 20
 NONE_PRICE = 50
+SCORE_BOOSTERS = [
+    "ddr4 64gb",
+    "64gb ddr4",
+    "ddr5"
+]
 EXCLUDED_KEYWORDS = [
     "ddr3",
     "core 2 duo",
@@ -273,7 +278,7 @@ def get_all_post(db: Session, telegram_message=False):
                         continue
 
                 if not contains_excluded_keywords(item.title, item.description):
-                    print(f"Processing Item - title: {item.title} - price: {p}")
+                    print(f"Processing Item - title: {item.title} - price: {p} - id: {item.id}")
 
                     title_lower = item.title.lower()
     
@@ -332,6 +337,8 @@ def get_all_post(db: Session, telegram_message=False):
                 ebayMedianPrice = info['m_price']
                     
                 expected_margin, score = calculate_score(
+                  itemTitle=info['obj'].title,
+                  itemDescription=info['obj'].description,
                   offer_price=itemPrice,
                   ebay_median=ebayMedianPrice,
                   gpt_flags=res  # GPT liefert nur Flags!
@@ -356,7 +363,6 @@ def get_all_post(db: Session, telegram_message=False):
                 # Kriterium 2: Score passt
                 if skipItem and score >= MINIMUM_SCORE:
                     skipItem = False 
-
                 
                 # Sicherheits-Check gegen KI-Fehler (Price > Median trotz hohem Score)
                 if score == 0:
@@ -404,7 +410,7 @@ def parse_price(raw_price) -> float | None:
         return NONE_PRICE
 
 
-def calculate_score(offer_price, ebay_median, gpt_flags):
+def calculate_score(itemTitle, itemDescription, offer_price, ebay_median, gpt_flags):
     net_sale = ebay_median * 0.92
     target_buy = offer_price * 0.88
     margin_eur = net_sale - target_buy
@@ -417,6 +423,10 @@ def calculate_score(offer_price, ebay_median, gpt_flags):
         score -= 40
     if gpt_flags.get("accessory_only"):
         score = 0
+
+    # Score boosters-
+    if ([word for word in SCORE_BOOSTERS if word.lower() in itemTitle] or [word for word in SCORE_BOOSTERS if word.lower() in itemDescription])
+        score += 30
 
     score = max(0, min(100, int(score)))
     return round(margin_eur, 2), score
