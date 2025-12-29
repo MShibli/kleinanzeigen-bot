@@ -253,133 +253,161 @@ def get_all_post(db: Session, telegram_message=False):
     if not links:
         return
 
+    all_scraped_items = []
+
+    # SCHRITT 1: Sammeln aller neuen Items von allen Links
     for link_model in links:
-        print(f"Processing link - id: {link_model.id} - link: {link_model.link}")
+        try:
+            print(f"Processing link - id: {link_model.id} - link: {link_model.link}")
+            post_factory = ebayclass.EbayItemFactory(link_model.link)
+            # add_items_to_db gibt nur die wirklich NEUEN Items zurück
+            new_items = crud_post.add_items_to_db(db=db, items=post_factory.item_list)
+            if new_items:
+                all_scraped_items.extend(new_items)
+        except Exception as e:
+            print(f"❌ Fehler beim Scraping von Link {link_model.id}: {e}")
 
-        post_factory = ebayclass.EbayItemFactory(link_model.link)
-        items = crud_post.add_items_to_db(db=db, items=post_factory.item_list)
+    if not telegram_message or not all_scraped_items:
+        return
 
-        if telegram_message and items:
-            potential_items = []
-            batch_for_gpt = []
-            item_map = {}  # Um später schnell auf das Item-Objekt per ID zuzugreifen
-
-            for item in items:    
-                item_date_str = item.date.strftime("%d.%m.%Y %H:%M") if hasattr(item.date, 'strftime') else str(item.date)
-                p = parse_price(item.price)
-
-                if not p or p <= 0:
-                    p = NONE_PRICE
-                else:
-                    if p > MAX_ITEM_PRICE:
-                        continue
-
-                    if p < MIN_ITEM_PRICE:
-                        continue
-
-                if not contains_excluded_keywords(item.title, item.description):
-                    print(f"Processing Item - title: {item.title} - price: {p} - id: {item.id}")
-
-                    title_lower = item.title.lower()
-    
-                    # --- WHITELIST CHECK (Sofort-Benachrichtigung) ---
-                    whitelist_match = [word for word in WHITELIST if word.lower() in title_lower]
-    
-                    if whitelist_match:
-                        telegram.send_formated_message(item, is_whitelist=True)
-        
-                        # Wichtig: Mit 'continue' springen wir zum nächsten Artikel in der Schleife.
-                        # So wird für diesen Artikel kein eBay-Preis gesucht und kein GPT genutzt.
-                        continue
-                    
-                    potential_items.append({"id": item.id, "title": item.title, "item": item, "price": p, "date": item_date_str})
-
-            if not potential_items: continue
+    # SCHRITT 2: Vorfilterung & Vorbereitung (Python-Logik)
+    potential_items = []
+    for item in all_scraped_items:
+        try:
+            p = parse_price(item.price)
             
-            # 2. KI: Saubere Suchbegriffe generieren (Batch)
-            clean_queries = generate_search_queries_batch(potential_items)
-
-            for q_data in clean_queries:
-                item_id = q_data['id']
-                # Finde das originale Item-Objekt
-                orig = next((x for x in potential_items if str(x['id']) == item_id), None)
-                if not orig: continue
-
-                cleaned_query = q_data['query']
-                m_price = get_ebay_median_price(cleaned_query, orig['price'])
-
-                if not m_price:
-                    m_price = 1000
-                
-                batch_for_gpt.append({
-                    "id": item_id,
-                    "title": orig['title'],
-                    "offer_price_eur": orig['price'],
-                    "ebay_median_eur": m_price,
-                    "description": (orig['item'].description or "")[:400]
-                })
-                
-                item_map[item_id] = {"obj": orig['item'], "m_price": m_price, "price": orig['price'], "date": orig['date'], "cleanedquery": cleaned_query}
-
-            # 4. KI: Finales Batch-Scoring
-            results = evaluate_listings_batch(batch_for_gpt)
-
-            # 5. Telegram
-            for res in results:
-                rid = str(res.get('id'))   
-                
-                # Sicherheits-Check: Wenn rid nicht in Map, können wir nichts senden
-                if rid not in item_map:
+            if not p or p <= 0:
+                p = NONE_PRICE
+            else:
+                if p > MAX_ITEM_PRICE:
                     continue
-
-                info = item_map[rid]
-                itemPrice = parse_price(info['obj'].price)
-                ebayMedianPrice = info['m_price']
-                    
-                expected_margin, score = calculate_score(
-                  itemTitle=info['obj'].title,
-                  itemDescription=info['obj'].description,
-                  offer_price=itemPrice,
-                  ebay_median=ebayMedianPrice,
-                  gpt_flags=res  # GPT liefert nur Flags!
-                )
-
-                print(
-                 f"id={rid} "
-                 f"buy={itemPrice} "
-                 f"median={ebayMedianPrice} "
-                 f"margin={expected_margin} "
-                 f"score={score} "
-                 f"flags={res}"
-                )
+            
+                if p < MIN_ITEM_PRICE:
+                    continue
+            
+            if not contains_excluded_keywords(item.title, item.description):
+                print(f"Processing Item - title: {item.title} - price: {p} - id: {item.id}")
+            
+                title_lower = item.title.lower()
+            
+                # --- WHITELIST CHECK (Sofort-Benachrichtigung) ---
+                whitelist_match = [word for word in WHITELIST if word.lower() in title_lower]
+            
+                if whitelist_match:
+                    telegram.send_formated_message(item, is_whitelist=True)
+            
+                    # Wichtig: Mit 'continue' springen wir zum nächsten Artikel in der Schleife.
+                    # So wird für diesen Artikel kein eBay-Preis gesucht und kein GPT genutzt.
+                    continue
                 
-                # Standardmäßig überspringen, außer ein Kriterium passt
+                potential_items.append({"id": item.id, "title": item.title, "item": item, "price": p, "date": item.date.strftime("%d.%m.%Y %H:%M") if hasattr(item.date, 'strftime') else str(item.date)})
+        except Exception as e:
+            print(f"⚠️ Fehler bei Vorfilterung Item {item.id}: {e}")
+            
+    if not potential_items:
+        return
+
+    # SCHRITT 3: Batch-Generierung der Suchbegriffe (1 GPT Call für alle)
+    clean_queries = []
+    try:
+        clean_queries = generate_search_queries_batch(potential_items)
+    except Exception as e:
+        print(f"❌ Fehler bei Batch-Query-Generierung: {e}")
+        return
+    
+    # SCHRITT 4: Median-Preise & GPT-Vorbereitung
+    batch_for_gpt = []
+    item_map = {}  # Um später schnell auf das Item-Objekt per ID zuzugreifen
+   
+    for q_data in clean_queries:
+        try:
+            item_id = q_data['id']
+            # Finde das originale Item-Objekt
+            orig = next((x for x in potential_items if str(x['id']) == item_id), None)
+            if not orig: continue
+        
+            cleaned_query = q_data['query']
+            m_price = get_ebay_median_price(cleaned_query, orig['price'])
+        
+            if not m_price:
+                m_price = 1000
+            
+            batch_for_gpt.append({
+                "id": item_id,
+                "title": orig['title'],
+                "offer_price_eur": orig['price'],
+                "ebay_median_eur": m_price,
+                "description": (orig['item'].description or "")[:400]
+            })
+            
+            item_map[item_id] = {"obj": orig['item'], "m_price": m_price, "price": orig['price'], "date": orig['date'], "cleanedquery": cleaned_query}
+        except Exception as e:
+            print(f"⚠️ Fehler bei Median-Check für {q_data.get('id')}: {e}")
+    
+    # SCHRITT 5: Großes Batch-Scoring (1 GPT Call für alle Items)
+    try:
+        results = evaluate_listings_batch(batch_for_gpt)
+    except Exception as e:
+        print(f"❌ Fehler bei Batch-Evaluation: {e}")
+        return
+        
+    # SCHRITT 6: Finale Berechnung & Telegram
+    for res in results:
+        try:
+            rid = str(res.get('id'))   
+            
+            # Sicherheits-Check: Wenn rid nicht in Map, können wir nichts senden
+            if rid not in item_map:
+                continue
+        
+            info = item_map[rid]
+            itemPrice = parse_price(info['obj'].price)
+            ebayMedianPrice = info['m_price']
+                
+            expected_margin, score = calculate_score(
+            itemTitle=info['obj'].title,
+            itemDescription=info['obj'].description,
+            offer_price=itemPrice,
+            ebay_median=ebayMedianPrice,
+            gpt_flags=res  # GPT liefert nur Flags!
+            )
+        
+            print(
+            f"id={rid} "
+            f"buy={itemPrice} "
+            f"median={ebayMedianPrice} "
+            f"margin={expected_margin} "
+            f"score={score} "
+            f"flags={res}"
+            )
+            
+            # Standardmäßig überspringen, außer ein Kriterium passt
+            skipItem = True
+            
+            # Kriterium 1: Margin passt
+            if expected_margin is not None and expected_margin >= MINIMUM_MARGIN_EUR:
+                skipItem = False
+        
+            # Kriterium 2: Score passt
+            if skipItem and score >= MINIMUM_SCORE:
+                skipItem = False 
+            
+            # Sicherheits-Check gegen KI-Fehler (Price > Median trotz hohem Score)
+            if score == 0:
                 skipItem = True
+            
+            if skipItem:
+                continue
                 
-                # Kriterium 1: Margin passt
-                if expected_margin is not None and expected_margin >= MINIMUM_MARGIN_EUR:
-                    skipItem = False
-
-                # Kriterium 2: Score passt
-                if skipItem and score >= MINIMUM_SCORE:
-                    skipItem = False 
-                
-                # Sicherheits-Check gegen KI-Fehler (Price > Median trotz hohem Score)
-                if score == 0:
-                    skipItem = True
-                
-                if skipItem:
-                    continue
-                    
-                # Wir reichern das Dictionary mit den GPT-Ergebnissen an
-                info['score'] = score
-                info['margin_eur'] = expected_margin
-                # ÜBERGABE DES GANZEN DICTS STATT NUR info["obj"]
-                telegram.send_formated_message(info)
-                #telegram.send_formated_message(info["obj"])
-                    
-            sleep(randint(0, 40) / 10)
-
+            # Wir reichern das Dictionary mit den GPT-Ergebnissen an
+            info['score'] = score
+            info['margin_eur'] = expected_margin
+            # ÜBERGABE DES GANZEN DICTS STATT NUR info["obj"]
+            telegram.send_formated_message(info)
+            #telegram.send_formated_message(info["obj"])
+            sleep(randint(0, 30) / 10)
+        except Exception as e:
+            print(f"⚠️ Fehler bei finaler Verarbeitung von Item {res.get('id')}: {e}")
 
 if __name__ == "__main__":
     cli(sys.argv[1:])
