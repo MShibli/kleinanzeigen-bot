@@ -297,7 +297,7 @@ def get_all_post(db: Session, telegram_message=False):
                 seller_info = fetch_seller_info(item.link)
                 sleep(0.3)
 
-                print(f"Processing Item - title: {item.title} - price: {p} - id: {item.id} - Sellertype: {seller_info["seller_type"]}")
+                print(f"Processing Item - title: {item.title} - price: {p} - id: {item.id} - Sellertype: {seller_info['seller_type']}")
                 # Verkäufer-Typ prüfen
                 if seller_info["seller_type"] == "COMMERCIAL":
                     print(f"🔎 Überspringe gewerblichen Verkäufer: {seller_info['seller_name']}")
