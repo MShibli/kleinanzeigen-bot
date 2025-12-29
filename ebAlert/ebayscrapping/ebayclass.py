@@ -86,34 +86,6 @@ class EbayItem:
             return None
 
 
-
-    @property
-    def ad_seller_type(self) -> str:
-        """
-        Extracts ad_seller_type from embedded JS tracking snippet.
-        Returns 'COMMERCIAL', 'PRIVATE' or 'UNKNOWN'
-        """
-        try:
-            scripts = self.contents.find_all("script")
-            for s in scripts:
-                if not s.string:
-                    continue
-
-                match = re.search(
-                    r"ad_seller_type\s*:\s*'(\w+)'",
-                    s.string
-                )
-                if match:
-                    return match.group(1)
-        except Exception:
-            pass
-
-        return "UNKNOWN"
-
-    @property
-    def is_commercial(self) -> bool:
-        return self.ad_seller_type == "COMMERCIAL"
-        
     def __repr__(self):
         return '{}; {}; {}'.format(self.title, self.city, self.distance)
 
