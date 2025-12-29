@@ -33,6 +33,10 @@ EXCLUDED_KEYWORDS = [
     "klapphandy",
     "festnetz",
     "yealink",
+    "htc",
+    "amd fx",
+    "captian dma"
+    "oppo",
     "ericsson",
     "omen",
     "mac book",
