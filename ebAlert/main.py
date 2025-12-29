@@ -98,9 +98,7 @@ EXCLUDED_KEYWORDS = [
     "pico",
     "drucker",
     "air pod",
-    "handyhülle",
     "docking station",
-    "halterung",
     "gesucht",
     "lcd",
     "ersatz",
@@ -110,23 +108,17 @@ EXCLUDED_KEYWORDS = [
     "ally",
     "handheld",
     "buds",
-    "lightning",
     "ladestation",
-    "magsafe",
     "lenkrad",
-    "universal",
     "stuhl",
     "dockingstation",
-    "netzteil",
     "mobile",
     "macbook",
     "fernbedienung",
-    "suche",
+    "ich suche",
     "watch",
-    "nur paypal",
     "a16",
     "kein versand",
-    "nur abholung",
     "airpods",
     "huawei",
     "notebook",
@@ -138,6 +130,7 @@ EXCLUDED_KEYWORDS = [
     "2400",
     "AM3",
     "2133",
+    "gebrochen",
     "gesprungen",
     "gesplittert",
     "kaputt",
@@ -309,7 +302,11 @@ def get_all_post(db: Session, telegram_message=False):
                 if seller_info["seller_age_days"] < 7:
                     print(f"⛔ Neuer Verkäufer ({seller_info['seller_name']}, "f"{seller_info['seller_age_days']} Tage) → Skip")
                     continue
-                    
+
+                if contains_excluded_keywords(seller_info["description"]):
+                    print(f"Backlist Word! title: {item.title} - price: {p} - id: {item.id} - description: {seller_info["description"]} → Skip")
+                    continue
+                
                 title_lower = item.title.lower()
             
                 # --- WHITELIST CHECK (Sofort-Benachrichtigung) ---
@@ -323,7 +320,7 @@ def get_all_post(db: Session, telegram_message=False):
 
 
                 potential_items.append({"id": item.id, "title": item.title, "item": item, "price": p, "date": item.date.strftime("%d.%m.%Y %H:%M") if hasattr(item.date, 'strftime') else str(item.date)})
-                print(f"Verkäufer ({seller_info['seller_name']}, "f"{seller_info['seller_age_days']} Tage) → Skip")
+                print(f"Verkäufer ({seller_info['seller_name']}, "f"{seller_info['seller_age_days']} Tage)")
         except Exception as e:
             print(f"⚠️ Fehler bei Vorfilterung Item {item.id}: {e}")
             
