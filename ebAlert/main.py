@@ -14,7 +14,7 @@ from ebAlert.gpt_evaluator import generate_search_queries_batch, evaluate_listin
 from ebAlert.ebayscrapping.ebay_market import get_ebay_median_price
 from datetime import datetime, timedelta
 from ebAlert.models.sqlmodel import EbayPost  # Importiere dein Modell
-from ebAlert.seller_helper import fetch_seller_info
+from ebAlert.ebayscrapping.seller_helper import fetch_seller_info
 
 WHITELIST = ["bundle", "aufrüstkit", "5800x3d", "5700x3d"]
 MINIMUM_SCORE = 60
