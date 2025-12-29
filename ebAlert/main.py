@@ -180,6 +180,7 @@ def start():
     while True:
         try:
             now = datetime.now()
+            current_hour = now.hour
             print(f"\n--- 🛰️ Scan gestartet: {now.strftime('%H:%M:%S')} ---")
             
             with get_session() as db:
@@ -191,9 +192,18 @@ def start():
                 # 2. Die eigentliche Arbeit (Anzeigen holen)
                 get_all_post(db=db, telegram_message=True)
             
-            # 3. Random Pause (zwischen 120 und 180 Sekunden)
-            wait_time = randint(120, 180)
-            print(f"--- ✅ Scan fertig. Pause: {wait_time}s ---")
+            # 3. Dynamische Pausenzeit berechnen
+            # Nachtmodus: 02:00 bis 07:00 Uhr
+            if 2 <= current_hour < 7:
+                # Lange Pause in der Nacht (z.B. 15 bis 25 Minuten)
+                wait_time = randint(900, 1500)
+                mode_text = "🌙 Nachtmodus"
+            else:
+                # Standard-Pause am Tag (60 bis 95 Sekunden)
+                wait_time = randint(60, 95)
+                mode_text = "☀️ Tagmodus"
+            
+            print(f"--- ✅ Scan fertig ({mode_text}). Pause: {wait_time // 60}m {wait_time % 60}s ---")
             sleep(wait_time)
 
         except KeyboardInterrupt:
