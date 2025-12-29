@@ -21,7 +21,7 @@ RULES:
 
 CLASSIFICATION RULES:
 1) BUNDLE: 
-true if: 
+true only if: 
 listing has ≥2 different hardware types from {CPU, GPU, RAM, Mainboard}.
 listing for a complete PC.
 
@@ -29,14 +29,20 @@ false if:
 Multiple items of the same type (e.g., 2x RAM).
 only 1 hardware type.
 
-2) obsolete: true if 
-- RAM <= DDR3
-- Intel < 8th Gen
-- AMD < 2000 series
-- iPhone < 11
-- Samsung S Series < S22
-- Samsung A Series < A55
-- Otherwise all Smartphones older than year 2023
+2) obsolete:
+true ONLY if:
+- RAM is DDR3 or older
+- Intel CPU is < 8th Gen
+- AMD CPU is < Ryzen 2000
+- iPhone model < iPhone 11
+- Samsung S < S22
+- Samsung A < A55
+- Other smartphones released before 2023
+
+false if:
+- RAM is DDR4 or DDR5
+- CPU meets or exceeds the limits above
+- Smartphone meets or exceeds the limits above
 
 3) accessory_only: true if neither a hardware part nor a complete pc nor a smartphone.
 4) liquidity: high | medium | low
