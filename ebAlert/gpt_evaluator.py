@@ -167,27 +167,46 @@ def generate_search_queries_batch(items: list):
         # Im Fehlerfall geben wir zumindest die Cache-Ergebnisse zurück
         return results
 
-def evaluate_listings_batch(listings: list):
+def evaluate_listings_batch(listings: list, chunk_size: int = 12):
+    """
+    Unterteilt die Liste der Artikel in kleinere Blöcke (Chunks),
+    um die Genauigkeit der KI zu erhöhen und Fehler zu vermeiden.
+    """
     if not listings:
         return []
 
-    try:
-        response = client.chat.completions.create(
-            model=MODEL,
-            temperature=0.0,
-            response_format={"type": "json_object"},
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT_SCORING},
-                {"role": "user", "content": json.dumps(listings)}
-            ]
-        )
+    all_results = []
 
-        content = json.loads(response.choices[0].message.content)
-        return content.get("result", [])
+    # Unterteilen der Gesamtliste in Teil-Listen (z.B. jeweils 12 Artikel)
+    for i in range(0, len(listings), chunk_size):
+        current_chunk = listings[i:i + chunk_size]
+        
+        try:
+            print(f"--- 🧠 GPT Evaluation: Verarbeite Batch {i // chunk_size + 1} ({len(current_chunk)} Items) ---")
+            
+            response = client.chat.completions.create(
+                model=MODEL,
+                temperature=0.0,
+                response_format={"type": "json_object"},
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT_SCORING},
+                    {"role": "user", "content": json.dumps(current_chunk)}
+                ]
+            )
 
-    except Exception as e:
-        print("GPT Batch Error:", e)
-        return []
+            content = json.loads(response.choices[0].message.content)
+            batch_results = content.get("result", [])
+            
+            # Die Ergebnisse des aktuellen Chunks an die Gesamtliste anhängen
+            all_results.extend(batch_results)
+
+        except Exception as e:
+            print(f"❌ GPT Batch Error bei Index {i}: {e}")
+            # Wir machen trotz Fehlers beim nächsten Chunk weiter, 
+            # damit nicht alle Ergebnisse verloren gehen.
+            continue
+
+    return all_results
 
 def extract_json(text: str):
     # Hilfsfunktion bleibt für Notfälle, wird aber durch response_format seltener gebraucht
