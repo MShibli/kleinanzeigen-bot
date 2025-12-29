@@ -284,7 +284,8 @@ def get_all_post(db: Session, telegram_message=False):
             if item.is_commercial:
                 print(f"Gewerbliche Anzeige! title: {item.title} - id: {item.id} → Skip")
                 continue  # Gewerbliche Verkäufer überspringen
-            
+                
+            print(item.id, item.ad_seller_type)
             p = parse_price(item.price)
             
             if not p or p <= 0:
