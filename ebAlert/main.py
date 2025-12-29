@@ -301,28 +301,26 @@ def get_all_post(db: Session, telegram_message=False):
             
             if not contains_excluded_keywords(item.title, item.description):
                 print(f"Processing Item - title: {item.title} - price: {p} - id: {item.id}")
-            
+
+                seller_info = fetch_seller_info(item.link)
+                sleep(randint(0, 15) / 10)
+                
+                # ❌ Neue Accounts rausfiltern
+                if seller_info["seller_age_days"] < 7:
+                    print(f"⛔ Neuer Verkäufer ({seller_info['seller_name']}, "f"{seller_info['seller_age_days']} Tage) → Skip")
+                    continue
+                    
                 title_lower = item.title.lower()
             
                 # --- WHITELIST CHECK (Sofort-Benachrichtigung) ---
                 whitelist_match = [word for word in WHITELIST if word.lower() in title_lower]
             
                 if whitelist_match:
-                    telegram.send_formated_message(item, is_whitelist=True)
-            
+                    telegram.send_formated_message(item, is_whitelist=True)           
                     # Wichtig: Mit 'continue' springen wir zum nächsten Artikel in der Schleife.
                     # So wird für diesen Artikel kein eBay-Preis gesucht und kein GPT genutzt.
                     continue
 
-                seller_info = fetch_seller_info(item.link)
-
-                if not seller_info:
-                    continue  # defensiv
-
-                # ❌ Neue Accounts rausfiltern
-                if seller_info["seller_age_days"] < 7:
-                    print(f"⛔ Neuer Verkäufer ({seller_info['seller_name']}, "f"{seller_info['seller_age_days']} Tage) → Skip")
-                    continue
 
                 potential_items.append({"id": item.id, "title": item.title, "item": item, "price": p, "date": item.date.strftime("%d.%m.%Y %H:%M") if hasattr(item.date, 'strftime') else str(item.date)})
                 print(f"Verkäufer ({seller_info['seller_name']}, "f"{seller_info['seller_age_days']} Tage) → Skip")
