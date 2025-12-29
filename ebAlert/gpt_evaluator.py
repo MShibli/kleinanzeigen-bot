@@ -47,6 +47,11 @@ false if:
 3) accessory_only: true if neither a hardware part nor a complete pc nor a smartphone.
 4) liquidity: high | medium | low
 
+IMPORTANT:
+Each item must be classified independently.
+Do NOT infer rules from previous items.
+Reset all rules for every item.
+
 OUTPUT FORMAT:
 {
   "result": [
