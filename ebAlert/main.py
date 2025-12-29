@@ -308,10 +308,10 @@ def get_all_post(db: Session, telegram_message=False):
                     print(f"⛔ Neuer Verkäufer ({seller_info['seller_name']}, "f"{seller_info['seller_age_days']} Tage) → Skip")
                     continue
 
-                if contains_excluded_keywords(seller_info["description"]):
+                #if contains_excluded_keywords(seller_info["description"]):
                     # Hier: 'description' statt "description"
-                    print(f"Backlist Word! title: {item.title} - price: {p} - id: {item.id} - description: {seller_info['description']} → Skip")
-                    continue
+                #    print(f"Backlist Word! title: {item.title} - price: {p} - id: {item.id} - description: {seller_info['description']} → Skip")
+                #    continue
                 
                 title_lower = item.title.lower()
             
