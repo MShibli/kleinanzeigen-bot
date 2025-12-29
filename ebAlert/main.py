@@ -425,7 +425,7 @@ def calculate_score(itemTitle, itemDescription, offer_price, ebay_median, gpt_fl
         score = 0
 
     # Score boosters-
-    if ([word for word in SCORE_BOOSTERS if word.lower() in itemTitle] or [word for word in SCORE_BOOSTERS if word.lower() in itemDescription])
+    if ([word for word in SCORE_BOOSTERS if word.lower() in itemTitle] or [word for word in SCORE_BOOSTERS if word.lower() in itemDescription]):
         score += 30
 
     score = max(0, min(100, int(score)))
