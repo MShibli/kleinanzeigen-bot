@@ -16,6 +16,7 @@ def fetch_seller_info(ad_url: str) -> dict | None:
     - Verkäufername
     - Eintrittsdatum
     - Alter des Accounts in Tagen
+    - Anzeigenbeschreibung
     """
 
     try:
@@ -48,6 +49,16 @@ def fetch_seller_info(ad_url: str) -> dict | None:
                 active_since = datetime.strptime(match.group(1), "%d.%m.%Y")
                 break
 
+        # ----------------------------
+        # Anzeigenbeschreibung
+        # ----------------------------
+        description = None
+        desc_tag = soup.select_one("#viewad-description-text")
+
+        if desc_tag:
+            # <br> sauber in Zeilenumbrüche umwandeln
+            description = desc_tag.get_text(separator="\n", strip=True)
+
         if not seller_name or not active_since:
             return None
 
@@ -56,7 +67,8 @@ def fetch_seller_info(ad_url: str) -> dict | None:
         return {
             "seller_name": seller_name,
             "active_since": active_since,
-            "seller_age_days": seller_age_days
+            "seller_age_days": seller_age_days,
+            "description": description
         }
 
     except Exception as e:
