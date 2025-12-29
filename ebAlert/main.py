@@ -125,8 +125,8 @@ EXCLUDED_KEYWORDS = [
     "pentium",
     "defekt",
     "athlon",
-    "defekt",
-    "tausch",
+    "ich tausch",
+    "wackelkontakt",
     "2400",
     "AM3",
     "2133",
@@ -296,7 +296,7 @@ def get_all_post(db: Session, telegram_message=False):
                 print(f"Processing Item - title: {item.title} - price: {p} - id: {item.id}")
 
                 seller_info = fetch_seller_info(item.link)
-                sleep(randint(0, 15) / 10)
+                sleep(0.3)
                 
                 # ❌ Neue Accounts rausfiltern
                 if seller_info["seller_age_days"] < 7:
