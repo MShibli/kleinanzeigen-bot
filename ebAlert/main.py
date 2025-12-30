@@ -33,6 +33,8 @@ EXCLUDED_KEYWORDS = [
     "so-dimm",
     "docking-station",
     "kartenlesegerät",
+    "sattelitentelefon",
+    "B150M",
     "supermicro",
     "gmktec",
     "radeon pro",
