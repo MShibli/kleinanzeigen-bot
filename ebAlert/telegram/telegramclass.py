@@ -5,18 +5,27 @@ from ebAlert.ebayscrapping.ebayclass import EbayItem
 from urllib.parse import quote
 
 class SendingClass:
-    def send_message(self, message, buttons=None):
+    def send_message(self, message, buttons=None, disable_notfication=False):
         """
         Sendet eine Nachricht mit optionalen Inline-Buttons via POST.
         """
         url = f"{settings.TELEGRAM_API_URL.split('?')[0].replace('sendMessage', '')}sendMessage"
-        
-        payload = {
-            "chat_id": settings.CHAT_ID,
-            "text": message,
-            "parse_mode": "HTML",
-            "disable_web_page_preview": False
-        }
+
+        if disable_notfication:
+             payload = {
+                "chat_id": settings.CHAT_ID,
+                "text": message,
+                "parse_mode": "HTML",
+                "disable_web_page_preview": False,
+                "disable_notification": True
+            }
+        else
+            payload = {
+                "chat_id": settings.CHAT_ID,
+                "text": message,
+                "parse_mode": "HTML",
+                "disable_web_page_preview": False
+            }
 
         if buttons:
             payload["reply_markup"] = json.dumps({
