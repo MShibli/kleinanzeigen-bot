@@ -305,7 +305,7 @@ def get_all_post(db: Session, telegram_message=False):
                 seller_info = fetch_seller_info(item.link)
                 sleep(0.3)
 
-                print(f"Processing Item - title: {item.title} - price: {p} - id: {item.id} - Sellertype: {seller_info['seller_type']}")
+                print(f"Processing Item - title: {item.title} - price: {p} - id: {item.id} - Seller: {seller_info['seller_name']}, Sellertype: {seller_info['seller_type']}")
                 # Verkäufer-Typ prüfen
                 if seller_info["seller_type"] == "COMMERCIAL":
                     print(f"🔎 Überspringe gewerblichen Verkäufer: {seller_info['seller_name']}")
@@ -336,7 +336,6 @@ def get_all_post(db: Session, telegram_message=False):
 
 
                 potential_items.append({"id": item.id, "title": item.title, "item": item, "price": p, "seller_name": seller_info['seller_name'], "seller_agedays": seller_info['seller_age_days'], "date": item.date.strftime("%d.%m.%Y %H:%M") if hasattr(item.date, 'strftime') else str(item.date)})
-                print(f"Verkäufer ({seller_info['seller_name']}, "f"{seller_info['seller_age_days']} Tage)")
         except Exception as e:
             print(f"⚠️ Fehler bei Vorfilterung Item {item.id}: {e}")
             
