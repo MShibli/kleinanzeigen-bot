@@ -202,7 +202,7 @@ def start():
             # Nachtmodus: 02:00 bis 07:00 Uhr
             if 2 <= current_hour < 7:
                 # Lange Pause in der Nacht (z.B. 15 bis 25 Minuten)
-                wait_time = randint(900, 1500)
+                wait_time = randint(1500, 3600)
                 mode_text = "🌙 Nachtmodus"
             else:
                 # Standard-Pause am Tag (60 bis 95 Sekunden)
