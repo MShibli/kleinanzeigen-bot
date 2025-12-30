@@ -7,7 +7,11 @@ app = 'kleinanzeigen-bot'
 primary_region = 'fra'
 
 [build]
+dockerfile = "Dockerfile"
 
+[env]
+  PYTHONUNBUFFERED = "1"
+  
 [http_service]
   internal_port = 8080
   force_https = true
