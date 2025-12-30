@@ -52,7 +52,7 @@ class SendingClass:
         for attempt in range(3): # Zusätzliche manuelle Schleife für Timeouts
             try:
                 # Timeout ist entscheidend: 5s für Connect, 15s für Datentransfer
-                response = self.session.post(self.url, data=payload, timeout=(5, 15))
+                response = self.session.post(url, data=payload, timeout=(5, 15))
                 
                 if response.status_code == 200:
                     return response.json()
