@@ -57,6 +57,7 @@ class SendingClass:
         # Nachrichtentext zusammenbauen
         message = (
             f"{prefix}"
+            f"---------------------------\n"
             f"📦 <b>{item.title}</b>\n"
             f"📅 Inseriert: {posted_date}\n"
             f"💰 Preis: <code>{item.price}</code>"
@@ -68,6 +69,7 @@ class SendingClass:
         message += f"\n📍 Ort: {item.city}\n"
 
         if is_whitelist == False:
+            message += f"---------------------------\n"
             message += f"🛍️ <b>Verkäufer: {item_data['seller_name']}</b>\n"
             message += f"📅 <b>Aktiv seit: {item_data['seller_agedays']} Tagen</b>\n"
         
@@ -85,8 +87,6 @@ class SendingClass:
             ebay_query = item.title
         else:
             ebay_query = item_data["cleanedquery"]
-            message += f"🎯 <b>Verkäufer: {item_data['seller_name']}</b>\n"
-            message += f"🎯 <b>Aktiv seit: {item_data['seller_agedays']} Tagen</b>\n"
             
         ebay_url = f"https://www.ebay.de/sch/i.html?_nkw={ebay_query}&LH_Sold=1&LH_Complete=1"
         ebay_live_url = f"https://www.ebay.de/sch/i.html?_nkw={ebay_query}&LH_BIN=1&_sop=15"
