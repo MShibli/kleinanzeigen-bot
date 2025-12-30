@@ -66,6 +66,10 @@ class SendingClass:
             message += f" (Ebay: ~{m_price}€)"
         
         message += f"\n📍 Ort: {item.city}\n"
+
+        if is_whitelist == False:
+            message += f"🛍️ <b>Verkäufer: {item_data['seller_name']}</b>\n"
+            message += f"📅 <b>Aktiv seit: {item_data['seller_agedays']} Tagen</b>\n"
         
         if score is not None:
             message += (
