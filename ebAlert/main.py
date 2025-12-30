@@ -87,6 +87,22 @@ EXCLUDED_KEYWORDS = [
     "yealink",
     "htc",
     "amd fx",
+    "monitorarm"
+    "a14",
+    "a17",
+    "mikrocontroller",
+    "j3",
+    "fritz!fon",
+    "gtx 760",
+    "gtx 970",
+    "gtx 1050",
+    "torras",
+    "bitbox",
+    "magnetkartenleser",
+    "gigastone",
+    "game capture",
+    "fritzfon",
+    "oldi",
     "captian dma"
     "oppo",
     "ericsson",
@@ -356,6 +372,10 @@ def get_all_post(db: Session, telegram_message=False):
                 seller_info = fetch_seller_info(item.link)
                 sleep(0.3)
 
+                if not seller_info:
+                    print(f"Item - title: {item.title} - price: {p} - id: {item.id} hat keine seller_info! → Skip")
+                    continue
+                
                 print(f"Processing Item - title: {item.title} - price: {p} - id: {item.id} - Seller: {seller_info['seller_name']}, Sellertype: {seller_info['seller_type']}")
                 # Verkäufer-Typ prüfen
                 if seller_info["seller_type"] == "COMMERCIAL":
