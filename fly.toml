@@ -9,6 +9,10 @@ primary_region = 'fra'
 [build]
 dockerfile = "Dockerfile"
 
+[mounts]
+  source = "data"
+  destination = "/data"
+
 [env]
   PYTHONUNBUFFERED = "1"
   
