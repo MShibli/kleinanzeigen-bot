@@ -1,14 +1,11 @@
-import socket
-import requests
-
-# Erzwinge IPv4
-requests.packages.urllib3.util.connection.allowed_gai_family = lambda: socket.AF_INET
-
 import requests
 import json
 from ebAlert.core.config import settings
 from ebAlert.ebayscrapping.ebayclass import EbayItem
 from urllib.parse import quote
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+import time
 
 class SendingClass:
 
