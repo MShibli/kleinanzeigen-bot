@@ -623,7 +623,7 @@ def estimate_negotiated_price(price, negotiability):
 def margin_percent(buy_price, sell_price):
     return (sell_price - buy_price) / buy_price
 
-def contains_excluded_keywords(title, description=""):
+def contains_excluded_keywords_test(title, description=""):
     # Text in Wörter zerlegen (Satzzeichen entfernen)
     text = f"{title} {description}".lower()
     # Entfernt Sonderzeichen, um nur reine Wörter zu haben
@@ -632,6 +632,6 @@ def contains_excluded_keywords(title, description=""):
     # Prüfe, ob es eine Überschneidung gibt
     return not EXCLUDED_SET.isdisjoint(words_in_text)
 
-def contains_excluded_keywords_alt(title, description=""):
+def contains_excluded_keywords(title, description=""):
     text = f"{title} {description}".lower()
     return any(word in text for word in EXCLUDED_KEYWORDS)
