@@ -238,6 +238,17 @@ def start():
                 # Standard-Pause am Tag (60 bis 95 Sekunden)
                 wait_time = randint(60, 95)
                 mode_text = "☀️ Tagmodus"
+
+
+            next_scan_time = (datetime.now() + timedelta(seconds=wait_time)).strftime("%H:%M:%S")
+        
+            # 3. Status-Update an Telegram senden
+            status_text = f"🤖 **Bot-Status**\n" \
+                          f"Letzter Scan: {datetime.now().strftime('%H:%M:%S')}\n" \
+                          f"Nächster Scan: ca. {next_scan_time}\n" \
+                          f"Modus: {mode_text}"
+        
+            telegram.send_message(status_text) # Du müsstest eine send_message Methode haben
             
             print(f"--- ✅ Scan fertig ({mode_text}). Pause: {wait_time // 60}m {wait_time % 60}s ---")
             sleep(wait_time)
