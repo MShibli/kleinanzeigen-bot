@@ -248,7 +248,7 @@ def start():
                           f"Nächster Scan: ca. {next_scan_time}\n" \
                           f"Modus: {mode_text}"
         
-            telegram.send_message(status_text) # Du müsstest eine send_message Methode haben
+            telegram.send_message(status_text,disable_notfication=True) # Du müsstest eine send_message Methode haben
             
             print(f"--- ✅ Scan fertig ({mode_text}). Pause: {wait_time // 60}m {wait_time % 60}s ---")
             sleep(wait_time)
