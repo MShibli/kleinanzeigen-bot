@@ -312,7 +312,7 @@ def get_all_post(db: Session, telegram_message=False):
                 #    print(f"Backlist Word! title: {item.title} - price: {p} - id: {item.id} - description: {seller_info['description']} → Skip")
                 #    continue
 
-                item.seller_name = seller_info["seller_name"]
+                item.seller_name = seller_info['seller_name']
                 item.seller_agedays = seller_info['seller_age_days']
                 title_lower = item.title.lower()
             
