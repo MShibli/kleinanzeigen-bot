@@ -49,6 +49,7 @@ EXCLUDED_KEYWORDS = [
     "retro",
     "thrust",
     "sound card",
+    "display beschädigt",
     "webcam",
     "gigaset",
     "klapphandy",
