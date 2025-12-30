@@ -19,7 +19,7 @@ class SendingClass:
                 "disable_web_page_preview": False,
                 "disable_notification": True
             }
-        else
+        else:
             payload = {
                 "chat_id": settings.CHAT_ID,
                 "text": message,
