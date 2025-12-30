@@ -281,7 +281,6 @@ def get_all_post(db: Session, telegram_message=False):
     potential_items = []
     for item in all_scraped_items:
         try: 
-            print(f"Processing Item - title: {item.title} - id: {item.id}")
             p = parse_price(item.price)
             
             if not p or p <= 0:
