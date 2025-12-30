@@ -39,7 +39,7 @@ class SendingClass:
             })
 
         try:
-            response = requests.post(url, data=payload, timeout=(10, 20))
+            response = requests.post(url, data=payload, timeout=30)
             return response.status_code == 200
         except Exception as e:
             print(f"Telegram Fehler: {e}")
