@@ -31,6 +31,7 @@ EXCLUDED_KEYWORDS = [
     "ddr3",
     "core 2 duo",
     "so-dimm",
+    "docking-station",
     "floppy",
     "wileyfox",
     "samsung gt",
