@@ -39,6 +39,7 @@ EXCLUDED_KEYWORDS = [
     "displayschaden",
     "display schaden",
     "fairphone",
+    "medion",
     "galaxy tab",
     "note 20",
     "s10",
