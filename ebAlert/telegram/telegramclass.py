@@ -1,3 +1,9 @@
+import socket
+import requests
+
+# Erzwinge IPv4
+requests.packages.urllib3.util.connection.allowed_gai_family = lambda: socket.AF_INET
+
 import requests
 import json
 from ebAlert.core.config import settings
