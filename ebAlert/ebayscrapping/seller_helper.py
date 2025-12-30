@@ -32,11 +32,10 @@ def fetch_seller_info(ad_url: str) -> dict | None:
             ".text-body-regular-strong.text-force-linebreak.userprofile-vip a"
         )
 
-       if not seller_tag:
-          seller_tag = soup.select_one(
-             ".text-body-regular-strong text-force-linebreak userprofile-vip a"
-          )
-
+        if not seller_tag:
+            seller_tag = soup.select_one(
+               ".text-body-regular-strong text-force-linebreak userprofile-vip a"
+            )
        
         if seller_tag:
             seller_name = seller_tag.get_text(strip=True)
