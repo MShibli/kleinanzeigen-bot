@@ -57,7 +57,6 @@ class SendingClass:
         # Nachrichtentext zusammenbauen
         message = (
             f"{prefix}"
-            f"---------------------------\n"
             f"📦 <b>{item.title}</b>\n"
             f"📅 Inseriert: {posted_date}\n"
             f"💰 Preis: <code>{item.price}</code>"
@@ -67,11 +66,9 @@ class SendingClass:
             message += f" (Ebay: ~{m_price}€)"
         
         message += f"\n📍 Ort: {item.city}\n"
-
-        if is_whitelist == False:
-            message += f"---------------------------\n"
-            message += f"🛍️ <b>Verkäufer: {item_data['seller_name']}</b>\n"
-            message += f"📅 <b>Aktiv seit: {item_data['seller_agedays']} Tagen</b>\n"
+        message += f"---------------------------\n"
+        message += f"🛍️ <b>Verkäufer: {getattr(item, 'seller_name', 'Nicht verfügbar')}</b>\n"
+        message += f"📅 <b>Aktiv seit: {getattr(item, 'seller_agedays', 'Nicht verfügbar')} Tagen</b>\n"
         
         if score is not None:
             message += (
