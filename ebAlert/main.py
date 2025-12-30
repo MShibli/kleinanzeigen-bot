@@ -41,6 +41,7 @@ EXCLUDED_KEYWORDS = [
     "elagto",
     "fifine",
     "servergehäuse",
+    "server mainboard",
     "tablet tastatur",
     "samsung young",
     "gt630",
