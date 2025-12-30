@@ -36,6 +36,7 @@ EXCLUDED_KEYWORDS = [
     "emporia",
     "creative",
     "soundkarte",
+    "unihertz",
     "t phone",
     "hp thunderbolt",
     "joystick",
