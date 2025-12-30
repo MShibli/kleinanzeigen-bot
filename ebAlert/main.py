@@ -86,6 +86,7 @@ EXCLUDED_KEYWORDS = [
     "rx580",
     "galaxy tab",
     "note 20",
+    "note 10",
     "s10",
     "s9",
     "s7",
