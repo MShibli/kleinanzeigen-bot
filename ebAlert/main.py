@@ -41,6 +41,8 @@ EXCLUDED_KEYWORDS = [
     "realpower",
     "floppy",
     "mobistel",
+    "icue link",
+    "lumia",
     "apple magic",
     "speaker set",
     "t-phone",
