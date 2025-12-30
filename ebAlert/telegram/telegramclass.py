@@ -12,11 +12,7 @@ from urllib.parse import quote
 
 class SendingClass:
 
-    def __init__(self, token, chat_id):
-        self.token = token
-        self.chat_id = chat_id
-        self.url = f"https://api.telegram.org/bot{token}/sendMessage"
-        
+    def __init__(self):      
         # Session erstellen (Hält die Verbindung zum Server offen)
         self.session = requests.Session()
         
