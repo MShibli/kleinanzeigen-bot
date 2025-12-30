@@ -8,7 +8,7 @@ class Settings:
     # Prüft, ob ein persistentes Verzeichnis definiert wurde (z.B. /app/data auf Railway)
     # Falls nicht, wird das Home-Verzeichnis (lokal) als Fallback genutzt.
     PERSISTENT_DIR = os.environ.get("CACHE_DIR") or os.path.expanduser("~")
-    
+    os.makedirs(PERSISTENT_DIR, exist_ok=True)
     # Die Datenbankdatei wird nun im persistenten Verzeichnis abgelegt
     FILE_LOCATION = os.path.join(PERSISTENT_DIR, "ebayklein.db")
     
