@@ -33,6 +33,8 @@ EXCLUDED_KEYWORDS = [
     "so-dimm",
     "sodimm",
     "joystick",
+    "displayschaden",
+    "display schaden",
     "fairphone",
     "senioren handy",
     "alcatel",
