@@ -34,6 +34,7 @@ EXCLUDED_KEYWORDS = [
     "sodimm",
     "uleway",
     "t phone",
+    "hp thunderbolt",
     "joystick",
     "displayschaden",
     "display schaden",
