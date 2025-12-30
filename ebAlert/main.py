@@ -244,6 +244,9 @@ EXCLUDED_KEYWORDS = [
     "schrott"
 ]
 
+# Vorbereitung: Wandle deine Liste einmalig in ein Set um (global)
+EXCLUDED_SET = set(word.lower() for word in EXCLUDED_KEYWORDS)
+
 def delete_old_items(db: Session):
     """Löscht alle Anzeigen aus der Datenbank, die älter als 24 Stunden sind."""
     try:
@@ -618,5 +621,14 @@ def margin_percent(buy_price, sell_price):
     return (sell_price - buy_price) / buy_price
 
 def contains_excluded_keywords(title, description=""):
+    # Text in Wörter zerlegen (Satzzeichen entfernen)
+    text = f"{title} {description}".lower()
+    # Entfernt Sonderzeichen, um nur reine Wörter zu haben
+    words_in_text = set(re.findall(r'\w+', text))
+    
+    # Prüfe, ob es eine Überschneidung gibt
+    return not EXCLUDED_SET.isdisjoint(words_in_text)
+
+def contains_excluded_keywords_alt(title, description=""):
     text = f"{title} {description}".lower()
     return any(word in text for word in EXCLUDED_KEYWORDS)
