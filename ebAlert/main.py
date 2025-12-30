@@ -36,6 +36,8 @@ EXCLUDED_KEYWORDS = [
     "displayschaden",
     "display schaden",
     "fairphone",
+    "imac",
+    "macbook",
     "senioren handy",
     "alcatel",
     "retro",
