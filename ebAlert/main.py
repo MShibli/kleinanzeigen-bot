@@ -46,6 +46,8 @@ EXCLUDED_KEYWORDS = [
     "dvd",
     "hdmi kabel",
     "atari",
+    "voodoo",
+    "decmate",
     "samsung gt",
     "scythe",
     "trackir",
