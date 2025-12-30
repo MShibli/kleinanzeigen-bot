@@ -11,6 +11,24 @@ from ebAlert.ebayscrapping.ebayclass import EbayItem
 from urllib.parse import quote
 
 class SendingClass:
+
+    def __init__(self, token, chat_id):
+        self.token = token
+        self.chat_id = chat_id
+        self.url = f"https://api.telegram.org/bot{token}/sendMessage"
+        
+        # Session erstellen (Hält die Verbindung zum Server offen)
+        self.session = requests.Session()
+        
+        # Retry-Strategie: Wenn der Server gar nicht antwortet oder schluckauf hat
+        retries = Retry(
+            total=5,                          # Insgesamt 5 Versuche
+            backoff_factor=1,                 # Wartezeit zwischen Versuchen: 1s, 2s, 4s...
+            status_forcelist=[429, 500, 502, 503, 504], # Bei diesen Fehlern wiederholen
+            raise_on_status=False
+        )
+        self.session.mount("https://", HTTPAdapter(max_retries=retries))
+        
     def send_message(self, message, buttons=None, disable_notfication=False):
         """
         Sendet eine Nachricht mit optionalen Inline-Buttons via POST.
@@ -38,12 +56,26 @@ class SendingClass:
                 "inline_keyboard": [buttons]
             })
 
-        try:
-            response = requests.post(url, data=payload, timeout=30)
-            return response.status_code == 200
-        except Exception as e:
-            print(f"Telegram Fehler: {e}")
-            return False
+        for attempt in range(3): # Zusätzliche manuelle Schleife für Timeouts
+            try:
+                # Timeout ist entscheidend: 5s für Connect, 15s für Datentransfer
+                response = self.session.post(self.url, data=payload, timeout=(5, 15))
+                
+                if response.status_code == 200:
+                    return response.json()
+                
+                if response.status_code == 429:
+                    # Telegram sagt "zu schnell" -> Wartezeit aus der Antwort lesen
+                    retry_after = response.json().get("parameters", {}).get("retry_after", 5)
+                    print(f"⚠️ Rate Limit! Warte {retry_after}s...")
+                    time.sleep(retry_after)
+                    continue
+
+                print(f"❌ Fehler {response.status_code}: {response.text}")
+            
+            except requests.exceptions.RequestException as e:
+                print(f"🔔 Verbindungsversuch {attempt + 1} fehlgeschlagen: {e}")
+                time.sleep(2) # Kurze Pause vor dem nächsten Versuch
 
     def send_formated_message(self, item_data, is_whitelist=False):
         # FALL A: Das angereicherte Paket (Dictionary)
