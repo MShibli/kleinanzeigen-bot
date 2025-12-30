@@ -35,6 +35,8 @@ EXCLUDED_KEYWORDS = [
     "joystick",
     "fairphone",
     "senioren handy",
+    "alcatel",
+    "retro",
     "thrust",
     "sound card",
     "webcam",
