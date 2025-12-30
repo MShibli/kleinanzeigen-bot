@@ -325,7 +325,7 @@ def get_all_post(db: Session, telegram_message=False):
                     continue
 
 
-                potential_items.append({"id": item.id, "title": item.title, "item": item, "price": p, "date": item.date.strftime("%d.%m.%Y %H:%M") if hasattr(item.date, 'strftime') else str(item.date)})
+                potential_items.append({"id": item.id, "title": item.title, "item": item, "price": p, "seller_name": seller_info['seller_name'], "seller_agedays": seller_info['seller_age_days'], "date": item.date.strftime("%d.%m.%Y %H:%M") if hasattr(item.date, 'strftime') else str(item.date)})
                 print(f"Verkäufer ({seller_info['seller_name']}, "f"{seller_info['seller_age_days']} Tage)")
         except Exception as e:
             print(f"⚠️ Fehler bei Vorfilterung Item {item.id}: {e}")
@@ -366,7 +366,7 @@ def get_all_post(db: Session, telegram_message=False):
                 "description": (orig['item'].description or "")[:400]
             })
             
-            item_map[item_id] = {"obj": orig['item'], "m_price": m_price, "price": orig['price'], "date": orig['date'], "cleanedquery": cleaned_query}
+            item_map[item_id] = {"obj": orig['item'], "m_price": m_price, "price": orig['price'], "date": orig['date'], "cleanedquery": cleaned_query, "seller_name": orig['seller_name'], "seller_agedays": orig['seller_agedays']}
         except Exception as e:
             print(f"⚠️ Fehler bei Median-Check für {q_data.get('id')}: {e}")
     
