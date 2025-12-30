@@ -32,6 +32,8 @@ EXCLUDED_KEYWORDS = [
     "core 2 duo",
     "so-dimm",
     "sodimm",
+    "uleway",
+    "t phone",
     "joystick",
     "displayschaden",
     "display schaden",
