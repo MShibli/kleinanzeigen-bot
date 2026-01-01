@@ -121,7 +121,7 @@ class SendingClass:
         # Buttons
 
         if is_whitelist == True:
-            ebay_query = item.title
+            ebay_query = get_safe_telegram_button_text(item.title)
         else:
             ebay_query = item_data["cleanedquery"]
             
@@ -146,5 +146,11 @@ class SendingClass:
             return value.strftime("%d.%m.%Y %H:%M")
         except:
             return str(value)
+
+    def get_safe_telegram_button_text(query_text):
+        # 1. Nur wichtige Zeichen behalten (Buchstaben, Zahlen, Leerzeichen)
+        clean_query = re.sub(r'[^a-zA-Z0-9\säöüÄÖÜß]', '', query_text)
+        # 2. URL-konform kodieren
+        return quote(clean_query)
 
 telegram = SendingClass()
