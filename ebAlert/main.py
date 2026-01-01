@@ -29,6 +29,7 @@ SCORE_BOOSTERS = [
 ]
 EXCLUDED_KEYWORDS = [
     "ddr3",
+    "ddr2",
     "core 2 duo",
     "so-dimm",
     "docking-station",
