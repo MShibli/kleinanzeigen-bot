@@ -1,5 +1,6 @@
 import requests
 import json
+import re
 from ebAlert.core.config import settings
 from ebAlert.ebayscrapping.ebayclass import EbayItem
 from urllib.parse import quote
@@ -121,7 +122,7 @@ class SendingClass:
         # Buttons
 
         if is_whitelist == True:
-            ebay_query = get_safe_telegram_button_text(item.title)
+            ebay_query = self.get_safe_telegram_button_text(item.title)
         else:
             ebay_query = item_data["cleanedquery"]
             
@@ -147,6 +148,7 @@ class SendingClass:
         except:
             return str(value)
 
+    @staticmethod
     def get_safe_telegram_button_text(query_text):
         # 1. Nur wichtige Zeichen behalten (Buchstaben, Zahlen, Leerzeichen)
         clean_query = re.sub(r'[^a-zA-Z0-9\säöüÄÖÜß]', '', query_text)
