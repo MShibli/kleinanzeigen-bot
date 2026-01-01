@@ -1,6 +1,7 @@
 import requests
 import json
 import re
+import html
 from ebAlert.core.config import settings
 from ebAlert.ebayscrapping.ebayclass import EbayItem
 from urllib.parse import quote
@@ -94,21 +95,28 @@ class SendingClass:
             prefix = "🔥 <b>NEUER DEAL</b>\n"
         
         posted_date = self.format_date(item.date)
+
+        # Den Titel ebenfalls sicher machen (manche Leute schreiben "<Suche>" in den Titel)
+        safe_title = html.escape(item.title)
         
         # Nachrichtentext zusammenbauen
         message = (
             f"{prefix}"
-            f"📦 <b>{item.title}</b>\n"
+            f"📦 <b>{safe_title}</b>\n"
             f"📅 Inseriert: {posted_date}\n"
             f"💰 Preis: <code>{item.price}</code>"
         )
         
         if m_price:
             message += f" (Ebay: ~{m_price}€)"
-        
+
+        # Den Verkäufernamen sicher machen
+        raw_seller = getattr(item, 'seller_name', 'Nicht verfügbar')
+        safe_seller = html.escape(str(raw_seller))
+                
         message += f"\n📍 Ort: {item.city}\n"
         message += f"---------------------------\n"
-        message += f"🛍️ <b>Verkäufer: {getattr(item, 'seller_name', 'Nicht verfügbar')}</b>\n"
+        message += f"🛍️ <b>Verkäufer: {safe_seller}</b>\n"
         message += f"📅 <b>Aktiv seit: {getattr(item, 'seller_agedays', 'Nicht verfügbar')} Tagen</b>\n"
         
         if score is not None:
