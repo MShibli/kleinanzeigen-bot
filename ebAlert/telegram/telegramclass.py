@@ -145,6 +145,24 @@ class SendingClass:
         
         return self.send_message(message, buttons=buttons)
 
+
+    def edit_message(self, message_id, text):
+        url = f"{settings.TELEGRAM_API_URL.split('?')[0].replace('sendMessage', '')}editMessageText"
+        payload = {
+            "chat_id": settings.CHAT_ID,
+            "message_id": message_id,
+            "text": text,
+            "parse_mode": "HTML",
+            "disable_web_page_preview": True
+        }
+        try:
+            response = self.session.post(url, data=payload, timeout=(5, 10))
+            return response.json()
+        except Exception as e:
+            print(f"⚠️ Fehler beim Editieren der Status-Nachricht: {e}")
+            return None
+
+    
     def format_date(self, value):
         if not value:
             return "unbekannt"
