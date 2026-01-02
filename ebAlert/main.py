@@ -165,6 +165,8 @@ EXCLUDED_KEYWORDS = [
     "macbook",
     "phillips",
     "senioren handy",
+    "kinderhandy",
+    "senioren",
     "alcatel",
     "retro",
     "thrust",
