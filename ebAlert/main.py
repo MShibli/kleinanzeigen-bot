@@ -30,6 +30,7 @@ SCORE_BOOSTERS = [
 EXCLUDED_KEYWORDS = [
     "ddr3",
     "ddr2",
+    "gerissen",
     "core 2 duo",
     "alienware",
     "skyline",
