@@ -154,6 +154,7 @@ EXCLUDED_KEYWORDS = [
     "a7",
     "sd-ram",
     "sd ram",
+    "displayfehler",
     "display-fehler",
     "display fehler",
     "funktioniert nicht",
