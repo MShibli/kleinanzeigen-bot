@@ -196,7 +196,7 @@ def generate_search_queries_batch(items: list):
         # Im Fehlerfall geben wir zumindest die Cache-Ergebnisse zurück
         return results
 
-def evaluate_listings_batch(listings: list, chunk_size: int = 12):
+def evaluate_listings_batch(listings: list, chunk_size: int = 8):
     """
     Unterteilt die Liste der Artikel in kleinere Blöcke (Chunks),
     um die Genauigkeit der KI zu erhöhen und Fehler zu vermeiden.
