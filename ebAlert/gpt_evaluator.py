@@ -34,7 +34,7 @@ true ONLY if:
 - RAM is DDR3 or older
 - Intel CPU is < 8th Gen
 - AMD CPU is < Ryzen 2000
-- Motherboard with DDR3 Ram or older
+- Motherboard AM3 or lower
 - iPhone model < iPhone 11
 - Samsung S < S22
 - Samsung A < A55
@@ -43,7 +43,7 @@ true ONLY if:
 false if:
 - RAM is DDR4 or DDR5
 - CPU meets or exceeds the limits above
-- Motherboard meets or exceeds the limits above
+- Motherboard AM4 or AM5
 - Smartphone meets or exceeds the limits above
 
 3) accessory_only: true if neither a hardware part nor a complete pc nor a smartphone.
