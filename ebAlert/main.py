@@ -357,7 +357,7 @@ def start():
                 mode_text = "🌙 Nachtmodus"
             else:
                 # Standard-Pause am Tag (60 bis 95 Sekunden)
-                wait_time = randint(60, 95)
+                wait_time = randint(600, 900)
                 mode_text = "☀️ Tagmodus"
 
 
