@@ -6,51 +6,76 @@ from ebAlert.core.config import settings
 
 client = OpenAI(api_key=settings.OPEN_API_KEY)
 
-MODEL = "gpt-4.1-mini"
-MODEL_SEARCH_QUERY = "gpt-4.1-mini"
+MODEL = "gpt-5-mini"
+MODEL_SEARCH_QUERY = "gpt-5-mini"
 
 SYSTEM_PROMPT_SCORING = """
-ROLE: Professional Electronics Reseller.
-TASK:
-Classify each listing. Do NOT calculate prices or margins.
+SYSTEM ROLE:
+You are a strict classification engine for electronics listings.
 
-RULES:
-- Output JSON only
+TASK:
+Classify each item independently.
+Do NOT calculate prices.
+Do NOT explain reasoning.
+Do NOT infer anything not explicitly stated.
+
+OUTPUT RULES:
+- Output valid JSON only
 - No prose, no markdown
-- One object per input item
+- One result object per input item
+- Reset all rules for every item
+
+HARDWARE TYPES (ONLY THESE COUNT):
+CPU, GPU, RAM, Mainboard
 
 CLASSIFICATION RULES:
-1) BUNDLE: 
-true only if: 
-listing has ≥2 different hardware types from {CPU, GPU, RAM, Mainboard}.
-listing for a complete PC.
 
-false if:
-Multiple items of the same type (e.g., 2x RAM).
-only 1 hardware type.
+1) bundle (boolean)
+true ONLY IF:
+- The listing explicitly contains TWO OR MORE DIFFERENT hardware types from the list above
+OR
+- The listing is a complete PC
 
-2) obsolete:
-true ONLY if:
+false IF:
+- Only ONE hardware type exists
+- Multiple items of the SAME type (e.g. 2x RAM)
+- Accessories only
+
+2) obsolete (boolean)
+true ONLY IF ANY of the following are explicitly present:
 - RAM is DDR3 or older
-- Intel CPU is < 8th Gen
-- AMD CPU is < Ryzen 2000
+- Intel CPU generation < 8
+- AMD CPU < Ryzen 2000
 - iPhone model < iPhone 11
-- Samsung S < S22
-- Samsung A < A55
+- Samsung Galaxy S < S22
+- Samsung Galaxy A < A55
 - Other smartphones released before 2023
 
-false if:
+false IF ANY of the following are present:
 - RAM is DDR4 or DDR5
-- CPU meets or exceeds the limits above
+- AMD CPU is Ryzen 2000 or newer
+- Intel CPU is 8th gen or newer
 - Smartphone meets or exceeds the limits above
 
-3) accessory_only: true if neither a hardware part nor a complete pc nor a smartphone.
-4) liquidity: high | medium | low
-
 IMPORTANT:
-Each item must be classified independently.
-Do NOT infer rules from previous items.
-Reset all rules for every item.
+- If BOTH modern and old components appear → obsolete = false
+- Bundles with modern parts are NOT obsolete
+
+3) accessory_only (boolean)
+true ONLY IF:
+- The item is NOT a hardware part from the list above
+AND
+- NOT a complete PC
+AND
+- NOT a smartphone
+
+4) liquidity (enum)
+One of: high | medium | low
+Use market intuition only.
+
+INPUT:
+A JSON array of items. Each item has:
+id, title, description, offer_price_eur, ebay_median_eur
 
 OUTPUT FORMAT:
 {
@@ -133,7 +158,6 @@ def generate_search_queries_batch(items: list):
     try:
         response = client.chat.completions.create(
             model=MODEL_SEARCH_QUERY,
-            temperature=0.1,
             response_format={"type": "json_object"},
             messages=[
                 {"role": "system", "content": "Du bist ein Daten-Parser. Extrahiere nur Markennamen und Modell."},
@@ -191,7 +215,6 @@ def evaluate_listings_batch(listings: list, chunk_size: int = 12):
             
             response = client.chat.completions.create(
                 model=MODEL,
-                temperature=0.0,
                 response_format={"type": "json_object"},
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT_SCORING},
