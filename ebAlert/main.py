@@ -466,7 +466,7 @@ def get_all_post(db: Session, telegram_message=False):
     for item in all_scraped_items:
         try: 
             if contains_excluded_title_keywords(item.title):
-                print(f"Backlist title Word! title: {item.title} - price: {p} - id: {item.id}→ Skip")
+                print(f"Backlist title Word! title: {item.title} - id: {item.id}→ Skip")
                 continue 
                 
             p = parse_price(item.price)
