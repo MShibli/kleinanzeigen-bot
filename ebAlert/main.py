@@ -27,11 +27,17 @@ SCORE_BOOSTERS = [
     "64gb ddr4",
     "ddr5"
 ]
+TITLE_BLACKLIST = [
+    "tausche",
+    "suche",
+    "NAS"
+]
 EXCLUDED_KEYWORDS = [
     "ddr3",
     "ddr2",
     "gerissen",
     "core 2 duo",
+    "wasserschaden",
     "alienware",
     "skyline",
     "mifcom",
@@ -453,6 +459,9 @@ def get_all_post(db: Session, telegram_message=False):
     potential_items = []
     for item in all_scraped_items:
         try: 
+            if contains_excluded_title_keywords(item.title):
+                continue 
+                
             p = parse_price(item.price)
             
             if not p or p <= 0:
@@ -683,3 +692,7 @@ def contains_excluded_keywords_test(title, description=""):
 def contains_excluded_keywords(title, description=""):
     text = f"{title} {description}".lower()
     return any(word in text for word in EXCLUDED_KEYWORDS)
+
+def contains_excluded_title_keywords(title):
+    text = f"{title}".lower()
+    return any(word in text for word in TITLE_BLACKLIST)
