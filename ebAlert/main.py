@@ -43,6 +43,7 @@ EXCLUDED_KEYWORDS = [
     "externe festplatte",
     "airfly",
     "quattro",
+    "minisforum",
     "toner",
     "gaming mikrofon",
     "handyhalterung",
