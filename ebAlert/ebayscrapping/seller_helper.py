@@ -65,10 +65,10 @@ def fetch_seller_info(ad_url: str) -> dict | None:
                     pass
 
         # ===== Anzeigenbeschreibung =====
-        #description = None
-        #desc_tag = soup.select_one("#viewad-description-text")
-        #if desc_tag:
-        #    description = desc_tag.get_text(separator="\n", strip=True)
+        description = None
+        desc_tag = soup.select_one("#viewad-description-text")
+        if desc_tag:
+            description = desc_tag.get_text(separator="\n", strip=True)
 
         if not seller_name:
             return None
