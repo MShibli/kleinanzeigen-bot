@@ -81,8 +81,8 @@ def fetch_seller_info(ad_url: str) -> dict | None:
             "seller_name": seller_name,
             "seller_type": seller_type,
             "active_since": active_since,
-            "seller_age_days": seller_age_days
-            "description": description,
+            "seller_age_days": seller_age_days,
+            "description": description
         }
 
     except Exception as e:
