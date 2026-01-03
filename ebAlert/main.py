@@ -30,7 +30,13 @@ SCORE_BOOSTERS = [
 TITLE_BLACKLIST = [
     "tausche",
     "suche",
-    "NAS"
+    "nas",
+    "beschädigt"
+]
+DESC_BLACKLIST = [
+    "zersprungen",
+    "gerissen",
+    "gebrochen"
 ]
 EXCLUDED_KEYWORDS = [
     "ddr3",
@@ -460,6 +466,7 @@ def get_all_post(db: Session, telegram_message=False):
     for item in all_scraped_items:
         try: 
             if contains_excluded_title_keywords(item.title):
+                print(f"Backlist title Word! title: {item.title} - price: {p} - id: {item.id}} → Skip")
                 continue 
                 
             p = parse_price(item.price)
@@ -492,10 +499,10 @@ def get_all_post(db: Session, telegram_message=False):
                     print(f"⛔ Neuer Verkäufer ({seller_info['seller_name']}, "f"{seller_info['seller_age_days']} Tage) → Skip")
                     continue
 
-                #if contains_excluded_keywords(seller_info["description"]):
+                if contains_excluded_desc_keywords(seller_info["description"]):
                     # Hier: 'description' statt "description"
-                #    print(f"Backlist Word! title: {item.title} - price: {p} - id: {item.id} - description: {seller_info['description']} → Skip")
-                #    continue
+                    print(f"Backlist DESC Word! title: {item.title} - price: {p} - id: {item.id} - description: {seller_info['description']} → Skip")
+                    continue
 
                 item.seller_name = seller_info['seller_name']
                 item.seller_agedays = seller_info['seller_age_days']
@@ -696,3 +703,8 @@ def contains_excluded_keywords(title, description=""):
 def contains_excluded_title_keywords(title):
     text = f"{title}".lower()
     return any(word in text for word in TITLE_BLACKLIST)
+
+def contains_excluded_desc_keywords(desc):
+    text = f"{desc}".lower()
+    return any(word in text for word in DESC_BLACKLIST)
+
