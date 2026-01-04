@@ -31,12 +31,15 @@ TITLE_BLACKLIST = [
     "tausche",
     "suche",
     "nas",
-    "beschädigt"
+    "beschädigt",
+    "displayriss"
 ]
 DESC_BLACKLIST = [
     "zersprungen",
     "gerissen",
-    "gebrochen"
+    "gebrochen",
+    "displayriss",
+    "pixelfehler"
 ]
 EXCLUDED_KEYWORDS = [
     "ddr3",
