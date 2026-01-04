@@ -39,7 +39,8 @@ DESC_BLACKLIST = [
     "gerissen",
     "gebrochen",
     "displayriss",
-    "pixelfehler"
+    "pixelfehler",
+    "leider beschädigt"
 ]
 EXCLUDED_KEYWORDS = [
     "ddr3",
