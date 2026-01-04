@@ -54,6 +54,7 @@ EXCLUDED_KEYWORDS = [
     "alienware",
     "skyline",
     "mifcom",
+    "glasschaden",
     "jbl",
     "wählscheibentelefon",
     "zeichentablett",
