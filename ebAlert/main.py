@@ -41,7 +41,9 @@ DESC_BLACKLIST = [
     "gebrochen",
     "displayriss",
     "pixelfehler",
-    "leider beschädigt"
+    "leider beschädigt",
+    "deutliche schäden",
+    "deutliche gebrauchsspuren"
 ]
 EXCLUDED_KEYWORDS = [
     "ddr3",
