@@ -32,7 +32,8 @@ TITLE_BLACKLIST = [
     "suche",
     "nas",
     "beschädigt",
-    "displayriss"
+    "displayriss",
+    "telefonanlage"
 ]
 DESC_BLACKLIST = [
     "zersprungen",
