@@ -33,7 +33,7 @@ only 1 hardware type.
 true ONLY if:
 - RAM is DDR3 or older
 - Intel CPU is < 8th Gen
-- AMD CPU is < Ryzen 2000
+- AMD CPU is older than Ryzen 2000 series
 - Motherboard AM3 or lower
 - iPhone model < iPhone 11
 - Samsung S < S22
