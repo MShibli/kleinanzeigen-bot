@@ -53,6 +53,7 @@ EXCLUDED_KEYWORDS = [
     "core 2 duo",
     "wasserschaden",
     "alienware",
+    "blackview",
     "skyline",
     "mifcom",
     "glasschaden",
