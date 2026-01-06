@@ -37,8 +37,9 @@ TITLE_BLACKLIST = [
     "altes telefon"
 ]
 DESC_BLACKLIST = [
-    "zersprungen",
+    "ist zersprungen",
     "gerissen",
+    "ist gesprungen",
     "gebrochen",
     "displayriss",
     "pixelfehler",
