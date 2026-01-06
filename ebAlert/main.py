@@ -45,6 +45,7 @@ DESC_BLACKLIST = [
     "wackelkontakt",
     "wasserschaden",
     "haarriss",
+    "glas kaputt",
     "leider beschädigt",
     "deutliche schäden",
     "glas beschädigt",
