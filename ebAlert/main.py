@@ -39,6 +39,7 @@ TITLE_BLACKLIST = [
 DESC_BLACKLIST = [
     "ist zersprungen",
     "gerissen",
+    "einen riss",
     "ist gesprungen",
     "gebrochen",
     "displayriss",
