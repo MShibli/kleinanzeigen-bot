@@ -53,7 +53,8 @@ DESC_BLACKLIST = [
     "deutliche schäden",
     "glas beschädigt",
     "deutliche gebrauchsspuren",
-    "starke gebrauchsspuren"
+    "starke gebrauchsspuren",
+    "kein versand"
 ]
 EXCLUDED_KEYWORDS = [
     "ddr3",
