@@ -44,8 +44,10 @@ DESC_BLACKLIST = [
     "pixelfehler",
     "wackelkontakt",
     "wasserschaden",
+    "haarriss",
     "leider beschädigt",
     "deutliche schäden",
+    "glas beschädigt",
     "deutliche gebrauchsspuren",
     "starke gebrauchsspuren"
 ]
