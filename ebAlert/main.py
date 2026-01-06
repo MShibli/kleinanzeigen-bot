@@ -42,13 +42,17 @@ DESC_BLACKLIST = [
     "gebrochen",
     "displayriss",
     "pixelfehler",
+    "wackelkontakt",
+    "wasserschaden",
     "leider beschädigt",
     "deutliche schäden",
-    "deutliche gebrauchsspuren"
+    "deutliche gebrauchsspuren",
+    "starke gebrauchsspuren"
 ]
 EXCLUDED_KEYWORDS = [
     "ddr3",
     "ddr2",
+    "ulefone",
     "gerissen",
     "core 2 duo",
     "wasserschaden",
