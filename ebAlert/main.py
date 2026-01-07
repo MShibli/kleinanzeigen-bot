@@ -34,7 +34,8 @@ TITLE_BLACKLIST = [
     "beschädigt",
     "displayriss",
     "telefonanlage",
-    "altes telefon"
+    "altes telefon",
+    "dma bundle"
 ]
 DESC_BLACKLIST = [
     "ist zersprungen",
