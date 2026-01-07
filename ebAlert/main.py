@@ -46,6 +46,7 @@ DESC_BLACKLIST = [
     "gebrochen",
     "displayriss",
     "kleiner riss",
+    "mit riss",
     "pixelfehler",
     "wackelkontakt",
     "wasserschaden",
