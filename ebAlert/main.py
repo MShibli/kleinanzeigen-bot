@@ -49,6 +49,7 @@ DESC_BLACKLIST = [
     "displayriss",
     "kleiner riss",
     "mit riss",
+    "runtergefallen",
     "defekte rückseite",
     "einige risse",
     "einen sprung",
