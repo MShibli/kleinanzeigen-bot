@@ -58,6 +58,7 @@ DESC_BLACKLIST = [
     "funktioniert leider",
     "glas kaputt",
     "leider beschädigt",
+    "leider gesprungen",
     "deutliche schäden",
     "glas beschädigt",
     "deutliche gebrauchsspuren",
