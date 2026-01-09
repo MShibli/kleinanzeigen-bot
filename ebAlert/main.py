@@ -74,6 +74,8 @@ EXCLUDED_KEYWORDS = [
     "blackview",
     "skyline",
     "mifcom",
+    "schnurlos",
+    "ip-telefon",
     "glasschaden",
     "jbl",
     "wählscheibentelefon",
