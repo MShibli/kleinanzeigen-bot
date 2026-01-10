@@ -86,6 +86,7 @@ EXCLUDED_KEYWORDS = [
     "zeichentablett",
     "galaxy note",
     "powerbank",
+    "commodore",
     "externe festplatte",
     "airfly",
     "quattro",
