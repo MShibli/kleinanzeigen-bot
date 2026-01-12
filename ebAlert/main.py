@@ -39,6 +39,7 @@ TITLE_BLACKLIST = [
 ]
 DESC_BLACKLIST = [
     "ist zersprungen",
+    "glas gesprungen",
     "ist beschädigt",
     "rückseite beschädigt",
     "rückseite gesplittert",
