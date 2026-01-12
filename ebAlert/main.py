@@ -74,6 +74,7 @@ EXCLUDED_KEYWORDS = [
     "ddr3",
     "ddr2",
     "ulefone",
+    "tastentelefon",
     "gerissen",
     "core 2 duo",
     "wasserschaden",
