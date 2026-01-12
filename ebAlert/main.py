@@ -47,6 +47,7 @@ DESC_BLACKLIST = [
     "stark gesprungen",
     "einen riss",
     "ist gesprungen",
+    "einen glasschaden",
     "gebrochen",
     "displayriss",
     "kleiner riss",
