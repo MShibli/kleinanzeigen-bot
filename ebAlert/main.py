@@ -52,6 +52,7 @@ DESC_BLACKLIST = [
     "einen glasschaden",
     "gebrochen",
     "displayriss",
+    "rückseite gesprungen",
     "kleiner riss",
     "mit riss",
     "runtergefallen",
