@@ -36,6 +36,7 @@ TITLE_BLACKLIST = [
     "telefonanlage",
     "altes telefon",
     "dma bundle",
+    "AVM",
     "vergessen"
 ]
 DESC_BLACKLIST = [
