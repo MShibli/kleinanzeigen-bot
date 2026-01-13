@@ -85,6 +85,7 @@ EXCLUDED_KEYWORDS = [
     "mifcom",
     "schnurlos",
     "ip-telefon",
+    "a13",
     "glasschaden",
     "jbl",
     "wählscheibentelefon",
