@@ -49,6 +49,7 @@ DESC_BLACKLIST = [
     "backcover beschädigt",
     "rückseite beschädigt",
     "deutlicher sprung",
+    "deutlich gesprungen",
     "rückseite gesplittert",
     "gerissen",
     "bastler",
