@@ -80,7 +80,8 @@ DESC_BLACKLIST = [
     "glas beschädigt",
     "deutliche gebrauchsspuren",
     "starke gebrauchsspuren",
-    "kein versand"
+    "kein versand",
+    "bin auf der suche"
 ]
 EXCLUDED_KEYWORDS = [
     "ddr3",
