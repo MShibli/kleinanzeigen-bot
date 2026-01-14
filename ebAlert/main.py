@@ -45,6 +45,7 @@ DESC_BLACKLIST = [
     "ist beschädigt",
     "stark beschädigt",
     "rückseite beschädigt",
+    "deutlicher sprung",
     "rückseite gesplittert",
     "gerissen",
     "bastler",
