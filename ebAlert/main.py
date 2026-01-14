@@ -44,6 +44,7 @@ DESC_BLACKLIST = [
     "glas gesprungen",
     "ist beschädigt",
     "stark beschädigt",
+    "backcover beschädigt",
     "rückseite beschädigt",
     "deutlicher sprung",
     "rückseite gesplittert",
