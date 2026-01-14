@@ -37,13 +37,13 @@ TITLE_BLACKLIST = [
     "altes telefon",
     "dma bundle",
     "AVM",
-    "vergessen",
-    "leider sprünge"
+    "vergessen"
 ]
 DESC_BLACKLIST = [
     "ist zersprungen",
     "glas gesprungen",
     "ist beschädigt",
+    "leider sprünge",
     "stark beschädigt",
     "leider funktioniert",
     "backcover beschädigt",
