@@ -85,6 +85,7 @@ DESC_BLACKLIST = [
 EXCLUDED_KEYWORDS = [
     "ddr3",
     "ddr2",
+    "cubot",
     "ulefone",
     "tastentelefon",
     "gerissen",
