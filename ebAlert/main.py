@@ -89,6 +89,8 @@ DESC_BLACKLIST = [
 EXCLUDED_KEYWORDS = [
     "ddr3",
     "ddr2",
+    "thinclient",
+    "hp desktop",
     "cubot",
     "ulefone",
     "tastentelefon",
