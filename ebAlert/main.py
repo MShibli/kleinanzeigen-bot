@@ -98,6 +98,7 @@ EXCLUDED_KEYWORDS = [
     "hp desktop",
     "cubot",
     "ulefone",
+    "acer nitro",
     "tastentelefon",
     "gerissen",
     "core 2 duo",
@@ -430,12 +431,12 @@ def start():
             # 3. Dynamische Pausenzeit berechnen
             # Nachtmodus: 02:00 bis 07:00 Uhr
             if 2 <= current_hour < 7:
-                # Lange Pause in der Nacht (z.B. 15 bis 25 Minuten)
+                # Lange Pause in der Nacht
                 wait_time = randint(1500, 3600)
                 mode_text = "🌙 Nachtmodus"
             else:
-                # Standard-Pause am Tag (60 bis 95 Sekunden)
-                wait_time = randint(45, 120)
+                # Standard-Pause am Tag
+                wait_time = randint(45, 90)
                 mode_text = "☀️ Tagmodus"
 
 
