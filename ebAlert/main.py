@@ -106,6 +106,7 @@ EXCLUDED_KEYWORDS = [
     "tastentelefon",
     "gerissen",
     "core 2 duo",
+    "stark gebraucht",
     "wasserschaden",
     "alienware",
     "blackview",
