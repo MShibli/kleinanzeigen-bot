@@ -48,6 +48,7 @@ DESC_BLACKLIST = [
     "leider funktioniert",
     "backcover beschädigt",
     "rückseite beschädigt",
+    "hinten kaputt",
     "deutlicher sprung",
     "deutlich gesprungen",
     "rückseite gesplittert",
