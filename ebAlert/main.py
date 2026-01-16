@@ -42,6 +42,7 @@ TITLE_BLACKLIST = [
 ]
 DESC_BLACKLIST = [
     "ist zersprungen",
+    "bildschirm beschädigt",
     "glas gesprungen",
     "starke beschädigung",
     "ist beschädigt",
