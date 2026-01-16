@@ -50,6 +50,7 @@ DESC_BLACKLIST = [
     "rückseite defekt",
     "rechts gesprungen",
     "links gesprungen",
+    "paar risse",
     "rückseite ist defekt",
     "leider sprünge",
     "stark beschädigt",
