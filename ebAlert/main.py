@@ -42,6 +42,7 @@ TITLE_BLACKLIST = [
 DESC_BLACKLIST = [
     "ist zersprungen",
     "glas gesprungen",
+    "starke beschädigung",
     "ist beschädigt",
     "leider sprünge",
     "stark beschädigt",
