@@ -47,6 +47,7 @@ DESC_BLACKLIST = [
     "glas gesprungen",
     "starke beschädigung",
     "ist beschädigt",
+    "rückseite defekt",
     "rechts gesprungen",
     "links gesprungen",
     "leider sprünge",
