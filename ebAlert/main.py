@@ -34,6 +34,7 @@ TITLE_BLACKLIST = [
     "beschädigt",
     "displayriss",
     "telefonanlage",
+    "microsoft surface",
     "altes telefon",
     "dma bundle",
     "AVM",
