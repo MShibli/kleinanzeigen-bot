@@ -121,6 +121,7 @@ EXCLUDED_KEYWORDS = [
     "core 2 duo",
     "stark gebraucht",
     "wasserschaden",
+    "grafikfehler",
     "alienware",
     "blackview",
     "skyline",
