@@ -48,6 +48,8 @@ DESC_BLACKLIST = [
     "starke beschädigung",
     "ist beschädigt",
     "rückseite defekt",
+    "haben risse",
+    "ist zersplittert",
     "rechts gesprungen",
     "ausschließlich per banküberweisung",
     "nur überweisung",
