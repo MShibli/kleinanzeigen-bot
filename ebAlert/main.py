@@ -249,6 +249,7 @@ EXCLUDED_KEYWORDS = [
     "galaxy tab",
     "note 20",
     "note 10",
+    "s22",
     "s21",
     "s10",
     "s9",
