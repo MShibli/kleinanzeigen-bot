@@ -39,7 +39,7 @@ TITLE_BLACKLIST = [
     "dma bundle",
     "AVM",
     "hp",
-    "vergessen" 
+    "vergessen"
 ]
 DESC_BLACKLIST = [
     "ist zersprungen",
