@@ -54,6 +54,7 @@ DESC_BLACKLIST = [
     "rechts gesprungen",
     "ausschließlich per banküberweisung",
     "nur überweisung",
+    "dhl express",
     "suche ein",
     "kleinere sprünge",
     "links gesprungen",
