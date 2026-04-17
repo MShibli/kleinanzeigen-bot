@@ -54,6 +54,7 @@ DESC_BLACKLIST = [
     "haben risse",
     "ist zersplittert",
     "rechts gesprungen",
+    "minimalen riss",
     "ausschließlich per banküberweisung",
     "nur überweisung",
     "dhl express",
