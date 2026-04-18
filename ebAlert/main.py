@@ -47,6 +47,8 @@ DESC_BLACKLIST = [
     "bildschirm beschädigt",
     "glas gesprungen",
     "starke beschädigung",
+    "schwarzer fleck",
+    "feiner riss",
     "ist beschädigt",
     "muss getauscht werden",
     "ist gesplittert",
