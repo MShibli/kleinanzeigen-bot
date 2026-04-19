@@ -18,7 +18,7 @@ from ebAlert.ebayscrapping.seller_helper import fetch_seller_info
 
 WHITELIST = ["bundle", "aufrüstkit", "5800x3d", "5700x3d"]
 MINIMUM_SCORE = 60
-MINIMUM_MARGIN_EUR = 35
+MINIMUM_MARGIN_EUR = 20
 MAX_ITEM_PRICE = 800
 MIN_ITEM_PRICE = 30
 NONE_PRICE = 50
