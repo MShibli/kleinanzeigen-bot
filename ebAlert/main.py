@@ -448,6 +448,7 @@ def start():
     
     # Timer für den stündlichen Cleanup initialisieren
     last_cleanup = datetime.now() - timedelta(hours=1)
+    last_status_sent = datetime.now() - timedelta(minutes=15)
 
     while True:
         try:
@@ -477,15 +478,18 @@ def start():
 
 
             next_scan_time = (datetime.now() + timedelta(seconds=wait_time)).strftime("%H:%M:%S")
+
+            if now - last_status_sent >= timedelta(minutes=15):
+                
+               # 3. Status-Update an Telegram senden
+               status_text = f"🤖 **Bot-Status**\n" \
+                             f"Letzter Scan: {datetime.now().strftime('%H:%M:%S')}\n" \
+                             f"Nächster Scan: ca. {next_scan_time}\n" \
+                             f"Modus: {mode_text}"
         
-            # 3. Status-Update an Telegram senden
-            status_text = f"🤖 **Bot-Status**\n" \
-                          f"Letzter Scan: {datetime.now().strftime('%H:%M:%S')}\n" \
-                          f"Nächster Scan: ca. {next_scan_time}\n" \
-                          f"Modus: {mode_text}"
-        
-            telegram.send_message(status_text,disable_notfication=True) # Du müsstest eine send_message Methode haben
-            
+               telegram.send_message(status_text,disable_notfication=True) # Du müsstest eine send_message Methode haben
+               last_status_sent = now
+                
             print(f"--- ✅ Scan fertig ({mode_text}). Pause: {wait_time // 60}m {wait_time % 60}s ---")
             sleep(wait_time)
 
