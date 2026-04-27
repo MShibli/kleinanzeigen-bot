@@ -109,17 +109,21 @@ def get_ebay_median_price(query: str, offer_price: float):
     url = build_refined_ebay_url(query.replace(' ', '+'))
     print(f"💾 Ebay scrap-URL: {url}")
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept-Language": "de-DE,de;q=0.9"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+        "Accept-Language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Referer": "https://www.ebay.de/",
+        "Cache-Control": "max-age=0",
+        "Connection": "keep-alive"
     }
-
+    
     try:
         res = requests.get(url, headers=headers, timeout=10)
         raw_matches = re.findall(r"EUR\s?(\d+(?:\.\d+)?,\d{2})", res.text)
 
         # Prüfen, ob eBay uns blockiert hat oder die Seite existiert
         if res.status_code != 200:
-            print(f"⚠️ eBay Fehler: Status {res.status_code} für '{query}'")
+            print(f"⚠️ eBay Fehler: Status {res.status_code} für '{query}', URL '{url}'")
             return None
        
         all_prices = []
