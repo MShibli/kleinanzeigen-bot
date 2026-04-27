@@ -128,7 +128,8 @@ def get_ebay_median_price(query: str, offer_price: float):
             time.sleep(1) # Kurze Pause zum "Atmen"
 
         # 4. Eigentlicher Request mit der Session
-        res = ebay_session.get(url, headers=headers, timeout=10)
+        res = ebay_session.get(url)
+        #res = ebay_session.get(url, headers=headers, timeout=10)
         
         # Prüfen, ob eBay uns blockiert hat oder die Seite existiert
         if res.status_code != 200:
