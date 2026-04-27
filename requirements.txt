@@ -5,5 +5,6 @@ lxml
 sqlalchemy
 click
 bs4
+curl_cffi
 urllib3
 openai
