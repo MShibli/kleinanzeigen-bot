@@ -6,6 +6,9 @@ import os
 import time
 from urllib.parse import quote
 
+# Erstelle eine globale Session (außerhalb der Funktion), damit Cookies über Scans hinweg erhalten bleiben
+ebay_session = requests.Session()
+
 # --- CACHE KONFIGURATION ---
 # Prüft, ob CACHE_DIR in den Umgebungsvariablen existiert (Railway)
 # Falls nicht (lokal), wird der aktuelle Ordner (.) verwendet
@@ -112,15 +115,21 @@ def get_ebay_median_price(query: str, offer_price: float):
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
         "Accept-Language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Accept-Encoding": "gzip, deflate, br",
         "Referer": "https://www.ebay.de/",
-        "Cache-Control": "max-age=0",
-        "Connection": "keep-alive"
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1"
     }
     
     try:
-        res = requests.get(url, headers=headers, timeout=10)
-        raw_matches = re.findall(r"EUR\s?(\d+(?:\.\d+)?,\d{2})", res.text)
+        # 3. Optional: Vorher die Startseite besuchen, falls noch keine Cookies da sind
+        if not ebay_session.cookies:
+            ebay_session.get("https://www.ebay.de/", headers=headers, timeout=5)
+            time.sleep(1) # Kurze Pause zum "Atmen"
 
+        # 4. Eigentlicher Request mit der Session
+        res = ebay_session.get(url, headers=headers, timeout=10)
+        
         # Prüfen, ob eBay uns blockiert hat oder die Seite existiert
         if res.status_code != 200:
             print(f"⚠️ eBay Fehler: Status {res.status_code} für '{query}', URL '{url}'")
@@ -129,7 +138,8 @@ def get_ebay_median_price(query: str, offer_price: float):
         all_prices = []
         min_gate = offer_price * 0.5
         max_gate = offer_price * 3.0
-
+        raw_matches = re.findall(r"EUR\s?(\d+(?:\.\d+)?,\d{2})", res.text)
+        
         for p in raw_matches:
             val = float(p.replace('.', '').replace(',', '.'))
             if val <= 15:
