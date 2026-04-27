@@ -8,6 +8,7 @@ setup(
         'click>=7.1',
         'requests>=2.31',
         'bs4>=0.0.1',
+        'curl_cffi>=0.6.0',
         'sqlalchemy>=1.4',
         'urllib3>=2.2.0'
     ],
