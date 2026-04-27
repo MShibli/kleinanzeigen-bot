@@ -5,9 +5,7 @@ import json
 import os
 import time
 from urllib.parse import quote
-
-# Erstelle eine globale Session (außerhalb der Funktion), damit Cookies über Scans hinweg erhalten bleiben
-ebay_session = requests.Session()
+from curl_cffi import requests as cur_requests
 
 # --- CACHE KONFIGURATION ---
 # Prüft, ob CACHE_DIR in den Umgebungsvariablen existiert (Railway)
@@ -122,14 +120,14 @@ def get_ebay_median_price(query: str, offer_price: float):
     }
     
     try:
-        # 3. Optional: Vorher die Startseite besuchen, falls noch keine Cookies da sind
-        if not ebay_session.cookies:
-            ebay_session.get("https://www.ebay.de/", headers=headers, timeout=5)
-            time.sleep(1) # Kurze Pause zum "Atmen"
-
-        # 4. Eigentlicher Request mit der Session
-        #res = ebay_session.get(url)
-        res = ebay_session.get(url, headers=headers, timeout=10)
+        #Eigentlicher Request mit der Session
+        res = cur_requests.get(
+            url, 
+            impersonate="chrome", # <--- Das ist der Gamechanger
+            timeout=15
+        )
+        
+        ##res = ebay_session.get(url, headers=headers, timeout=10)
         
         # Prüfen, ob eBay uns blockiert hat oder die Seite existiert
         if res.status_code != 200:
