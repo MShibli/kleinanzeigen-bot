@@ -123,7 +123,7 @@ def get_ebay_median_price(query: str, offer_price: float):
         #Eigentlicher Request mit der Session
         res = cur_requests.get(
             url, 
-            impersonate="chrome", # <--- Das ist der Gamechanger
+            impersonate="safari", # <--- Das ist der Gamechanger
             timeout=15
         )
         
