@@ -17,7 +17,9 @@ CACHE_FILE = os.path.join(CACHE_DIR, "ebay_price_cache.json")
 if CACHE_DIR != "." and not os.path.exists(CACHE_DIR):
     os.makedirs(CACHE_DIR)
     
-CACHE_EXPIRY = 604800  # 1 Woche in Sekunden
+# 8 Wochen in Sekunden: 8 * 7 * 24 * 60 * 60
+CACHE_EXPIRY = 4838400
+
 CACHE_VERSION = "v4"  # Ändere dies auf v3, v4 etc., wenn du die Logik anpasst
 
 # In deinen Funktionen nutzt du jetzt einfach CACHE_FILE
