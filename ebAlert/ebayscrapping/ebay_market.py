@@ -101,7 +101,8 @@ def get_ebay_median_price(query: str, offer_price: float):
         if entry.get('version') == CACHE_VERSION:
             if entry['price'] > 15:        
                 # Prüfen, ob der Eintrag noch nicht abgelaufen ist
-                if current_time - entry['timestamp'] < CACHE_EXPIRY:
+                #if current_time - entry['timestamp'] < CACHE_EXPIRY:
+                if True:
                     print(f"📦 Cache-Hit für '{query}': {entry['price']}€ (Alter: {int((current_time - entry['timestamp'])/3600)}h)")
                     return entry['price']
 
