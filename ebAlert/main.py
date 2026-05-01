@@ -25,7 +25,8 @@ NONE_PRICE = 50
 SCORE_BOOSTERS = [
     "ddr4 64gb",
     "64gb ddr4",
-    "ddr5"
+    "ddr5",
+    "3060"
 ]
 TITLE_BLACKLIST = [
     "tausche",
