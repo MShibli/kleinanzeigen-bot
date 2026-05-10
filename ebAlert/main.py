@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 from ebAlert.models.sqlmodel import EbayPost  # Importiere dein Modell
 from ebAlert.ebayscrapping.seller_helper import fetch_seller_info
 
-WHITELIST = ["bundle", "aufrüstkit", "5800x3d", "5700x3d", "3060"]
+WHITELIST = ["bundle", "aufrüstkit", "5800x3d", "5700x3d", "3060", "3090", "4090"]
 MINIMUM_SCORE = 60
 MINIMUM_MARGIN_EUR = 20
 MAX_ITEM_PRICE = 800
@@ -574,12 +574,15 @@ def get_all_post(db: Session, telegram_message=False):
             if contains_excluded_title_keywords(item.title):
                 print(f"Backlist title Word! title: {item.title} - id: {item.id}→ Skip")
                 continue 
-                
+
+            title_lower = item.title.lower()
+            isWhitelistMatch =  [word for word in WHITELIST if word.lower() in title_lower]
+            
             p = parse_price(item.price)
             
             if not p or p <= 0:
                 p = NONE_PRICE
-            else:
+            elif isWhitelistMatch == False:
                 if p > MAX_ITEM_PRICE:
                     continue
             
@@ -612,12 +615,9 @@ def get_all_post(db: Session, telegram_message=False):
 
                 item.seller_name = seller_info['seller_name']
                 item.seller_agedays = seller_info['seller_age_days']
-                title_lower = item.title.lower()
-            
+                
                 # --- WHITELIST CHECK (Sofort-Benachrichtigung) ---
-                whitelist_match = [word for word in WHITELIST if word.lower() in title_lower]
-            
-                if whitelist_match:
+                if isWhitelistMatch:
                     telegram.send_formated_message(item, is_whitelist=True)           
                     # Wichtig: Mit 'continue' springen wir zum nächsten Artikel in der Schleife.
                     # So wird für diesen Artikel kein eBay-Preis gesucht und kein GPT genutzt.
