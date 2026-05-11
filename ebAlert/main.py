@@ -39,6 +39,7 @@ TITLE_BLACKLIST = [
     "sp connect",
     "dma bundle",
     "AVM",
+    "blackberry",
     "hp",
     "vergessen"
 ]
@@ -582,7 +583,7 @@ def get_all_post(db: Session, telegram_message=False):
             
             if not p or p <= 0:
                 p = NONE_PRICE
-            elif isWhitelistMatch == False:
+            elif not isWhitelistMatch:
                 if p > MAX_ITEM_PRICE:
                     continue
             
