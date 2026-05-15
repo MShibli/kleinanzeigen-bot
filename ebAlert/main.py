@@ -36,6 +36,7 @@ TITLE_BLACKLIST = [
     "telefonanlage",
     "microsoft surface",
     "altes telefon",
+    "amd phenom",
     "sp connect",
     "dma bundle",
     "macintosh",
