@@ -40,6 +40,7 @@ TITLE_BLACKLIST = [
     "dma bundle",
     "macintosh",
     "fujitsu",
+    "z390",
     "AVM",
     "blackberry",
     "hp",
