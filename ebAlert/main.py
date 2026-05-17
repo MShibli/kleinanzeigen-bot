@@ -42,7 +42,8 @@ TITLE_BLACKLIST = [
     "macintosh",
     "fujitsu",
     "z390",
-    "AVM",
+    "avm",
+    "ecc",
     "blackberry",
     "hp",
     "vergessen"
