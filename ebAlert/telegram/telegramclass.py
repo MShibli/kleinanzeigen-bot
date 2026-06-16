@@ -24,15 +24,22 @@ class SendingClass:
         )
         self.session.mount("https://", HTTPAdapter(max_retries=retries))
         
-    def send_message(self, message, buttons=None, disable_notfication=False):
+    def send_message(self, message, buttons=None, disable_notfication=False, is_whitelistChat=False):
         """
         Sendet eine Nachricht mit optionalen Inline-Buttons via POST.
         """
-        url = f"{settings.TELEGRAM_API_URL.split('?')[0].replace('sendMessage', '')}sendMessage"
+        url = ""
 
+        if is_whitelistChat == False:
+            url =f"{settings.TELEGRAM_API_URL.split('?')[0].replace('sendMessage', '')}sendMessage"
+        else:
+            url =f"{settings.TELEGRAM_API_WHITELIST_URL.split('?')[0].replace('sendMessage', '')}sendMessage"
+
+        target_chat_id = settings.WHITELIST_CHAT_ID if is_whitelistChat else settings.CHAT_ID
+        
         if disable_notfication:
-             payload = {
-                "chat_id": settings.CHAT_ID,
+            payload = {
+                "chat_id": target_chat_id,
                 "text": message,
                 "parse_mode": "HTML",
                 "disable_web_page_preview": False,
@@ -40,7 +47,7 @@ class SendingClass:
             }
         else:
             payload = {
-                "chat_id": settings.CHAT_ID,
+                "chat_id": target_chat_id,
                 "text": message,
                 "parse_mode": "HTML",
                 "disable_web_page_preview": False
@@ -142,9 +149,13 @@ class SendingClass:
             {"text": "📊 eBay Check", "url": ebay_url},
             {"text": "🛍️ eBay Live", "url": ebay_live_url}
         ]
-        
-        return self.send_message(message, buttons=buttons)
 
+        result = self.send_message(message, buttons=buttons, is_whitelistChat=False)
+        
+        if is_whitelist == True:
+            return self.send_message(message, buttons=buttons, is_whitelistChat=True)
+        else:
+            return result
 
     def edit_message(self, message_id, text):
         url = f"{settings.TELEGRAM_API_URL.split('?')[0].replace('sendMessage', '')}editMessageText"
