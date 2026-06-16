@@ -14,7 +14,7 @@ class Settings:
     FILE_LOCATION = os.path.join(PERSISTENT_DIR, "ebayklein.db")
     
     TELEGRAM_API_URL = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={CHAT_ID}&parse_mode=HTML&"
-    TELEGRAM_API_WHITELIST_URL = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={CHAT_ID}&parse_mode=HTML&"
+    TELEGRAM_API_WHITELIST_URL = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={WHITELIST_CHAT_ID}&parse_mode=HTML&"
     LOGGING = os.environ.get("LOGGING") or logging.ERROR
     URL_BASE = "https://www.kleinanzeigen.de"
     OPEN_API_KEY = os.environ.get("OPEN_API_KEY") or "Your_OpenAI_Key"
