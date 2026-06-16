@@ -589,7 +589,6 @@ def get_all_post(db: Session, telegram_message=False):
 
             title_lower = item.title.lower()
             isWhitelistMatch =  [word for word in WHITELIST if word.lower() in title_lower]
-            isWhitelistMatch = True
             
             p = parse_price(item.price)
             
