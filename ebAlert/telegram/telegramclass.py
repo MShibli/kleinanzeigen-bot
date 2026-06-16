@@ -36,6 +36,7 @@ class SendingClass:
             url =f"{settings.TELEGRAM_API_WHITELIST_URL.split('?')[0].replace('sendMessage', '')}sendMessage"
 
         target_chat_id = settings.WHITELIST_CHAT_ID if is_whitelistChat else settings.CHAT_ID
+        print(f"target_chat_id {target_chat_id}: whitelist {is_whitelistChat}")
         
         if disable_notfication:
             payload = {
