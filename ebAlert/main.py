@@ -16,7 +16,29 @@ from datetime import datetime, timedelta
 from ebAlert.models.sqlmodel import EbayPost  # Importiere dein Modell
 from ebAlert.ebayscrapping.seller_helper import fetch_seller_info
 
-WHITELIST = ["bundle", "aufrüstkit", "5800x3d", "5700x3d", "3060", "3090", "4090", "4060ti", "4060 ti", "a2000", "a4000", "a5000", "rtx 6000"]
+WHITELIST = [
+    "bundle",
+    "aufrüstkit",
+    "5800x3d",
+    "5700x3d",
+    "3060",
+    "3090",
+    "4090",
+    "4060ti",
+    "4060 ti",
+    "4070 ti super",
+    "4070 super",
+    "4070 ti",
+    "4070ti",
+    "4080",
+    "4080 super",
+    "7900xtx",
+    "7900 xtx",
+    "a2000",
+    "a4000",
+    "a5000", 
+    "rtx 6000"
+]
 MINIMUM_SCORE = 60
 MINIMUM_MARGIN_EUR = 20
 MAX_ITEM_PRICE = 800
