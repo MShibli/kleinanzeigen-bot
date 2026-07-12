@@ -17,8 +17,6 @@ from ebAlert.models.sqlmodel import EbayPost  # Importiere dein Modell
 from ebAlert.ebayscrapping.seller_helper import fetch_seller_info
 
 WHITELIST = [
-    "bundle",
-    "aufrüstkit",
     "5800x3d",
     "5700x3d",
     "3060",
@@ -36,12 +34,15 @@ WHITELIST = [
     "5090",
     "7900xtx",
     "7900 xtx",
+    "7900xt",
+    "7900 xt",
     "rx 6800",
     "rx6800",
     "a2000",
     "a4000",
     "a5000", 
-    "rtx 6000"
+    "rtx 6000",
+    "blackwell"
 ]
 MINIMUM_SCORE = 60
 MINIMUM_MARGIN_EUR = 20
