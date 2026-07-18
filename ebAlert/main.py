@@ -48,7 +48,9 @@ P2_LIST = [
     "s23",
     "s24",
     "s25",
-    "ipad a16"
+    "ipad a16",
+    "iphone 14 pro",
+    "iphone 15"
 ]
 MINIMUM_SCORE = 60
 MINIMUM_MARGIN_EUR = 20
