@@ -78,7 +78,7 @@ class SendingClass:
                 time.sleep(2) # Kurze Pause vor dem nächsten Versuch
 
 
-       def send_message_p2(self, message, buttons=None, disable_notfication=False, is_whitelistChat=False):
+    def send_message_p2(self, message, buttons=None, disable_notfication=False, is_whitelistChat=False):
         """
         Sendet eine Nachricht mit optionalen Inline-Buttons via POST.
         """
