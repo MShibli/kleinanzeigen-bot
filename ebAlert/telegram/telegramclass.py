@@ -209,7 +209,7 @@ class SendingClass:
         else:
             return result
 
- def send_formated_message_p2(self, item_data, is_whitelist=False):
+    def send_formated_message_p2(self, item_data, is_whitelist=False):
         # FALL A: Das angereicherte Paket (Dictionary)
         if isinstance(item_data, dict) and "obj" in item_data:
             item = item_data["obj"]
