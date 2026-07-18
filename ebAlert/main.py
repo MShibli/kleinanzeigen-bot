@@ -774,7 +774,7 @@ def get_all_post(db: Session, telegram_message=False):
             info['margin_eur'] = expected_margin
             # ÜBERGABE DES GANZEN DICTS STATT NUR info["obj"]
             telegram.send_formated_message(info)
-            P2_Match =  [word for word in P2_LIST if word.lower() in info['obj'].title]
+            P2_Match =  [word for word in P2_LIST if word.lower() in info['obj'].title.lower()]
             if P2_Match:
                 telegram.send_formated_message_p2(info)   
                 
