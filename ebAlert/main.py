@@ -622,8 +622,7 @@ def get_all_post(db: Session, telegram_message=False):
 
             title_lower = item.title.lower()
             isWhitelistMatch =  [word for word in WHITELIST if word.lower() in title_lower]
-            P2_Match =  [word for word in P2_LIST if word.lower() in title_lower]
-            
+          
             p = parse_price(item.price)
             
             if not p or p <= 0:
@@ -668,9 +667,6 @@ def get_all_post(db: Session, telegram_message=False):
                     # Wichtig: Mit 'continue' springen wir zum nächsten Artikel in der Schleife.
                     # So wird für diesen Artikel kein eBay-Preis gesucht und kein GPT genutzt.
                     continue
-
-                if P2_Match:
-                    telegram.send_formated_message_p2(item, is_whitelist=True)   
 
                 potential_items.append({"id": item.id, "title": item.title, "item": item, "price": p, "seller_name": seller_info['seller_name'], "seller_agedays": seller_info['seller_age_days'], "date": item.date.strftime("%d.%m.%Y %H:%M") if hasattr(item.date, 'strftime') else str(item.date)})
         except Exception as e:
@@ -776,6 +772,10 @@ def get_all_post(db: Session, telegram_message=False):
             info['margin_eur'] = expected_margin
             # ÜBERGABE DES GANZEN DICTS STATT NUR info["obj"]
             telegram.send_formated_message(info)
+            P2_Match =  [word for word in P2_LIST if word.lower() in title_lower]
+            if P2_Match:
+                telegram.send_formated_message_p2(item)   
+                
             #telegram.send_formated_message(info["obj"])
             sleep(randint(0, 30) / 10)
         except Exception as e:
