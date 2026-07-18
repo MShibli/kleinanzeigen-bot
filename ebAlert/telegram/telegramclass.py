@@ -280,7 +280,7 @@ class SendingClass:
             {"text": "🛍️ eBay Live", "url": ebay_live_url}
         ]
 
-        return self.send_message_p2(message, buttons=buttons, is_whitelistChat=True)
+        return self.send_message_p2(message, buttons=buttons, is_whitelistChat=False)
     
     def edit_message(self, message_id, text):
         url = f"{settings.TELEGRAM_API_URL.split('?')[0].replace('sendMessage', '')}editMessageText"
