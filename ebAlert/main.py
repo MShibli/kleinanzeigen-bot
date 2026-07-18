@@ -103,6 +103,8 @@ DESC_BLACKLIST = [
     "ist gesplittert",
     "rückseite defekt",
     "haben risse",
+    "riss hinten",
+    "riss vorne",
     "bruch auf",
     "ist zersplittert",
     "rechts gesprungen",
