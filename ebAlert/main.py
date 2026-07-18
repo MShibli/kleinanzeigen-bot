@@ -669,7 +669,7 @@ def get_all_post(db: Session, telegram_message=False):
                     # So wird für diesen Artikel kein eBay-Preis gesucht und kein GPT genutzt.
                     continue
 
-                 if P2_Match:
+                if P2_Match:
                     telegram.send_formated_message_p2(item, is_whitelist=True)   
 
                 potential_items.append({"id": item.id, "title": item.title, "item": item, "price": p, "seller_name": seller_info['seller_name'], "seller_agedays": seller_info['seller_age_days'], "date": item.date.strftime("%d.%m.%Y %H:%M") if hasattr(item.date, 'strftime') else str(item.date)})
