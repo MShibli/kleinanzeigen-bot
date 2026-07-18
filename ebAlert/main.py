@@ -776,7 +776,7 @@ def get_all_post(db: Session, telegram_message=False):
             telegram.send_formated_message(info)
             P2_Match =  [word for word in P2_LIST if word.lower() in itemTitle]
             if P2_Match:
-                telegram.send_formated_message_p2(item)   
+                telegram.send_formated_message_p2(info)   
                 
             #telegram.send_formated_message(info["obj"])
             sleep(randint(0, 30) / 10)
