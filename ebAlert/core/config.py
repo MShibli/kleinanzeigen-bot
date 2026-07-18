@@ -17,7 +17,7 @@ class Settings:
     
     TELEGRAM_API_URL = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={CHAT_ID}&parse_mode=HTML&"
     TELEGRAM_API_WHITELIST_URL = f"https://api.telegram.org/bot{WHITELIST_TOKEN}/sendMessage?chat_id={CHAT_ID}&parse_mode=HTML&"
-    TELEGRAM_API_URL_P2 = f"https://api.telegram.org/bot{WHITELIST_TOKEN}/sendMessage?chat_id={CHAT_ID}&parse_mode=HTML&"
+    TELEGRAM_API_URL_P2 = f"https://api.telegram.org/bot{TOKEN_P2}/sendMessage?chat_id={CHAT_ID_P2}&parse_mode=HTML&"
     LOGGING = os.environ.get("LOGGING") or logging.ERROR
     URL_BASE = "https://www.kleinanzeigen.de"
     OPEN_API_KEY = os.environ.get("OPEN_API_KEY") or "Your_OpenAI_Key"
