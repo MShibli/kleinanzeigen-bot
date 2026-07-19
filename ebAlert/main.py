@@ -101,6 +101,8 @@ DESC_BLACKLIST = [
     "ist beschädigt",
     "muss getauscht werden",
     "ist gesplittert",
+    "einen riss",
+    "ein riss",
     "rückseite defekt",
     "haben risse",
     "riss hinten",
