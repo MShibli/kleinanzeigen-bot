@@ -103,6 +103,7 @@ DESC_BLACKLIST = [
     "ist gesplittert",
     "einen riss",
     "ein riss",
+    "kamera beschädigt",
     "rückseite defekt",
     "haben risse",
     "riss hinten",
