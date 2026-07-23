@@ -247,7 +247,7 @@ EXCLUDED_KEYWORDS = [
     "monitor halterung",
     "yamaha",
     "mikrofonarm",
-    "realp"",ower",
+    "realpower",
     "floppy",
     "mobistel",
     "icue link",
@@ -346,7 +346,7 @@ EXCLUDED_KEYWORDS = [
     "yealink",
     "htc",
     "amd fx",
-    "monitorarm"
+    "monitorarm",
     "a14",
     "a17",
     "mikrocontroller",
@@ -362,7 +362,7 @@ EXCLUDED_KEYWORDS = [
     "game capture",
     "fritzfon",
     "oldi",
-    "captian dma"
+    "captian dma",
     "oppo",
     "ericsson",
     "omen",
@@ -688,8 +688,19 @@ def get_all_post(db: Session, telegram_message=False):
         clean_queries = generate_search_queries_batch(potential_items)
     except Exception as e:
         print(f"❌ Fehler bei Batch-Query-Generierung: {e}")
+
+    # Sicherheitsnetz: Items, für die GPT keine Query geliefert hat (z.B. wegen eines
+    # API-Fehlers), werden sonst als "gesehen" markiert bleiben und nie mehr ausgewertet.
+    # Deshalb fallen sie hier mit dem Titel als Fallback-Query zurück, statt zu verschwinden.
+    covered_ids = {str(q['id']) for q in clean_queries}
+    for orig in potential_items:
+        if str(orig['id']) not in covered_ids:
+            print(f"⚠️ Keine GPT-Query für Item {orig['id']} - nutze Titel als Fallback-Query.")
+            clean_queries.append({'id': str(orig['id']), 'query': orig['title']})
+
+    if not clean_queries:
         return
-    
+
     # SCHRITT 4: Median-Preise & GPT-Vorbereitung
     batch_for_gpt = []
     item_map = {}  # Um später schnell auf das Item-Objekt per ID zuzugreifen
@@ -720,12 +731,32 @@ def get_all_post(db: Session, telegram_message=False):
             print(f"⚠️ Fehler bei Median-Check für {q_data.get('id')}: {e}")
     
     # SCHRITT 5: Großes Batch-Scoring (1 GPT Call für alle Items)
+    results = []
     try:
         results = evaluate_listings_batch(batch_for_gpt)
     except Exception as e:
         print(f"❌ Fehler bei Batch-Evaluation: {e}")
+
+    # Sicherheitsnetz: Items, für die GPT kein Ergebnis geliefert hat (Timeout, Fehler in
+    # einem einzelnen Chunk, ...), werden sonst stillschweigend verloren, da sie bereits als
+    # "gesehen" in der DB stehen. Stattdessen werten wir sie ohne GPT-Flags aus (reine
+    # Margin/Score-Berechnung), statt sie komplett zu verlieren.
+    covered_ids = {str(r.get('id')) for r in results}
+    for entry in batch_for_gpt:
+        if str(entry['id']) not in covered_ids:
+            print(f"⚠️ Kein GPT-Ergebnis für Item {entry['id']} - werte ohne GPT-Flags aus.")
+            results.append({
+                "id": entry['id'],
+                "bundle": False,
+                "obsolete": False,
+                "accessory_only": False,
+                "liquidity": "medium"
+            })
+
+    if not results:
         return
-        
+
+
     # SCHRITT 6: Finale Berechnung & Telegram
     for res in results:
         try:
@@ -832,7 +863,9 @@ def calculate_score(itemTitle, itemDescription, offer_price, ebay_median, gpt_fl
         score = 0
 
     # Score boosters-
-    if ([word for word in SCORE_BOOSTERS if word.lower() in itemTitle] or [word for word in SCORE_BOOSTERS if word.lower() in itemDescription]):
+    title_lower = (itemTitle or "").lower()
+    description_lower = (itemDescription or "").lower()
+    if ([word for word in SCORE_BOOSTERS if word.lower() in title_lower] or [word for word in SCORE_BOOSTERS if word.lower() in description_lower]):
         score += 30
 
     score = max(0, min(100, int(score)))
