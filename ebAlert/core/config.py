@@ -29,5 +29,10 @@ class Settings:
     SCRAPER_API_RENDER = (os.environ.get("SCRAPER_API_RENDER") or "true").lower() != "false"
     SCRAPER_API_PREMIUM = (os.environ.get("SCRAPER_API_PREMIUM") or "false").lower() == "true"
     SCRAPER_API_ULTRA_PREMIUM = (os.environ.get("SCRAPER_API_ULTRA_PREMIUM") or "false").lower() == "true"
+    # Testmodus: ScraperAPI wird aufgerufen und die Preise fürs Scoring genutzt,
+    # aber NICHT in ebay_price_cache.json geschrieben. Auf "true" setzen, solange
+    # du dir noch nicht sicher bist, dass der neue Scraper zuverlässig korrekte
+    # Preise liefert - so bleiben die bestehenden Cache-Werte unangetastet.
+    SCRAPER_API_CACHE_READONLY = (os.environ.get("SCRAPER_API_CACHE_READONLY") or "false").lower() == "true"
 
 settings = Settings()

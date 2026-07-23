@@ -3,6 +3,7 @@ import statistics
 import requests
 import json
 import os
+import shutil
 import time
 from urllib.parse import quote, urlencode
 
@@ -27,18 +28,31 @@ CACHE_VERSION = "v4"  # Ändere dies auf v3, v4 etc., wenn du die Logik anpasst
 
 # In deinen Funktionen nutzt du jetzt einfach CACHE_FILE
 def load_cache():
-    if os.path.exists(CACHE_FILE):
-        try:
-            with open(CACHE_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception as e:
-            print("ebay scrap load_cache Error:", e)
-            return {}
-
-    print("ebay scrap load_cache Error: Keine Cachedatei gefunden!")
-    return {}
+    """Gibt {} zurück, wenn (noch) keine Datei existiert, aber None, wenn die Datei
+    existiert und trotzdem nicht lesbar ist (z.B. beschädigt). Diese Unterscheidung
+    ist wichtig: {} darf gefahrlos später überschrieben werden, None NICHT - sonst
+    würde eine kaputte/nicht lesbare Datei beim nächsten save_cache() versehentlich
+    mit einem leeren Cache überschrieben und die gesamte Historie ginge verloren."""
+    if not os.path.exists(CACHE_FILE):
+        print("ebay scrap load_cache Error: Keine Cachedatei gefunden!")
+        return {}
+    try:
+        with open(CACHE_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"❌ ebay scrap load_cache Error: Cache-Datei beschädigt/nicht lesbar ({e}) - Datei bleibt unangetastet!")
+        return None
 
 def save_cache(cache_data):
+    # Backup der bisherigen Datei anlegen, bevor überschrieben wird - falls doch mal
+    # ein fehlerhafter Wert reingeschrieben wird, lässt sich der vorherige Stand
+    # wiederherstellen (einfach ebay_price_cache.json.bak zurückkopieren).
+    if os.path.exists(CACHE_FILE):
+        try:
+            shutil.copyfile(CACHE_FILE, CACHE_FILE + ".bak")
+        except Exception as e:
+            print(f"⚠️ Konnte kein Cache-Backup anlegen: {e}")
+
     print(f"💾 Speichere ebay scrap-Cache ({len(cache_data)} Einträge) in: {CACHE_FILE}")
     with open(CACHE_FILE, "w", encoding="utf-8") as f:
         json.dump(cache_data, f, indent=4)
@@ -107,6 +121,12 @@ def build_scraperapi_url(target_url: str) -> str:
 def get_ebay_median_price(query: str, offer_price: float):
     # 1. Cache laden und prüfen
     cache = load_cache()
+    # Wenn die Datei beschädigt war (None statt {}), arbeiten wir für diesen Lauf
+    # mit einem leeren Dict weiter, merken uns aber, dass NICHT gespeichert werden
+    # darf - sonst würden wir die (potenziell noch reparierbare) Datei überschreiben.
+    cache_is_writable = cache is not None
+    if cache is None:
+        cache = {}
     current_time = time.time()
 
     # Normalisiere die Query für den Cache-Key (Kleinschreibung, ohne unnötige Leerzeichen)
@@ -179,17 +199,26 @@ def get_ebay_median_price(query: str, offer_price: float):
         main_cluster_prices = sorted_buckets[0][1]
         market_median = round(statistics.median(main_cluster_prices), 2)
 
-        # Ergebnis in Cache speichern
-        cache[cache_key] = {
-            "price": market_median,
-            "timestamp": current_time,
-            "version": CACHE_VERSION
-        }
-        save_cache(cache)
-
         print(f"📊 Analyse für '{query}':")
         print(f"   - Gefundene Preise im Korridor: {len(all_prices)}")
-        print(f"   - Berechneter Marktwert: {market_median}€ (Neu gespeichert)")
+        print(f"   - Berechneter Marktwert: {market_median}€")
+
+        # Ergebnis in Cache speichern - außer wir befinden uns im Read-Only-Testmodus
+        # oder die Cache-Datei war beim Laden beschädigt. In beiden Fällen wird der
+        # frische Wert trotzdem für DIESEN Lauf zurückgegeben (Scoring profitiert
+        # sofort), nur eben nicht dauerhaft persistiert.
+        if not cache_is_writable:
+            print(f"   - ⚠️ NICHT gespeichert: Cache-Datei war beim Laden beschädigt.")
+        elif settings.SCRAPER_API_CACHE_READONLY:
+            print(f"   - 🔒 NICHT gespeichert: SCRAPER_API_CACHE_READONLY ist aktiv (Testmodus).")
+        else:
+            cache[cache_key] = {
+                "price": market_median,
+                "timestamp": current_time,
+                "version": CACHE_VERSION
+            }
+            save_cache(cache)
+            print(f"   - Gespeichert.")
 
         return market_median
 
