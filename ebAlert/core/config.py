@@ -22,17 +22,22 @@ class Settings:
     URL_BASE = "https://www.kleinanzeigen.de"
     OPEN_API_KEY = os.environ.get("OPEN_API_KEY") or "Your_OpenAI_Key"
 
-    # ScraperAPI (umgeht eBays Akamai Bot Manager bei der Preisrecherche).
+    # ZenRows (umgeht eBays mehrschichtige Bot-Abwehr bei der Preisrecherche).
     # Bewusst KEIN Platzhalter-Fallback: leerer String = "kein Key konfiguriert"
     # wird in ebay_market.py ausgewertet, um Live-Abfragen zu überspringen.
-    SCRAPER_API_KEY = os.environ.get("SCRAPER_API_KEY") or ""
-    SCRAPER_API_RENDER = (os.environ.get("SCRAPER_API_RENDER") or "true").lower() != "false"
-    SCRAPER_API_PREMIUM = (os.environ.get("SCRAPER_API_PREMIUM") or "false").lower() == "true"
-    SCRAPER_API_ULTRA_PREMIUM = (os.environ.get("SCRAPER_API_ULTRA_PREMIUM") or "false").lower() == "true"
-    # Testmodus: ScraperAPI wird aufgerufen und die Preise fürs Scoring genutzt,
-    # aber NICHT in ebay_price_cache.json geschrieben. Auf "true" setzen, solange
-    # du dir noch nicht sicher bist, dass der neue Scraper zuverlässig korrekte
-    # Preise liefert - so bleiben die bestehenden Cache-Werte unangetastet.
-    SCRAPER_API_CACHE_READONLY = (os.environ.get("SCRAPER_API_CACHE_READONLY") or "false").lower() == "true"
+    ZENROWS_API_KEY = os.environ.get("ZENROWS_API_KEY") or ""
+    ZENROWS_JS_RENDER = (os.environ.get("ZENROWS_JS_RENDER") or "true").lower() != "false"
+    ZENROWS_PREMIUM_PROXY = (os.environ.get("ZENROWS_PREMIUM_PROXY") or "true").lower() != "false"
+    ZENROWS_PROXY_COUNTRY = os.environ.get("ZENROWS_PROXY_COUNTRY") or "de"
+    # CSS-Selektor, auf den ZenRows vor der Rückgabe wartet - verhindert, dass die
+    # Seite abgegriffen wird, bevor die echten Suchergebnisse geladen sind (genau
+    # das Problem, das wir mit ScraperAPI hatten). "s-item" ist eBays langjährige
+    # Ergebnis-Listen-Klasse; falls eBay das Markup ändert, hier anpassen.
+    ZENROWS_WAIT_FOR = os.environ.get("ZENROWS_WAIT_FOR") or ".s-item"
+    # Testmodus: ZenRows wird aufgerufen und die Preise fürs Scoring genutzt, aber
+    # NICHT in ebay_price_cache.json geschrieben. Auf "true" setzen, solange du dir
+    # noch nicht sicher bist, dass der Scraper zuverlässig korrekte Preise liefert -
+    # so bleiben die bestehenden Cache-Werte unangetastet.
+    EBAY_PRICE_CACHE_READONLY = (os.environ.get("EBAY_PRICE_CACHE_READONLY") or "false").lower() == "true"
 
 settings = Settings()
