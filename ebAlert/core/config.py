@@ -22,4 +22,12 @@ class Settings:
     URL_BASE = "https://www.kleinanzeigen.de"
     OPEN_API_KEY = os.environ.get("OPEN_API_KEY") or "Your_OpenAI_Key"
 
+    # ScraperAPI (umgeht eBays Akamai Bot Manager bei der Preisrecherche).
+    # Bewusst KEIN Platzhalter-Fallback: leerer String = "kein Key konfiguriert"
+    # wird in ebay_market.py ausgewertet, um Live-Abfragen zu überspringen.
+    SCRAPER_API_KEY = os.environ.get("SCRAPER_API_KEY") or ""
+    SCRAPER_API_RENDER = (os.environ.get("SCRAPER_API_RENDER") or "true").lower() != "false"
+    SCRAPER_API_PREMIUM = (os.environ.get("SCRAPER_API_PREMIUM") or "false").lower() == "true"
+    SCRAPER_API_ULTRA_PREMIUM = (os.environ.get("SCRAPER_API_ULTRA_PREMIUM") or "false").lower() == "true"
+
 settings = Settings()

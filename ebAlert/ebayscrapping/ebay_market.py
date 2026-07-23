@@ -4,8 +4,11 @@ import requests
 import json
 import os
 import time
-from urllib.parse import quote
-from curl_cffi import requests as cur_requests
+from urllib.parse import quote, urlencode
+
+from ebAlert.core.config import settings
+
+SCRAPER_API_ENDPOINT = "https://api.scraperapi.com/"
 
 # --- CACHE KONFIGURATION ---
 # Prüft, ob CACHE_DIR in den Umgebungsvariablen existiert (Railway)
@@ -87,61 +90,73 @@ def build_refined_ebay_url(query: str):
     # Test mit: "iPhone 6s 16GB"
     # Ergebnis Modell-Teil: &Modell=Apple%2520iPhone%25206S
     return final_url
-    
+
+
+def build_scraperapi_url(target_url: str) -> str:
+    """Wrappt eine Ziel-URL für den Abruf über ScraperAPI (umgeht eBays Akamai Bot Manager)."""
+    params = {"api_key": settings.SCRAPER_API_KEY, "url": target_url}
+    if settings.SCRAPER_API_RENDER:
+        params["render"] = "true"
+    if settings.SCRAPER_API_ULTRA_PREMIUM:
+        params["ultra_premium"] = "true"
+    elif settings.SCRAPER_API_PREMIUM:
+        params["premium"] = "true"
+    return f"{SCRAPER_API_ENDPOINT}?{urlencode(params)}"
+
+
 def get_ebay_median_price(query: str, offer_price: float):
     # 1. Cache laden und prüfen
     cache = load_cache()
     current_time = time.time()
-    
+
     # Normalisiere die Query für den Cache-Key (Kleinschreibung, ohne unnötige Leerzeichen)
     cache_key = query.lower().strip()
 
-    if cache_key in cache:
-        entry = cache[cache_key]
-        if entry.get('version') == CACHE_VERSION:
-            if entry['price'] > 15:        
-                # Prüfen, ob der Eintrag noch nicht abgelaufen ist
-                #if current_time - entry['timestamp'] < CACHE_EXPIRY:
-                if True:
-                    print(f"📦 Cache-Hit für '{query}': {entry['price']}€ (Alter: {int((current_time - entry['timestamp'])/3600)}h)")
-                    return entry['price']
+    cached_entry = cache.get(cache_key)
+    has_usable_cache = (
+        cached_entry is not None
+        and cached_entry.get('version') == CACHE_VERSION
+        and cached_entry.get('price', 0) > 15
+    )
 
-        print(f"💾 Ebay scrap-Cache vorhanden ist aber abgelaufen! Aktuelles Datum: {current_time}, Entrydatum: {entry['timestamp']}")
+    # 1a. Frischer Cache-Treffer -> direkt verwenden, kein Request nötig
+    if has_usable_cache and current_time - cached_entry['timestamp'] < CACHE_EXPIRY:
+        print(f"📦 Cache-Hit für '{query}': {cached_entry['price']}€ (Alter: {int((current_time - cached_entry['timestamp'])/3600)}h)")
+        return cached_entry['price']
 
-    # 2. Wenn nicht im Cache oder abgelaufen -> Scrapen
-    #url = f"https://www.ebay.de/sch/i.html?_nkw={query.replace(' ', '+')}&LH_Sold=1&LH_Complete=1&_ipg=120"
-    url = build_refined_ebay_url(query.replace(' ', '+'))
-    print(f"💾 Ebay scrap-URL: {url}")
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-        "Accept-Language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Referer": "https://www.ebay.de/",
-        "Connection": "keep-alive",
-        "Upgrade-Insecure-Requests": "1"
-    }
-    
+    if has_usable_cache:
+        print(f"💾 Ebay scrap-Cache vorhanden ist aber abgelaufen! Aktuelles Datum: {current_time}, Entrydatum: {cached_entry['timestamp']}")
+
+    # 2. Kein ScraperAPI-Key konfiguriert -> Live-Abfrage würde ohnehin an eBays
+    # Akamai Bot Manager scheitern (403). Lieber einen abgelaufenen Cache-Wert
+    # weiterverwenden als eine Anzeige mangels Preisdaten komplett zu verpassen.
+    if not settings.SCRAPER_API_KEY:
+        if has_usable_cache:
+            print(f"⚠️ Kein SCRAPER_API_KEY konfiguriert - nutze abgelaufenen Cache-Wert für '{query}': {cached_entry['price']}€")
+            return cached_entry['price']
+        print(f"⚠️ Kein SCRAPER_API_KEY konfiguriert und kein Cache-Eintrag für '{query}' - Fallback auf 1000€ (Marge künstlich hoch, um die Anzeige nicht zu verpassen)")
+        return 1000
+
+    # 3. Live-Abfrage über ScraperAPI
+    target_url = build_refined_ebay_url(query.replace(' ', '+'))
+    request_url = build_scraperapi_url(target_url)
+    print(f"💾 Ebay scrap-URL (via ScraperAPI): {target_url}")
+
     try:
-        #Eigentlicher Request mit der Session
-        res = cur_requests.get(
-            url, 
-            impersonate="safari", # <--- Das ist der Gamechanger
-            timeout=15
-        )
-        
-        ##res = ebay_session.get(url, headers=headers, timeout=10)
-        
-        # Prüfen, ob eBay uns blockiert hat oder die Seite existiert
+        # render=true lässt ScraperAPI die Seite per Headless-Browser laden, damit
+        # Akamais JS-Challenge besteht wird. Das dauert entsprechend länger als ein
+        # normaler Request, daher der großzügige Timeout.
+        res = requests.get(request_url, timeout=70)
+
         if res.status_code != 200:
-            print(f"⚠️ eBay Fehler: Status {res.status_code} für '{query}', URL '{url}'")
-            return None
-       
+            print(f"⚠️ ScraperAPI Fehler: Status {res.status_code} für '{query}'")
+            raise RuntimeError(f"ScraperAPI Status {res.status_code}")
+
         all_prices = []
         min_gate = offer_price * 0.5
         max_gate = offer_price * 3.0
         raw_matches = re.findall(r"EUR\s?(\d+(?:\.\d+)?,\d{2})", res.text)
-        
+
         for p in raw_matches:
             val = float(p.replace('.', '').replace(',', '.'))
             if val <= 15:
@@ -151,7 +166,7 @@ def get_ebay_median_price(query: str, offer_price: float):
 
         if len(all_prices) < 3:
             print(f"⚠️ Zu wenige Preise im Korridor ({min_gate:.2f}€ - {max_gate:.2f}€) für '{query}' gefunden.")
-            return None
+            raise RuntimeError("zu wenige Preise im Korridor gefunden")
 
         # Clustering Logik
         bucket_size = 20 if offer_price < 150 else 50
@@ -164,20 +179,26 @@ def get_ebay_median_price(query: str, offer_price: float):
         main_cluster_prices = sorted_buckets[0][1]
         market_median = round(statistics.median(main_cluster_prices), 2)
 
-        # 3. Ergebnis in Cache speichern
+        # Ergebnis in Cache speichern
         cache[cache_key] = {
             "price": market_median,
             "timestamp": current_time,
             "version": CACHE_VERSION
         }
         save_cache(cache)
-        
+
         print(f"📊 Analyse für '{query}':")
         print(f"   - Gefundene Preise im Korridor: {len(all_prices)}")
         print(f"   - Berechneter Marktwert: {market_median}€ (Neu gespeichert)")
-        
+
         return market_median
 
     except Exception as e:
-        print(f"❌ Fehler: {e}")
-        return None
+        print(f"❌ Fehler bei ScraperAPI-Abfrage für '{query}': {e}")
+        # 4. Live-Abfrage fehlgeschlagen -> genau wie bei fehlendem Key: lieber einen
+        # abgelaufenen Cache-Wert nehmen als die Anzeige komplett zu verpassen.
+        if has_usable_cache:
+            print(f"↩️ Nutze abgelaufenen Cache-Wert für '{query}': {cached_entry['price']}€")
+            return cached_entry['price']
+        print(f"↩️ Kein Cache-Wert für '{query}' vorhanden - Fallback auf 1000€")
+        return 1000
