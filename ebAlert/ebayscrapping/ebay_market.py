@@ -9,7 +9,7 @@ from urllib.parse import quote, urlencode
 
 from ebAlert.core.config import settings
 
-SCRAPER_API_ENDPOINT = "https://api.scraperapi.com/"
+ZENROWS_ENDPOINT = "https://api.zenrows.com/v1/"
 
 # --- CACHE KONFIGURATION ---
 # Prüft, ob CACHE_DIR in den Umgebungsvariablen existiert (Railway)
@@ -106,16 +106,18 @@ def build_refined_ebay_url(query: str):
     return final_url
 
 
-def build_scraperapi_url(target_url: str) -> str:
-    """Wrappt eine Ziel-URL für den Abruf über ScraperAPI (umgeht eBays Akamai Bot Manager)."""
-    params = {"api_key": settings.SCRAPER_API_KEY, "url": target_url}
-    if settings.SCRAPER_API_RENDER:
-        params["render"] = "true"
-    if settings.SCRAPER_API_ULTRA_PREMIUM:
-        params["ultra_premium"] = "true"
-    elif settings.SCRAPER_API_PREMIUM:
-        params["premium"] = "true"
-    return f"{SCRAPER_API_ENDPOINT}?{urlencode(params)}"
+def build_zenrows_url(target_url: str) -> str:
+    """Wrappt eine Ziel-URL für den Abruf über ZenRows (umgeht eBays Bot-Abwehr)."""
+    params = {"apikey": settings.ZENROWS_API_KEY, "url": target_url}
+    if settings.ZENROWS_JS_RENDER:
+        params["js_render"] = "true"
+    if settings.ZENROWS_PREMIUM_PROXY:
+        params["premium_proxy"] = "true"
+    if settings.ZENROWS_PROXY_COUNTRY:
+        params["proxy_country"] = settings.ZENROWS_PROXY_COUNTRY
+    if settings.ZENROWS_WAIT_FOR:
+        params["wait_for"] = settings.ZENROWS_WAIT_FOR
+    return f"{ZENROWS_ENDPOINT}?{urlencode(params)}"
 
 
 def get_ebay_median_price(query: str, offer_price: float):
@@ -147,30 +149,30 @@ def get_ebay_median_price(query: str, offer_price: float):
     if has_usable_cache:
         print(f"💾 Ebay scrap-Cache vorhanden ist aber abgelaufen! Aktuelles Datum: {current_time}, Entrydatum: {cached_entry['timestamp']}")
 
-    # 2. Kein ScraperAPI-Key konfiguriert -> Live-Abfrage würde ohnehin an eBays
-    # Akamai Bot Manager scheitern (403). Lieber einen abgelaufenen Cache-Wert
-    # weiterverwenden als eine Anzeige mangels Preisdaten komplett zu verpassen.
-    if not settings.SCRAPER_API_KEY:
+    # 2. Kein ZenRows-Key konfiguriert -> Live-Abfrage würde ohnehin an eBays
+    # Bot-Abwehr scheitern. Lieber einen abgelaufenen Cache-Wert weiterverwenden
+    # als eine Anzeige mangels Preisdaten komplett zu verpassen.
+    if not settings.ZENROWS_API_KEY:
         if has_usable_cache:
-            print(f"⚠️ Kein SCRAPER_API_KEY konfiguriert - nutze abgelaufenen Cache-Wert für '{query}': {cached_entry['price']}€")
+            print(f"⚠️ Kein ZENROWS_API_KEY konfiguriert - nutze abgelaufenen Cache-Wert für '{query}': {cached_entry['price']}€")
             return cached_entry['price']
-        print(f"⚠️ Kein SCRAPER_API_KEY konfiguriert und kein Cache-Eintrag für '{query}' - Fallback auf 1000€ (Marge künstlich hoch, um die Anzeige nicht zu verpassen)")
+        print(f"⚠️ Kein ZENROWS_API_KEY konfiguriert und kein Cache-Eintrag für '{query}' - Fallback auf 1000€ (Marge künstlich hoch, um die Anzeige nicht zu verpassen)")
         return 1000
 
-    # 3. Live-Abfrage über ScraperAPI
+    # 3. Live-Abfrage über ZenRows
     target_url = build_refined_ebay_url(query.replace(' ', '+'))
-    request_url = build_scraperapi_url(target_url)
-    print(f"💾 Ebay scrap-URL (via ScraperAPI): {target_url}")
+    request_url = build_zenrows_url(target_url)
+    print(f"💾 Ebay scrap-URL (via ZenRows): {target_url}")
 
     try:
-        # render=true lässt ScraperAPI die Seite per Headless-Browser laden, damit
-        # Akamais JS-Challenge besteht wird. Das dauert entsprechend länger als ein
-        # normaler Request, daher der großzügige Timeout.
+        # js_render+premium_proxy lassen ZenRows die Seite per Headless-Browser über
+        # ein Residential-IP laden, damit eBays Bot-Abwehr besteht wird. Das dauert
+        # entsprechend länger als ein normaler Request, daher der großzügige Timeout.
         res = requests.get(request_url, timeout=70)
 
         if res.status_code != 200:
-            print(f"⚠️ ScraperAPI Fehler: Status {res.status_code} für '{query}'")
-            raise RuntimeError(f"ScraperAPI Status {res.status_code}")
+            print(f"⚠️ ZenRows Fehler: Status {res.status_code} für '{query}'")
+            raise RuntimeError(f"ZenRows Status {res.status_code}")
 
         all_prices = []
         min_gate = offer_price * 0.5
@@ -209,8 +211,8 @@ def get_ebay_median_price(query: str, offer_price: float):
         # sofort), nur eben nicht dauerhaft persistiert.
         if not cache_is_writable:
             print(f"   - ⚠️ NICHT gespeichert: Cache-Datei war beim Laden beschädigt.")
-        elif settings.SCRAPER_API_CACHE_READONLY:
-            print(f"   - 🔒 NICHT gespeichert: SCRAPER_API_CACHE_READONLY ist aktiv (Testmodus).")
+        elif settings.EBAY_PRICE_CACHE_READONLY:
+            print(f"   - 🔒 NICHT gespeichert: EBAY_PRICE_CACHE_READONLY ist aktiv (Testmodus).")
         else:
             cache[cache_key] = {
                 "price": market_median,
@@ -223,7 +225,7 @@ def get_ebay_median_price(query: str, offer_price: float):
         return market_median
 
     except Exception as e:
-        print(f"❌ Fehler bei ScraperAPI-Abfrage für '{query}': {e}")
+        print(f"❌ Fehler bei ZenRows-Abfrage für '{query}': {e}")
         # 4. Live-Abfrage fehlgeschlagen -> genau wie bei fehlendem Key: lieber einen
         # abgelaufenen Cache-Wert nehmen als die Anzeige komplett zu verpassen.
         if has_usable_cache:
