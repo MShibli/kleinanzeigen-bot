@@ -187,7 +187,7 @@ def get_ebay_median_price(query: str, offer_price: float):
             if min_gate <= val <= max_gate:
                 all_prices.append(val)
 
-        if len(all_prices) < 3:
+        if len(all_prices) < 2:
             print(f"⚠️ Zu wenige Preise im Korridor ({min_gate:.2f}€ - {max_gate:.2f}€) für '{query}' gefunden ({len(items)} Angebote insgesamt).")
             raise RuntimeError("zu wenige Preise im Korridor gefunden")
 
