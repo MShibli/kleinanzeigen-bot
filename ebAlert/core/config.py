@@ -22,22 +22,18 @@ class Settings:
     URL_BASE = "https://www.kleinanzeigen.de"
     OPEN_API_KEY = os.environ.get("OPEN_API_KEY") or "Your_OpenAI_Key"
 
-    # ZenRows (umgeht eBays mehrschichtige Bot-Abwehr bei der Preisrecherche).
+    # Offizielle eBay Browse API (ersetzt die gescheiterten Scraping-Versuche via
+    # ScraperAPI/ZenRows/Scrapfly/Oxylabs - eBay verlangt für die Sold/Completed-Suche
+    # nachweislich Captcha+Login, das lässt sich mit keinem Scraping-Dienst umgehen).
     # Bewusst KEIN Platzhalter-Fallback: leerer String = "kein Key konfiguriert"
     # wird in ebay_market.py ausgewertet, um Live-Abfragen zu überspringen.
-    ZENROWS_API_KEY = os.environ.get("ZENROWS_API_KEY") or ""
-    ZENROWS_JS_RENDER = (os.environ.get("ZENROWS_JS_RENDER") or "true").lower() != "false"
-    ZENROWS_PREMIUM_PROXY = (os.environ.get("ZENROWS_PREMIUM_PROXY") or "true").lower() != "false"
-    ZENROWS_PROXY_COUNTRY = os.environ.get("ZENROWS_PROXY_COUNTRY") or "de"
-    # CSS-Selektor, auf den ZenRows vor der Rückgabe wartet - verhindert, dass die
-    # Seite abgegriffen wird, bevor die echten Suchergebnisse geladen sind (genau
-    # das Problem, das wir mit ScraperAPI hatten). "s-item" ist eBays langjährige
-    # Ergebnis-Listen-Klasse; falls eBay das Markup ändert, hier anpassen.
-    ZENROWS_WAIT_FOR = os.environ.get("ZENROWS_WAIT_FOR") or ".s-item"
-    # Testmodus: ZenRows wird aufgerufen und die Preise fürs Scoring genutzt, aber
-    # NICHT in ebay_price_cache.json geschrieben. Auf "true" setzen, solange du dir
-    # noch nicht sicher bist, dass der Scraper zuverlässig korrekte Preise liefert -
-    # so bleiben die bestehenden Cache-Werte unangetastet.
+    EBAY_CLIENT_ID = os.environ.get("EBAY_CLIENT_ID") or ""
+    EBAY_CLIENT_SECRET = os.environ.get("EBAY_CLIENT_SECRET") or ""
+    EBAY_MARKETPLACE_ID = os.environ.get("EBAY_MARKETPLACE_ID") or "EBAY_DE"
+    # Testmodus: die eBay-API wird aufgerufen und die Preise fürs Scoring genutzt,
+    # aber NICHT in ebay_price_cache.json geschrieben. Auf "true" setzen, solange du
+    # dir noch nicht sicher bist, dass die Werte zuverlässig gut sind - so bleiben die
+    # bestehenden Cache-Werte unangetastet.
     EBAY_PRICE_CACHE_READONLY = (os.environ.get("EBAY_PRICE_CACHE_READONLY") or "false").lower() == "true"
 
 settings = Settings()

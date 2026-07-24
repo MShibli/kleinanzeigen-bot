@@ -1,15 +1,14 @@
-import re
 import statistics
 import requests
 import json
 import os
 import shutil
 import time
-from urllib.parse import quote, urlencode
 
 from ebAlert.core.config import settings
 
-ZENROWS_ENDPOINT = "https://api.zenrows.com/v1/"
+EBAY_OAUTH_URL = "https://api.ebay.com/identity/v1/oauth2/token"
+EBAY_BROWSE_SEARCH_URL = "https://api.ebay.com/buy/browse/v1/item_summary/search"
 
 # --- CACHE KONFIGURATION ---
 # Prüft, ob CACHE_DIR in den Umgebungsvariablen existiert (Railway)
@@ -66,58 +65,50 @@ def clear_cache():
             os.remove(path)
             print(f"🗑️ Cache gelöscht: {path}")
 
-def build_refined_ebay_url(query: str):
-    base_url = "https://www.ebay.de/sch/i.html"
-    
-    # 1. Query für die Textsuche säubern (GB bleibt hier drin)
-    # Macht aus "iPhone+6s+16GB" -> "iPhone 6s 16GB"
-    clean_query_for_nkw = query.replace("+", " ").strip()
-    
-    params = {
-        "_nkw": clean_query_for_nkw,
-        "LH_Sold": "1",
-        "LH_Complete": "1",
-        "_ipg": "120"
+# In-Memory-Cache für den OAuth-Token (Client-Credentials-Token ist ~2h gültig,
+# es lohnt sich nicht, ihn bei jeder Preisabfrage neu zu holen).
+_token_cache = {"access_token": None, "expires_at": 0}
+
+
+def get_ebay_oauth_token() -> str:
+    now = time.time()
+    # 60s Sicherheitsmarge vor dem tatsächlichen Ablauf
+    if _token_cache["access_token"] and now < _token_cache["expires_at"] - 60:
+        return _token_cache["access_token"]
+
+    res = requests.post(
+        EBAY_OAUTH_URL,
+        auth=(settings.EBAY_CLIENT_ID, settings.EBAY_CLIENT_SECRET),
+        data={
+            "grant_type": "client_credentials",
+            "scope": "https://api.ebay.com/oauth/api_scope",
+        },
+        timeout=15,
+    )
+    res.raise_for_status()
+    payload = res.json()
+    _token_cache["access_token"] = payload["access_token"]
+    _token_cache["expires_at"] = now + payload["expires_in"]
+    return _token_cache["access_token"]
+
+
+def search_ebay_listings(query: str) -> list:
+    """Liefert aktive eBay-Angebote (Buy-it-now-Angebotspreise, keine Verkaufspreise -
+    die Marketplace Insights API für echte Sold-Preise ist bei eBay separat beantragt)."""
+    token = get_ebay_oauth_token()
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "X-EBAY-C-MARKETPLACE-ID": settings.EBAY_MARKETPLACE_ID,
     }
-    
-    # 2. Modell-Filter (Spezialbehandlung für iPhone)
-    ebay_filter = ""
-    if "iphone" in clean_query_for_nkw.lower():
-        # Modell-Name extrahieren (ohne Apple/iPhone/GB)
-        model_part = clean_query_for_nkw.lower().replace("apple", "").replace("iphone", "")
-        # Entferne Speicherangaben wie 16GB, 64 GB etc.
-        model_part = re.sub(r"\d+\s?(gb|tb|mb)", "", model_part, flags=re.IGNORECASE).strip()
-        
-        # Formatierung: Apple iPhone [Modell]
-        # Wir nutzen .title() und korrigieren danach das "iPhone"
-        full_model = f"Apple iPhone {model_part.title()}".replace("Iphone", "iPhone").strip()
-        
-        # ERZWINGEN von %2520:
-        # quote() macht Leerzeichen zu %20. Wir ersetzen %20 durch %2520.
-        encoded_model = quote(full_model).replace("%20", "%2520")
-        ebay_filter = f"&Modell={encoded_model}"
-
-    # 3. URL zusammenbauen
-    # Für _nkw nutzen wir das Standard-Verfahren (Leerzeichen zu +)
-    query_string = "&".join([f"{k}={quote(v).replace('%20', '+')}" for k, v in params.items()])
-    final_url = f"{base_url}?{query_string}{ebay_filter}"
-    # Test mit: "iPhone 6s 16GB"
-    # Ergebnis Modell-Teil: &Modell=Apple%2520iPhone%25206S
-    return final_url
-
-
-def build_zenrows_url(target_url: str) -> str:
-    """Wrappt eine Ziel-URL für den Abruf über ZenRows (umgeht eBays Bot-Abwehr)."""
-    params = {"apikey": settings.ZENROWS_API_KEY, "url": target_url}
-    if settings.ZENROWS_JS_RENDER:
-        params["js_render"] = "true"
-    if settings.ZENROWS_PREMIUM_PROXY:
-        params["premium_proxy"] = "true"
-    if settings.ZENROWS_PROXY_COUNTRY:
-        params["proxy_country"] = settings.ZENROWS_PROXY_COUNTRY
-    if settings.ZENROWS_WAIT_FOR:
-        params["wait_for"] = settings.ZENROWS_WAIT_FOR
-    return f"{ZENROWS_ENDPOINT}?{urlencode(params)}"
+    res = requests.get(
+        EBAY_BROWSE_SEARCH_URL,
+        headers=headers,
+        params={"q": query, "limit": 50},
+        timeout=20,
+    )
+    if res.status_code != 200:
+        raise RuntimeError(f"eBay Browse API Status {res.status_code}: {res.text[:300]}")
+    return res.json().get("itemSummaries", [])
 
 
 def get_ebay_median_price(query: str, offer_price: float):
@@ -149,45 +140,40 @@ def get_ebay_median_price(query: str, offer_price: float):
     if has_usable_cache:
         print(f"💾 Ebay scrap-Cache vorhanden ist aber abgelaufen! Aktuelles Datum: {current_time}, Entrydatum: {cached_entry['timestamp']}")
 
-    # 2. Kein ZenRows-Key konfiguriert -> Live-Abfrage würde ohnehin an eBays
-    # Bot-Abwehr scheitern. Lieber einen abgelaufenen Cache-Wert weiterverwenden
-    # als eine Anzeige mangels Preisdaten komplett zu verpassen.
-    if not settings.ZENROWS_API_KEY:
+    # 2. Kein eBay-API-Key konfiguriert -> Live-Abfrage überspringen. Lieber einen
+    # abgelaufenen Cache-Wert weiterverwenden als eine Anzeige mangels Preisdaten
+    # komplett zu verpassen.
+    if not settings.EBAY_CLIENT_ID or not settings.EBAY_CLIENT_SECRET:
         if has_usable_cache:
-            print(f"⚠️ Kein ZENROWS_API_KEY konfiguriert - nutze abgelaufenen Cache-Wert für '{query}': {cached_entry['price']}€")
+            print(f"⚠️ Kein EBAY_CLIENT_ID/EBAY_CLIENT_SECRET konfiguriert - nutze abgelaufenen Cache-Wert für '{query}': {cached_entry['price']}€")
             return cached_entry['price']
-        print(f"⚠️ Kein ZENROWS_API_KEY konfiguriert und kein Cache-Eintrag für '{query}' - Fallback auf 1000€ (Marge künstlich hoch, um die Anzeige nicht zu verpassen)")
+        print(f"⚠️ Kein EBAY_CLIENT_ID/EBAY_CLIENT_SECRET konfiguriert und kein Cache-Eintrag für '{query}' - Fallback auf 1000€ (Marge künstlich hoch, um die Anzeige nicht zu verpassen)")
         return 1000
 
-    # 3. Live-Abfrage über ZenRows
-    target_url = build_refined_ebay_url(query.replace(' ', '+'))
-    request_url = build_zenrows_url(target_url)
-    print(f"💾 Ebay scrap-URL (via ZenRows): {target_url}")
+    # 3. Live-Abfrage über die offizielle eBay Browse API
+    print(f"💾 Ebay Browse API Suche: '{query}'")
 
     try:
-        # js_render+premium_proxy lassen ZenRows die Seite per Headless-Browser über
-        # ein Residential-IP laden, damit eBays Bot-Abwehr besteht wird. Das dauert
-        # entsprechend länger als ein normaler Request, daher der großzügige Timeout.
-        res = requests.get(request_url, timeout=70)
-
-        if res.status_code != 200:
-            print(f"⚠️ ZenRows Fehler: Status {res.status_code} für '{query}'")
-            raise RuntimeError(f"ZenRows Status {res.status_code}")
+        items = search_ebay_listings(query)
 
         all_prices = []
         min_gate = offer_price * 0.5
         max_gate = offer_price * 3.0
-        raw_matches = re.findall(r"EUR\s?(\d+(?:\.\d+)?,\d{2})", res.text)
-
-        for p in raw_matches:
-            val = float(p.replace('.', '').replace(',', '.'))
+        for item in items:
+            price_info = item.get("price")
+            if not price_info or price_info.get("currency") != "EUR":
+                continue
+            try:
+                val = float(price_info["value"])
+            except (KeyError, TypeError, ValueError):
+                continue
             if val <= 15:
                 continue
             if min_gate <= val <= max_gate:
                 all_prices.append(val)
 
         if len(all_prices) < 3:
-            print(f"⚠️ Zu wenige Preise im Korridor ({min_gate:.2f}€ - {max_gate:.2f}€) für '{query}' gefunden.")
+            print(f"⚠️ Zu wenige Preise im Korridor ({min_gate:.2f}€ - {max_gate:.2f}€) für '{query}' gefunden ({len(items)} Angebote insgesamt).")
             raise RuntimeError("zu wenige Preise im Korridor gefunden")
 
         # Clustering Logik
@@ -225,7 +211,7 @@ def get_ebay_median_price(query: str, offer_price: float):
         return market_median
 
     except Exception as e:
-        print(f"❌ Fehler bei ZenRows-Abfrage für '{query}': {e}")
+        print(f"❌ Fehler bei eBay Browse API-Abfrage für '{query}': {e}")
         # 4. Live-Abfrage fehlgeschlagen -> genau wie bei fehlendem Key: lieber einen
         # abgelaufenen Cache-Wert nehmen als die Anzeige komplett zu verpassen.
         if has_usable_cache:
