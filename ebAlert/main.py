@@ -63,9 +63,10 @@ NONE_PRICE = 50
 # dem tatsächlich erzielten Verkaufspreis. Dieser Faktor deckt sowohl eBay/PayPal-
 # Gebühren (~8%) als auch diese Angebots-vs-Verkauf-Lücke ab.
 # Grober Schätzwert - mit echten Ergebnissen (was Items tatsächlich verkauft haben)
-# nachjustieren. 0.82 war der erste Schätzwert; nochmal um weitere 10% gesenkt, da
-# die Werte in der Praxis immer noch zu hoch wirkten.
-EBAY_ASKING_TO_SALE_FACTOR = 0.82 * 0.9  # = 0.738
+# nachjustieren. Verlauf: 0.92 (Erstwert) -> 0.738 -> 0.6642 (jeweils -10%, da die
+# Werte in der Praxis immer noch zu hoch wirkten). Kumulativ ca. -34% ggü. dem rohen
+# eBay-Median - bei weiteren Anpassungen im Blick behalten, nicht überkorrigieren.
+EBAY_ASKING_TO_SALE_FACTOR = 0.82 * 0.9 * 0.9  # = 0.6642
 SCORE_BOOSTERS = [
     "ddr4 64gb",
     "64gb ddr4",
