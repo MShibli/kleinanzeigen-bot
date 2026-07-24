@@ -61,10 +61,11 @@ NONE_PRICE = 50
 # verlangen), kein bestätigter Verkaufspreis - eBay's Sold-Preis-API ist separat
 # beantragt, aber noch nicht freigeschaltet. Angebotspreise liegen typischerweise über
 # dem tatsächlich erzielten Verkaufspreis. Dieser Faktor deckt sowohl eBay/PayPal-
-# Gebühren (~8%) als auch diese Angebots-vs-Verkauf-Lücke (~10%) pauschal ab.
+# Gebühren (~8%) als auch diese Angebots-vs-Verkauf-Lücke ab.
 # Grober Schätzwert - mit echten Ergebnissen (was Items tatsächlich verkauft haben)
-# nachjustieren.
-EBAY_ASKING_TO_SALE_FACTOR = 0.82
+# nachjustieren. 0.82 war der erste Schätzwert; nochmal um weitere 10% gesenkt, da
+# die Werte in der Praxis immer noch zu hoch wirkten.
+EBAY_ASKING_TO_SALE_FACTOR = 0.82 * 0.9  # = 0.738
 SCORE_BOOSTERS = [
     "ddr4 64gb",
     "64gb ddr4",
