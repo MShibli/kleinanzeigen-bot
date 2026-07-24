@@ -39,10 +39,19 @@ def load_cache():
         return {}
     try:
         with open(CACHE_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
+            raw = json.load(f)
     except Exception as e:
         print(f"❌ ebay scrap load_cache Error: Cache-Datei beschädigt/nicht lesbar ({e}) - Datei bleibt unangetastet!")
         return None
+
+    # Einträge mit abweichender CACHE_VERSION aussortieren - die werden wegen des
+    # Versions-Checks in get_ebay_median_price ohnehin nie wieder benutzt, würden aber
+    # bei jedem Speichern unnötig mitgeschrieben (Datei wird über Zeit immer größer).
+    filtered = {k: v for k, v in raw.items() if isinstance(v, dict) and v.get("version") == CACHE_VERSION}
+    dropped = len(raw) - len(filtered)
+    if dropped:
+        print(f"🧹 {dropped} veraltete Cache-Einträge (andere Version) beim Laden verworfen.")
+    return filtered
 
 def save_cache(cache_data):
     # Backup der bisherigen Datei anlegen, bevor überschrieben wird - falls doch mal
