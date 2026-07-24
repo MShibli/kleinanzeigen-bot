@@ -55,7 +55,7 @@ P2_LIST = [
 MINIMUM_SCORE = 60
 MINIMUM_MARGIN_EUR = 35
 MAX_ITEM_PRICE = 800
-MIN_ITEM_PRICE = 30
+MIN_ITEM_PRICE = 60
 NONE_PRICE = 50
 # ebay_median kommt aus der eBay Browse API und ist ein Angebotspreis (was Verkäufer
 # verlangen), kein bestätigter Verkaufspreis - eBay's Sold-Preis-API ist separat
@@ -99,7 +99,8 @@ TITLE_BLACKLIST = [
     "ecc",
     "blackberry",
     "hp",
-    "vergessen"
+    "vergessen",
+    "zte"
 ]
 DESC_BLACKLIST = [
     "ist zersprungen",
