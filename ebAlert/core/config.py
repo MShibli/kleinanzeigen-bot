@@ -30,6 +30,11 @@ class Settings:
     EBAY_CLIENT_ID = os.environ.get("EBAY_CLIENT_ID") or ""
     EBAY_CLIENT_SECRET = os.environ.get("EBAY_CLIENT_SECRET") or ""
     EBAY_MARKETPLACE_ID = os.environ.get("EBAY_MARKETPLACE_ID") or "EBAY_DE"
+    # Zustands-Filter: 3000-6000 = gebrauchte Abstufungen (excellent/very good/good/
+    # acceptable). Bewusst OHNE 1000/1500 (Neu), 2000/2500 (Refurbished - Händler-
+    # Aufpreis) und 7000 (defekt/Ersatzteile) - diese verzerren den Median sonst nach
+    # oben bzw. unten weg vom realistischen Preis eines gebrauchten Privatverkaufs.
+    EBAY_CONDITION_IDS = os.environ.get("EBAY_CONDITION_IDS") or "3000|4000|5000|6000"
     # Testmodus: die eBay-API wird aufgerufen und die Preise fürs Scoring genutzt,
     # aber NICHT in ebay_price_cache.json geschrieben. Auf "true" setzen, solange du
     # dir noch nicht sicher bist, dass die Werte zuverlässig gut sind - so bleiben die
