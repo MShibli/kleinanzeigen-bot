@@ -57,6 +57,14 @@ MINIMUM_MARGIN_EUR = 20
 MAX_ITEM_PRICE = 800
 MIN_ITEM_PRICE = 30
 NONE_PRICE = 50
+# ebay_median kommt aus der eBay Browse API und ist ein Angebotspreis (was Verkäufer
+# verlangen), kein bestätigter Verkaufspreis - eBay's Sold-Preis-API ist separat
+# beantragt, aber noch nicht freigeschaltet. Angebotspreise liegen typischerweise über
+# dem tatsächlich erzielten Verkaufspreis. Dieser Faktor deckt sowohl eBay/PayPal-
+# Gebühren (~8%) als auch diese Angebots-vs-Verkauf-Lücke (~10%) pauschal ab.
+# Grober Schätzwert - mit echten Ergebnissen (was Items tatsächlich verkauft haben)
+# nachjustieren.
+EBAY_ASKING_TO_SALE_FACTOR = 0.82
 SCORE_BOOSTERS = [
     "ddr4 64gb",
     "64gb ddr4",
@@ -559,7 +567,8 @@ def start():
 @click.option("-a", "--add_url", 'url', metavar='<URL>', help="Add URL to database and fetch posts.")
 @click.option("-i", "--init", is_flag=True, help="Initialise database after clearing.")
 @click.option("-s", "--show", is_flag=True, help="Show all urls and corresponding id.")
-def links(show, remove, clear, url, init):
+@click.option("--sync", 'sync_urls', multiple=True, metavar="<URL>", help="Sync database to contain exactly these URLs (repeat for multiple) - adds missing ones, removes everything else.")
+def links(show, remove, clear, url, init, sync_urls):
     """
     cli related to the links. Add, remove, clear, init and show
     """
@@ -589,8 +598,29 @@ def links(show, remove, clear, url, init):
             else:
                 crud_link.create({"link": url}, db)
                 ebay_items = ebayclass.EbayItemFactory(url)
-                crud_post.add_items_to_db(db, ebay_items.item_list)
+                crud_post.add_items_to_db(items=ebay_items.item_list, db=db)
                 print("<< Link and post added to the database")
+        elif sync_urls:
+            print(">> Syncing links")
+            wanted = set(sync_urls)
+            existing_links = crud_link.get_all(db) or []
+
+            for link_model in existing_links:
+                if link_model.link not in wanted:
+                    crud_link.remove(db=db, id=link_model.id)
+                    print(f"<< Entfernt (nicht mehr in start.sh): {link_model.link}")
+
+            existing_urls = {link_model.link for link_model in existing_links}
+            for new_url in wanted:
+                if new_url not in existing_urls:
+                    crud_link.create({"link": new_url}, db)
+                    try:
+                        ebay_items = ebayclass.EbayItemFactory(new_url)
+                        crud_post.add_items_to_db(items=ebay_items.item_list, db=db)
+                    except Exception as e:
+                        print(f"⚠️ Konnte Items für neuen Link nicht laden: {e}")
+                    print(f"<< Hinzugefügt: {new_url}")
+            print("<< Sync abgeschlossen")
         elif init:
             print(">> Initializing database")
             get_all_post(db)
@@ -849,7 +879,7 @@ def parse_price(raw_price) -> float | None:
 
 
 def calculate_score(itemTitle, itemDescription, offer_price, ebay_median, gpt_flags):
-    net_sale = ebay_median * 0.92
+    net_sale = ebay_median * EBAY_ASKING_TO_SALE_FACTOR
     target_buy = offer_price * 0.88
     margin_eur = net_sale - target_buy
     margin_pct = margin_eur / target_buy if target_buy else -1

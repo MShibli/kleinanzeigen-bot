@@ -100,10 +100,14 @@ def search_ebay_listings(query: str) -> list:
         "Authorization": f"Bearer {token}",
         "X-EBAY-C-MARKETPLACE-ID": settings.EBAY_MARKETPLACE_ID,
     }
+    params = {"q": query, "limit": 50}
+    if settings.EBAY_CONDITION_IDS:
+        params["filter"] = f"conditionIds:{{{settings.EBAY_CONDITION_IDS}}}"
+
     res = requests.get(
         EBAY_BROWSE_SEARCH_URL,
         headers=headers,
-        params={"q": query, "limit": 50},
+        params=params,
         timeout=20,
     )
     if res.status_code != 200:
