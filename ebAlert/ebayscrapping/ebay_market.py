@@ -23,7 +23,9 @@ if CACHE_DIR != "." and not os.path.exists(CACHE_DIR):
 # 8 Wochen in Sekunden: 8 * 7 * 24 * 60 * 60
 CACHE_EXPIRY = 4838400
 
-CACHE_VERSION = "v4"  # Ändere dies auf v3, v4 etc., wenn du die Logik anpasst
+CACHE_VERSION = "v5"  # v5: Umstellung von Scraping auf die offizielle eBay Browse API
+# (Angebotspreis statt versuchtem Verkaufspreis, mit Zustandsfilter) - alte v4-Einträge
+# sind ein anderes Preissignal und sollen nicht mehr als Fallback verwendet werden.
 
 # In deinen Funktionen nutzt du jetzt einfach CACHE_FILE
 def load_cache():
